@@ -25,7 +25,14 @@ rocker {
 	main {
 		templateDir = file('src/main/resources')
 		outputDir = file('build/generated-src/rocker')
-		classDir = file('build/classes/')
+	}
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir "${buildDir.absolutePath}/generated-src/rocker"
+		}
 	}
 }
 
