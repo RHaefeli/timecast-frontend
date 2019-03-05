@@ -23,9 +23,9 @@ dependencies {
 
 rocker {
 	main {
-		templateDir = file('src/main/resources/templates/')
-		outputDir = file('src/generated/templates')
-		optimize = true  // optional
+		templateDir = file('src/main/resources')
+		outputDir = file('build/generated-src/rocker')
+		classDir = file('build/classes/')
 	}
 }
 
