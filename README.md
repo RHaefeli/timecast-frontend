@@ -1,5 +1,5 @@
 
-**Timecast Frontend Setup**
+## Timecast Frontend Setup
 
 Technologies used in this project:
 * Gradle
@@ -23,3 +23,8 @@ Compile Code using the Gradle Task
 Both Gradle Tasks will also be done when starting the SpringBoot application using the Gradle Task
 <br>
 ```gradlew bootRun```
+
+___
+
+## References
+* [Rocker Syntax](https://github.com/fizzed/rocker/blob/master/docs/SYNTAX.md)
