@@ -28,3 +28,4 @@ Both Gradle Tasks will also be done when starting the SpringBoot application usi
 
 ## References
 * [Rocker Syntax](https://github.com/fizzed/rocker/blob/master/docs/SYNTAX.md)
+* [Spring MVC](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-spring-mvc)
