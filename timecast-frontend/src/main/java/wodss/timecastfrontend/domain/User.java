@@ -9,6 +9,7 @@ public class User {
     private int employment;
     private List<Project> projectList;
 
+    /*
     public User(String name, String firstName, Role role, int employment, List<Project> projectList) {
         this.name = name;
         this.firstName = firstName;
@@ -16,11 +17,11 @@ public class User {
         this.employment = employment;
         this.projectList = projectList;
     }
+    */
 
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -28,7 +29,6 @@ public class User {
     public String getFirstName() {
         return firstName;
     }
-
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
@@ -36,7 +36,6 @@ public class User {
     public Role getRole() {
         return role;
     }
-
     public void setRole(Role role) {
         this.role = role;
     }
@@ -44,7 +43,6 @@ public class User {
     public int getEmployment() {
         return employment;
     }
-
     public void setEmployment(int employment) {
         this.employment = employment;
     }
@@ -52,7 +50,6 @@ public class User {
     public List<Project> getProjectList() {
         return projectList;
     }
-
     public void setProjectList(List<Project> projectList) {
         this.projectList = projectList;
     }

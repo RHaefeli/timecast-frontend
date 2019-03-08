@@ -1,0 +1,13 @@
+@import wodss.timecastfrontend.domain.User
+
+@args (User user)
+
+@templates.Layout.template("Add User", RockerContent.NONE, RockerContent.NONE) -> {
+    <div>
+        <form action="/users" method="post">
+            <label for="name">Name</label>
+            <input type="text" id="name" value=""/>
+            <button type="submit">Add</button>
+        </form>
+    </div>
+}

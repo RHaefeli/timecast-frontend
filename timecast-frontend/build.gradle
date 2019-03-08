@@ -25,12 +25,14 @@ rocker {
 	main {
 		templateDir = file('src/main/resources')
 		outputDir = file('build/generated-src/rocker')
+		// optimize = true // activate to disable hot-reloading
 	}
 }
 
 sourceSets {
 	main {
 		java {
+			// used that the IDE can recognize generated rocker templates
 			srcDir "${buildDir.absolutePath}/generated-src/rocker"
 		}
 	}

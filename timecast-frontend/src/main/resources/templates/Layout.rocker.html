@@ -1,0 +1,18 @@
+@*
+Put the RockerBody at the end of args list
+*@
+@args (String title, RockerContent extracss, RockerContent extrajs, RockerBody body)
+
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Timecast - @title</title>
+    @extracss
+    @extrajs
+</head>
+<body>
+    @templates.Header.template()
+    @body
+    @templates.Footer.template()
+</body>
+</html>
