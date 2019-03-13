@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="maincontent(content, title, links)">
+
+<head>
+    <title th:text="'Timecast - ' + ${title}"></title>
+    <!-- Bootstrap styles -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+          crossorigin="anonymous">
+    <!-- Application styles -->
+    <link rel="stylesheet" th:href="@{/css/app.css}" />
+    <th:block th:replace="${links}" />
+</head>
+
+<body>
+<div class="container-fluid">
+    <div th:replace="header :: header"></div>
+    <div th:replace="${content}"></div>
+    <div th:replace="footer :: footer"></div>
+</div>
+</body>
+
+</html>
