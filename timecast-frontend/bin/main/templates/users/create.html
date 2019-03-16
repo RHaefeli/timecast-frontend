@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html th:replace="layout :: maincontent(content=~{::section}, title='Create User', links=~{})">
+
+<head>
+    <!-- Put additional style links here -->
+</head>
+
+<body>
+<section style="width: 60%; margin-left: 10em">
+    <form th:action="@{/users}" th:object="${user}" method="post">
+        <label class="col-md-2" for="name">Name</label>
+        <input type="text" id="name"/>
+    </form>
+</section>
+</body>
+
+</html>
