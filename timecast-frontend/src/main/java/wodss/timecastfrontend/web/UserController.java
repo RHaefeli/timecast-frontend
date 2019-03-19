@@ -25,19 +25,20 @@ public class UserController {
 
     @GetMapping()
     public String getAll() {
+        logger.debug("Get all users");
         return "users/list";
     }
 
     @GetMapping(params = "form")
     public String createForm(Model model) {
-        logger.debug("Get create form");
+        logger.debug("Get create user form");
         model.addAttribute("user", new User());
         return "users/create";
     }
 
     @PostMapping
     public String create(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model) {
-        logger.debug("Create: " + user);
+        logger.debug("Create user: " + user);
         if (bindingResult.hasErrors()) {
             logger.debug("Binding error: " + bindingResult.getAllErrors());
             return "users/create";
@@ -55,7 +56,7 @@ public class UserController {
     public String updateById(@PathVariable Long id) {
         // TODO: pass form
         // TODO: show list or users?
-        return null;
+        return "users/update";
     }
 
     @DeleteMapping("/{id}")
