@@ -19,7 +19,9 @@ Run the application with
 <br>
 
 Configurations (Port, Logging, etc.) can be found in the File<br>
-``` src / main / resources / ```**``` application.properties ```**
+``` src / main / resources / ```**``` template.application.properties ```**
+Copy that file, remove the prefix **```template.```** and configure the properties.
+* Set the API URL
 
 <br>
 
