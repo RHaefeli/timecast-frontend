@@ -18,8 +18,8 @@ Run the application with
 
 <br>
 
-Configurations (Port, Logging, etc.) can be found in the File<br>
-``` src / main / resources / ```**``` template.application.properties ```**
+Configurations (API, Port, Logging, etc.) can be found in the File<br>
+``` src / main / resources / ```**``` template.application.properties ```**<br>
 Copy that file, remove the prefix **```template.```** and configure the properties.
 * Set the API URL
 
