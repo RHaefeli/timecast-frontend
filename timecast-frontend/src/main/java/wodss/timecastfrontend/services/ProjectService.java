@@ -16,8 +16,13 @@ public class ProjectService {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	
+	
+	private final RestTemplate restTemplate;
+	
 	@Autowired
-	private RestTemplate restTemplate;
+	public ProjectService(RestTemplate restTemplate) {
+		this.restTemplate = restTemplate;
+	}
 	
 	public List<Project> getProjects() {
 		throw new UnsupportedOperationException();
