@@ -1,7 +1,8 @@
 package wodss.timecastfrontend.web;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -10,11 +11,11 @@ import wodss.timecastfrontend.domain.User;
 import wodss.timecastfrontend.services.UserService;
 
 import javax.validation.Valid;
-import java.util.Map;
 
 @Controller
 @RequestMapping(value="/users")
 public class UserController {
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
     private final UserService userService;
 
     @Autowired
@@ -24,20 +25,26 @@ public class UserController {
 
     @GetMapping()
     public String getAll() {
-        return null;
+        logger.debug("Get all users");
+        return "users/list";
     }
 
     @GetMapping(params = "form")
     public String createForm(Model model) {
+        logger.debug("Get create user form");
         model.addAttribute("user", new User());
         return "users/create";
     }
 
     @PostMapping
     public String create(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model) {
-        // TODO: pass form
-        // TODO: redirect
-        return "users/create";
+        logger.debug("Create user: " + user);
+        if (bindingResult.hasErrors()) {
+            logger.debug("Binding error: " + bindingResult.getAllErrors());
+            return "users/create";
+        }
+        // userService.save(user);
+        return "redirect:/users";
     }
 
     @GetMapping("/{id}")
@@ -49,7 +56,7 @@ public class UserController {
     public String updateById(@PathVariable Long id) {
         // TODO: pass form
         // TODO: show list or users?
-        return null;
+        return "users/update";
     }
 
     @DeleteMapping("/{id}")
