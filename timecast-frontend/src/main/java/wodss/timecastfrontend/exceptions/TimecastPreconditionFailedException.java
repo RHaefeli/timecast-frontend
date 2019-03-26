@@ -1,4 +1,7 @@
 package wodss.timecastfrontend.exceptions;
 
-public class TimecastPreconditionFailedException {
+public class TimecastPreconditionFailedException extends Exception{
+	public TimecastPreconditionFailedException(String errorMessage) {
+		super(errorMessage);
+	}
 }

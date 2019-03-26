@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,18 +29,23 @@ import org.springframework.web.client.RestTemplate;
 
 import org.junit.Assert;
 import wodss.timecastfrontend.domain.Project;
+import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
+import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
+import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
+import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 
 @RunWith(SpringRunner.class)
 public class ProjectServiceTests {
 	
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	
 	@Mock
 	private RestTemplate restTemplateMock;
 	
-	@InjectMocks
 	private ProjectService projectService;
 	
 	//TODO replace by dynamic url
-	private String url = "";
+	private String url = null;
 	
 	private List<Project> projects;
 
@@ -47,10 +54,12 @@ public class ProjectServiceTests {
 	public void setUp() {
 		Mockito.reset(restTemplateMock);
 		projects = generateProjects();
+		
+		projectService = new ProjectService(restTemplateMock);
 	}
 	
 	@Test
-	public void getAllProjectsTest() {
+	public void getAllProjectsTest() throws TimecastNotFoundException, TimecastInternalServerErrorException {
 		Mockito.when(restTemplateMock.exchange(url, HttpMethod.GET,
 				null, new ParameterizedTypeReference<List<Project>>(){}))
 		.thenReturn(new ResponseEntity(projects, HttpStatus.OK));
@@ -65,7 +74,7 @@ public class ProjectServiceTests {
 	}
 	
 	@Test
-	public void getAllProjectsByFromDateTest() throws ParseException {
+	public void getAllProjectsByFromDateTest() throws ParseException, TimecastNotFoundException, TimecastInternalServerErrorException {
 		Map<String, String> uriVar = new HashMap<>();
 		uriVar.put("fromDate", "2019-03-16");
 		
@@ -77,7 +86,7 @@ public class ProjectServiceTests {
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getProjects(DateFormat.getInstance().parse("2019-03-16"), null);
+		List<Project> fetchedProjects = projectService.getProjects(sdf.parse("2019-03-16"), null);
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar);
@@ -87,7 +96,7 @@ public class ProjectServiceTests {
 	}
 	
 	@Test
-	public void getAllProjectsByToDateTest() throws ParseException {
+	public void getAllProjectsByToDateTest() throws ParseException, TimecastNotFoundException, TimecastInternalServerErrorException {
 		Map<String, String> uriVar = new HashMap<>();
 		uriVar.put("toDate", "2020-01-01");
 		
@@ -99,7 +108,7 @@ public class ProjectServiceTests {
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getProjects(null, DateFormat.getInstance().parse("2020-01-01"));
+		List<Project> fetchedProjects = projectService.getProjects(null, sdf.parse("2020-01-01"));
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar);
@@ -109,7 +118,7 @@ public class ProjectServiceTests {
 	}
 	
 	@Test
-	public void getAllProjectsByFromAndToDateTest() throws ParseException {
+	public void getAllProjectsByFromAndToDateTest() throws ParseException, TimecastNotFoundException, TimecastInternalServerErrorException {
 		Map<String, String> uriVar = new HashMap<>();
 		uriVar.put("fromDate", "2019-01-01");
 		uriVar.put("toDate", "2020-01-01");
@@ -121,7 +130,7 @@ public class ProjectServiceTests {
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getProjects(DateFormat.getInstance().parse("2019-01-01"), DateFormat.getInstance().parse("2020-01-01"));
+		List<Project> fetchedProjects = projectService.getProjects(sdf.parse("2019-01-01"), sdf.parse("2020-01-01"));
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar);
@@ -131,18 +140,18 @@ public class ProjectServiceTests {
 	}
 	
 	@Test
-	public void getProjectByIdTest() {
+	public void getProjectByIdTest() throws TimecastNotFoundException, TimecastInternalServerErrorException, TimecastForbiddenException {
 		Mockito.when(restTemplateMock.getForEntity(url + "/1" , Project.class)).thenReturn(new ResponseEntity<Project>(projects.get(0), HttpStatus.OK));
 		
 		Project fetchedProject = projectService.getProject(1);
 		
-		verify(restTemplateMock, times(1)).getForEntity(Mockito.any(), Mockito.any());
+		verify(restTemplateMock, times(1)).getForEntity(url + "/1", Project.class);
 		
 		Assert.assertEquals(projects.get(0), fetchedProject);
 	}
 	
 	@Test
-	public void createProjectTest() {
+	public void createProjectTest() throws TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
 		Project newProject = new Project();
 		newProject.setId(99);
 		newProject.setName("ProjectNew");
@@ -150,38 +159,39 @@ public class ProjectServiceTests {
 		newProject.setStartDate("2019-03-16");
 		newProject.setEndDate("2019-10-10");
 		newProject.setProjectManagerId(0);
-		Mockito.when(restTemplateMock.postForEntity(url, HttpMethod.POST, Project.class)).thenReturn(new ResponseEntity<Project>(newProject, HttpStatus.OK));
+		Mockito.when(restTemplateMock.postForEntity(url, newProject, Project.class)).thenReturn(new ResponseEntity<Project>(newProject, HttpStatus.OK));
 		
 		Project createdProject = projectService.createProject(newProject);
 		
-		verify(restTemplateMock, times(1)).postForEntity(url, HttpMethod.POST, Project.class);
+		verify(restTemplateMock, times(1)).postForEntity(url, newProject, Project.class);
 		
 		Assert.assertEquals(newProject, createdProject);
 	}
 	
 	@Test
-	public void updateProjectTest() {
+	public void updateProjectTest() throws TimecastNotFoundException, TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
 		Project updatedProject = projects.get(0);
 		updatedProject.setName("ProjectnameNew");
+		HttpEntity<Project> requestEntity = new HttpEntity<Project>(updatedProject);
 		
-		Mockito.when(restTemplateMock.postForEntity(url + "/1", HttpMethod.PUT, Project.class)).thenReturn(new ResponseEntity<Project>(updatedProject, HttpStatus.OK));
+		Mockito.when(restTemplateMock.exchange(url + "/1", HttpMethod.PUT, requestEntity, Project.class)).thenReturn(new ResponseEntity<Project>(updatedProject, HttpStatus.OK));
 		
 		Project responseProject = projectService.updateProject(updatedProject.getId(), updatedProject);
 		
-		verify(restTemplateMock, times(1)).postForEntity(url + "/1", HttpMethod.PUT, Project.class);
+		verify(restTemplateMock, times(1)).exchange(url+ "/1", HttpMethod.PUT, requestEntity, Project.class);
 		
 		Assert.assertEquals(updatedProject, responseProject);
 	}
 	
 	@Test
-	public void deleteProjectTest() {
+	public void deleteProjectTest() throws TimecastInternalServerErrorException, TimecastForbiddenException, TimecastNotFoundException {
 			
 		Mockito.when(restTemplateMock.exchange(url + "/1", HttpMethod.DELETE,
-				null, String.class)).thenReturn(new ResponseEntity<String>(HttpStatus.OK));
+				null, Void.class)).thenReturn(new ResponseEntity<Void>(HttpStatus.OK));
 		
 		projectService.deleteProject(1);
 		
-		verify(restTemplateMock, times(1)).exchange(url + "/1", HttpMethod.DELETE, null, String.class);
+		verify(restTemplateMock, times(1)).exchange(url + "/1", HttpMethod.DELETE, null, Void.class);
 		
 	}
 	
