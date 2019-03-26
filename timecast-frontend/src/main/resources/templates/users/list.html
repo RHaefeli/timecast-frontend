@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Employees', links=~{})">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <!-- Put additional style links here -->
 </head>
+
 <body>
+<section>
+    <div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
+    <h2>Users</h2>
+    <br>
+</section>
 
 </body>
 </html>
