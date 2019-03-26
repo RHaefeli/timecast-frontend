@@ -31,8 +31,6 @@ public class ProjectService {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-
 	private final RestTemplate restTemplate;
 
 	@Value("${wodss.timecastfrontend.api.url.project}")
@@ -60,14 +58,14 @@ public class ProjectService {
 		throw new IllegalStateException();
 	}
 
-	public List<Project> getProjects(Date fromDate, Date toDate)
+	public List<Project> getProjects(String fromDate, String toDate)
 			throws TimecastNotFoundException, TimecastInternalServerErrorException {
 		Map<String, String> uriVar = new HashMap<>();
 		if (fromDate != null) {
-			uriVar.put("fromDate", formatter.format(fromDate));
+			uriVar.put("fromDate", fromDate);
 		}
 		if (toDate != null) {
-			uriVar.put("toDate", formatter.format(toDate));
+			uriVar.put("toDate", toDate);
 		}
 		ResponseEntity<List<Project>> response = restTemplate.exchange(apiURL, HttpMethod.GET, null,
 				new ParameterizedTypeReference<List<Project>>() {

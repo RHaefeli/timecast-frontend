@@ -37,8 +37,6 @@ import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 @RunWith(SpringRunner.class)
 public class ProjectServiceTests {
 	
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-	
 	@Mock
 	private RestTemplate restTemplateMock;
 	
@@ -86,7 +84,7 @@ public class ProjectServiceTests {
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getProjects(sdf.parse("2019-03-16"), null);
+		List<Project> fetchedProjects = projectService.getProjects("2019-03-16", null);
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar);
@@ -108,7 +106,7 @@ public class ProjectServiceTests {
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getProjects(null, sdf.parse("2020-01-01"));
+		List<Project> fetchedProjects = projectService.getProjects(null, "2020-01-01");
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar);
@@ -130,7 +128,7 @@ public class ProjectServiceTests {
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getProjects(sdf.parse("2019-01-01"), sdf.parse("2020-01-01"));
+		List<Project> fetchedProjects = projectService.getProjects("2019-01-01", "2020-01-01");
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar);

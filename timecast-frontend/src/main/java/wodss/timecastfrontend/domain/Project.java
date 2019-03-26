@@ -18,11 +18,11 @@ public class Project {
 	private int ftePercentage;
 	
 	@NotNull
-	@Size(min=11, max=11)
+	@Size(min=10, max=10)
 	private String startDate;
 	
 	@NotNull
-	@Size(min=11, max=11)
+	@Size(min=10, max=10)
 	private String endDate;
 	
 	@NotNull
