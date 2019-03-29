@@ -7,7 +7,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import wodss.timecastfrontend.domain.User;
+import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
+import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
+import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 import wodss.timecastfrontend.services.UserService;
 
 import javax.validation.Valid;
@@ -37,14 +41,22 @@ public class UserController {
     }
 
     @PostMapping
-    public String create(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model) {
+    public String create(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
         logger.debug("Create user: " + user);
         if (bindingResult.hasErrors()) {
             logger.debug("Binding error: " + bindingResult.getAllErrors());
             return "users/create";
         }
-        // userService.save(user);
-        return "redirect:/users";
+        try {
+            User newUser = userService.create(user);
+            redirectAttributes.addFlashAttribute("success", "Success");
+            return "redirect:/users";
+        } catch (TimecastNotFoundException
+                | TimecastPreconditionFailedException
+                | TimecastInternalServerErrorException ex) {
+            model.addAttribute("exception", ex.getMessage());
+            return "users/create";
+        }
     }
 
     @GetMapping("/{id}")
