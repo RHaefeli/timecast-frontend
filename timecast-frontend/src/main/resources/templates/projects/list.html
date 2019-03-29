@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='List of Projects', links=~{})">
+
+<body>
+	<section>
+		<a class="btn btn-success float-right" href="?form">
+			Add Project
+		</a>
+		<h3>Projects</h3>
+		<div th:if="${projects.isEmpty()}">
+			<h2 style="text-align: center">No Projects found</h2>
+		</div>
+		<div style="padding-top: 10px;">
+			<table class="table table-condensed table-hover">
+				<tbody>
+					<tr th:each="project : ${projects}">
+						<td colspan="1" style="vertical-align: middle;" th:text="${project.id}" />
+						<td colspan="3" style="vertical-align: middle;" th:text="${project.name}" />
+
+						<td>
+							<div class="btn-group float-right" role="group">
+								<div>
+									<form action="#" th:action="@{/projects} + '/' + ${project.id}">
+										<button type="submit" class="btn btn-secondary">
+											Show
+										</button>
+									</form>
+								</div>
+								<div>
+									<form action="#" th:action="@{/projects/{id}(id=${project.id})}">
+										<!-- 
+											The action URL is mutated after submitting the form according to
+											https://www.w3.org/TR/2011/WD-html5-20110525/association-of-controls-and-forms.html#submit-mutate-action
+											The browser will trash the existing "?..." part of hte URI and replace it with a new one based on your form.
+										-->
+										<input type="hidden" name="form" />
+										<button class="btn btn-primary">
+											Edit
+										</button>
+									</form>
+								</div>
+
+								<div>
+									<form action="#" th:action="@{/projects} + '/' + ${project.id}" method="post">
+										<input type="hidden" name="_method" value="DELETE" />
+										<button type="submit" class="btn btn-danger">
+											Delete
+										</button>
+									</form>
+								</div>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</section>
+
+</body>
+
+</html>

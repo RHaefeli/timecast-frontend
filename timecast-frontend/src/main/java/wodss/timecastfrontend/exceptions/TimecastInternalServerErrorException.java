@@ -1,7 +1,8 @@
 package wodss.timecastfrontend.exceptions;
 
-public class TimecastInternalServerErrorException extends RuntimeException {
-    public TimecastInternalServerErrorException(String errorMessage) {
-        super(errorMessage);
-    }
+public class TimecastInternalServerErrorException extends Exception{
+	public TimecastInternalServerErrorException(String errorMessage) {
+		super(errorMessage);
+	}
+
 }
