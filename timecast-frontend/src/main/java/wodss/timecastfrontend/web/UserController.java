@@ -7,7 +7,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import wodss.timecastfrontend.domain.User;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
@@ -16,7 +15,6 @@ import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 import wodss.timecastfrontend.services.UserService;
 
 import javax.validation.Valid;
-import java.net.ConnectException;
 
 @Controller
 @RequestMapping(value="/users")
@@ -50,7 +48,7 @@ public class UserController {
             return "users/create";
         }
         try {
-            User newUser = userService.save(user);
+            User newUser = userService.create(user);
             redirectAttributes.addFlashAttribute("success", "Success");
             return "redirect:/users";
         } catch (TimecastNotFoundException

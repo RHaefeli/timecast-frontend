@@ -1,8 +1,7 @@
 package wodss.timecastfrontend.domain;
 
-public class User {
+public class User extends AbstractTimecastEntity {
     private boolean active;
-    private int id;
     private String lastName;
     private String firstName;
     private String emailAddress;
@@ -14,14 +13,6 @@ public class User {
 
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getLastName() {
