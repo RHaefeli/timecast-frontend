@@ -1,6 +1,6 @@
 package wodss.timecastfrontend.domain;
 
-public class User extends AbstractTimecastEntity {
+public class Employee extends AbstractTimecastEntity {
     private boolean active;
     private String lastName;
     private String firstName;
