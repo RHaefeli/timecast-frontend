@@ -3,24 +3,24 @@
 <div th:fragment="navigation">
     <nav class="sidebar bg-light">
         <div class="sidebar-sticky">
-            <h5 class="sidebar-heading px-0 mt-4">Users</h5>
+            <h6 class="sidebar-heading px-0 mt-4">Employees</h6>
             <ul class="navbar-nav flex-column px-2">
                 <li th:if="${permission == 'DEVELOPER'}" class="nav-item">
-                    <a class="nav-link h5" th:href="@{/users}">Show Users</a>
+                    <a class="nav-link h6" th:href="@{/employees}">Show Employees</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link h5" th:href="@{/users(form)}">Create new User</a>
+                    <a class="nav-link h6" th:href="@{/employees(form)}">Create new Employee</a>
                 </li>
             </ul>
 
             <hr align="left" width="92%">
-            <h5 class="sidebar-heading px-0 mt-4">Projects</h5>
+            <h6 class="sidebar-heading px-0 mt-4">Projects</h6>
             <ul class="navbar-nav flex-column px-2">
                 <li class="nav-item">
-                    <a class="nav-link h5" th:href="@{/projects}">Show Projects</a>
+                    <a class="nav-link h6" th:href="@{/projects}">Show Projects</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link h5" th:href="@{/projects(form)}">Create new Project</a>
+                    <a class="nav-link h6" th:href="@{/projects(form)}">Create new Project</a>
                 </li>
             </ul>
         </div>

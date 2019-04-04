@@ -60,21 +60,44 @@ Sidebar
     text-transform: uppercase;
 }
 
+.sidebar .nav-item {
+    margin-left: -10px;
+    padding-left: 10px;
+}
+
+.sidebar .nav-item:hover {
+    color: #212529;
+    background-color: rgba(0,0,0,.075);
+}
+
 
 
 /*
 Content
  */
 .main-container {
-    width: calc(100vw - 326px); /* Subtract width of Sidebar */
+    margin-right: -17px; /* bootstrap container-fluid has a padding */
+    width: calc(100vw - 300px); /* Subtract width of Sidebar */
     padding-top: 70px; /* Space for fixed Header */
+    background-color: #f4f4f4;
+}
+
+.app-content-container {
+    padding-top: 50px;
+    padding-left: 50px;
+    width: calc(100vw - 300px - 50px);
+    min-width: 1000px;
 }
 
 .app-content {
-    padding-top: 50px;
-    padding-left: 50px;
-    width: 70%;
-    min-width: 1000px;
+    background-color: white;
+    border-radius: 5px;
+    padding: 25px;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.button-row {
+    margin-top: 20px;
 }
 
 

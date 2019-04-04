@@ -24,7 +24,7 @@ public class GlobalPermissionHandler {
         try {
             String permission = "DEVELOPER";
             String user = "..tbd..";
-            logger.debug("User " + user + " has permission: " + permission);
+            logger.debug("Employee " + user + " has permission: " + permission);
             model.addAttribute("permission", permission);
         } catch (Exception ex) {
             logger.error("Exception while accessing api for a user. Set no permissions for user.");
