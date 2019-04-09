@@ -63,7 +63,7 @@ public abstract class AbstractService<T extends AbstractTimecastEntity> {
         ResponseEntity<T> response = restTemplate.exchange(apiURL, HttpMethod.POST, request, serviceEntityClass);
 
         HttpStatus statusCode = response.getStatusCode();
-        if (statusCode != HttpStatus.CREATED) {
+        if (statusCode != HttpStatus.OK) {
             throwStatusCodeException(statusCode);
         }
 
@@ -94,7 +94,7 @@ public abstract class AbstractService<T extends AbstractTimecastEntity> {
         ResponseEntity<Void> response = restTemplate.exchange(apiURL + "/" + id, HttpMethod.DELETE, null, Void.class);
 
         HttpStatus statusCode = response.getStatusCode();
-        if (statusCode != HttpStatus.NO_CONTENT) {
+        if (statusCode != HttpStatus.OK) {
             throwStatusCodeException(statusCode);
         }
 

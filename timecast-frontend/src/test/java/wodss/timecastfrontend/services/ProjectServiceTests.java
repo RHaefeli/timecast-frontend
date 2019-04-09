@@ -53,19 +53,19 @@ public class ProjectServiceTests {
 		Mockito.reset(restTemplateMock);
 		projects = generateProjects();
 		
-		projectService = new ProjectService(restTemplateMock);
+		projectService = new ProjectService(restTemplateMock, url);
 	}
 	
 	@Test
 	public void getAllProjectsTest() throws TimecastNotFoundException, TimecastInternalServerErrorException {
-		Mockito.when(restTemplateMock.exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<Project>>(){}))
+		Mockito.when(restTemplateMock.exchange(Mockito.eq(url), Mockito.eq(HttpMethod.GET), Mockito.eq(null),
+                Mockito.any(ParameterizedTypeReference.class)))
 		.thenReturn(new ResponseEntity(projects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getProjects();
+		List<Project> fetchedProjects = projectService.getAll();
 		
-		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<Project>>(){});
+		verify(restTemplateMock, times(1)).exchange(Mockito.eq(url), Mockito.eq(HttpMethod.GET), Mockito.eq(null),
+                Mockito.any(ParameterizedTypeReference.class));
 		
 		Assert.assertEquals(projects, fetchedProjects);
 		
@@ -141,7 +141,7 @@ public class ProjectServiceTests {
 	public void getProjectByIdTest() throws TimecastNotFoundException, TimecastInternalServerErrorException, TimecastForbiddenException {
 		Mockito.when(restTemplateMock.getForEntity(url + "/1" , Project.class)).thenReturn(new ResponseEntity<Project>(projects.get(0), HttpStatus.OK));
 		
-		Project fetchedProject = projectService.getProject(1);
+		Project fetchedProject = projectService.getById(1);
 		
 		verify(restTemplateMock, times(1)).getForEntity(url + "/1", Project.class);
 		
@@ -157,11 +157,12 @@ public class ProjectServiceTests {
 		newProject.setStartDate("2019-03-16");
 		newProject.setEndDate("2019-10-10");
 		newProject.setProjectManagerId(0);
-		Mockito.when(restTemplateMock.postForEntity(url, newProject, Project.class)).thenReturn(new ResponseEntity<Project>(newProject, HttpStatus.OK));
+		HttpEntity<Project> request = new HttpEntity<>(newProject);
+		Mockito.when(restTemplateMock.exchange(url, HttpMethod.POST, request, Project.class)).thenReturn(new ResponseEntity<Project>(newProject, HttpStatus.OK));
 		
-		Project createdProject = projectService.createProject(newProject);
+		Project createdProject = projectService.create(newProject);
 		
-		verify(restTemplateMock, times(1)).postForEntity(url, newProject, Project.class);
+		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.POST, request, Project.class);
 		
 		Assert.assertEquals(newProject, createdProject);
 	}
@@ -174,7 +175,7 @@ public class ProjectServiceTests {
 		
 		Mockito.when(restTemplateMock.exchange(url + "/1", HttpMethod.PUT, requestEntity, Project.class)).thenReturn(new ResponseEntity<Project>(updatedProject, HttpStatus.OK));
 		
-		Project responseProject = projectService.updateProject(updatedProject.getId(), updatedProject);
+		Project responseProject = projectService.update(updatedProject);
 		
 		verify(restTemplateMock, times(1)).exchange(url+ "/1", HttpMethod.PUT, requestEntity, Project.class);
 		
@@ -183,11 +184,11 @@ public class ProjectServiceTests {
 	
 	@Test
 	public void deleteProjectTest() throws TimecastInternalServerErrorException, TimecastForbiddenException, TimecastNotFoundException {
-			
+					
 		Mockito.when(restTemplateMock.exchange(url + "/1", HttpMethod.DELETE,
-				null, Void.class)).thenReturn(new ResponseEntity<Void>(HttpStatus.OK));
+		null, Void.class)).thenReturn(new ResponseEntity<Void>(HttpStatus.OK));
 		
-		projectService.deleteProject(1);
+		projectService.deleteById(1);
 		
 		verify(restTemplateMock, times(1)).exchange(url + "/1", HttpMethod.DELETE, null, Void.class);
 		

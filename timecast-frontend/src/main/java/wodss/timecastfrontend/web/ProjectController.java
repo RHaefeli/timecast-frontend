@@ -26,7 +26,7 @@ import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 import wodss.timecastfrontend.services.ProjectService;
-import wodss.timecastfrontend.services.ProjectServiceFake;
+import wodss.timecastfrontend.services.mocks.MockProjectService;
 
 @Controller
 @RequestMapping(value="/projects")
@@ -43,7 +43,7 @@ public class ProjectController {
     
     //Used for early testing
     public ProjectController() {
-    	projectService = new ProjectServiceFake(null);
+    	projectService = new MockProjectService(null, "");
     }
 
     @GetMapping()
@@ -53,7 +53,7 @@ public class ProjectController {
 		try {
 			//TODO check
 			if ("".equals(fromDateString) && "".equals(toDateString)) {
-				projects = projectService.getProjects();
+				projects = projectService.getAll();
 			} else {
 				projects = projectService.getProjects(fromDateString, toDateString);
 			}
@@ -68,11 +68,11 @@ public class ProjectController {
     }
     
     @GetMapping(value = "/{id}")
-	public String getProjectById(@PathVariable int id, Model model) {
+	public String getProjectById(@PathVariable long id, Model model) {
     	logger.debug("Get project by id: " + id);
     	Project project;
     	try {
-			project = projectService.getProject(id);
+			project = projectService.getById(id);
 			model.addAttribute("project", project);
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
 			// TODO handle error
@@ -96,7 +96,7 @@ public class ProjectController {
 			return "projects/create";
 		}
     	try {
-			projectService.createProject(project);
+			projectService.create(project);
 		} catch (TimecastPreconditionFailedException | TimecastForbiddenException
 				| TimecastInternalServerErrorException e) {
 			// TODO handle error
@@ -107,9 +107,9 @@ public class ProjectController {
     }
     
     @GetMapping(value = "/{id}", params = "form")
-	public String updateProjectForm(@PathVariable int id, Model model) {
+	public String updateProjectForm(@PathVariable long id, Model model) {
 		try {
-			Project project = projectService.getProject(id);
+			Project project = projectService.getById(id);
 			model.addAttribute("project", project);
 			return "projects/update";
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
@@ -122,13 +122,13 @@ public class ProjectController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public String update(@PathVariable String id, @Valid Project project, BindingResult bindingResult) {
+	public String update(@PathVariable long id, @Valid Project project, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "project/update";
 		}
 			try {
-				projectService.updateProject(project.getId(), project);
+				projectService.update(project);
 			} catch (TimecastNotFoundException | TimecastPreconditionFailedException | TimecastForbiddenException
 					| TimecastInternalServerErrorException e) {
 				// TODO handle error
@@ -138,9 +138,9 @@ public class ProjectController {
 	}
 	
 	@DeleteMapping(value = "/{id}")
-	public String delete(@PathVariable int id) {
+	public String delete(@PathVariable long id) {
 		try {
-			projectService.deleteProject(id);
+			projectService.deleteById(id);
 		} catch (TimecastInternalServerErrorException | TimecastForbiddenException | TimecastNotFoundException e) {
 			// TODO handle error
 			e.printStackTrace();

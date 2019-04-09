@@ -1,10 +1,13 @@
-package wodss.timecastfrontend.services;
+package wodss.timecastfrontend.services.mocks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -16,19 +19,22 @@ import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
+import wodss.timecastfrontend.services.ProjectService;
 
-public class ProjectServiceFake extends ProjectService {
-	
+public class MockProjectService extends ProjectService {
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	private List<Project> projectRepo;
 	private int nextProjectId = 0;
 
-	public ProjectServiceFake(RestTemplate restTemplate) {
-		super(restTemplate);
+	public MockProjectService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.project}") String apiURL) {
+		super(restTemplate, apiURL);
+        logger.debug("Using Mock Project Service!");
+        logger.debug("API URL " + apiURL + " will not be used in the mock service!");
 		projectRepo = generateProjects();
 	}
 	
 	@Override
-	public List<Project> getProjects() throws TimecastNotFoundException, TimecastInternalServerErrorException {
+	public List<Project> getAll() throws TimecastNotFoundException, TimecastInternalServerErrorException {
 		return projectRepo;
 	}
 
@@ -43,7 +49,7 @@ public class ProjectServiceFake extends ProjectService {
 	}
 
 	@Override
-	public Project getProject(int id) throws TimecastNotFoundException, TimecastInternalServerErrorException, TimecastForbiddenException {
+	public Project getById(long id) throws TimecastNotFoundException, TimecastInternalServerErrorException, TimecastForbiddenException {
 		if (projectRepo.stream().anyMatch(p -> p.getId() == id)) {
 			return projectRepo.stream().filter(p -> p.getId() == id).findFirst().get();
 		} else {
@@ -52,16 +58,16 @@ public class ProjectServiceFake extends ProjectService {
 	}
 
 	@Override
-	public Project createProject(Project newProject) throws TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
+	public Project create(Project newProject) throws TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
 		newProject.setId(nextProjectId++);
 		projectRepo.add(newProject);
 		return newProject;
 	}
 
 	@Override
-	public Project updateProject(int id, Project updatedProject) throws TimecastNotFoundException, TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
-		if (projectRepo.stream().anyMatch(p -> p.getId() == id)) {
-			Project oldProject = projectRepo.stream().filter(p -> p.getId() == id).findFirst().get();
+	public Project update(Project updatedProject) throws TimecastNotFoundException, TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
+		if (projectRepo.stream().anyMatch(p -> p.getId() == updatedProject.getId())) {
+			Project oldProject = projectRepo.stream().filter(p -> p.getId() == updatedProject.getId()).findFirst().get();
 			oldProject.setName(updatedProject.getName());
 			oldProject.setFtePercentage(updatedProject.getFtePercentage());
 			oldProject.setProjectManagerId(updatedProject.getProjectManagerId());
@@ -74,7 +80,7 @@ public class ProjectServiceFake extends ProjectService {
 	}
 
 	@Override
-	public void deleteProject(int id) throws TimecastInternalServerErrorException, TimecastForbiddenException, TimecastNotFoundException {
+	public void deleteById(long id) throws TimecastInternalServerErrorException, TimecastForbiddenException, TimecastNotFoundException {
 		if (projectRepo.stream().anyMatch(p -> p.getId() == id)) {
 			projectRepo.removeIf(p -> p.getId() == id);
 		} else {

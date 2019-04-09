@@ -5,10 +5,7 @@ import javax.validation.constraints.Size;
 
 import org.springframework.data.annotation.Id;
 
-public class Project {
-	
-	@Id
-	private int id;
+public class Project extends AbstractTimecastEntity {
 	
 	@NotNull
 	@Size(min=1, max=50)
@@ -27,14 +24,6 @@ public class Project {
 	
 	@NotNull
 	private int projectManagerId;
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	public String getName() {
 		return name;
