@@ -12,7 +12,7 @@ public class Project extends AbstractTimecastEntity {
 	private String name;
 	
 	@NotNull
-	private int ftePercentage;
+	private long ftePercentage;
 	
 	@NotNull
 	@Size(min=10, max=10)
@@ -33,11 +33,11 @@ public class Project extends AbstractTimecastEntity {
 		this.name = name;
 	}
 
-	public int getFtePercentage() {
+	public long getFtePercentage() {
 		return ftePercentage;
 	}
 
-	public void setFtePercentage(int ftePercentage) {
+	public void setFtePercentage(long ftePercentage) {
 		this.ftePercentage = ftePercentage;
 	}
 

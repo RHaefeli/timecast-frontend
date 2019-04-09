@@ -57,7 +57,7 @@ public class ProjectServiceTests {
 	}
 	
 	@Test
-	public void getAllProjectsTest() throws TimecastNotFoundException, TimecastInternalServerErrorException {
+	public void getAllProjectsTest() {
 		Mockito.when(restTemplateMock.exchange(Mockito.eq(url), Mockito.eq(HttpMethod.GET), Mockito.eq(null),
                 Mockito.any(ParameterizedTypeReference.class)))
 		.thenReturn(new ResponseEntity(projects, HttpStatus.OK));
@@ -72,7 +72,7 @@ public class ProjectServiceTests {
 	}
 	
 	@Test
-	public void getAllProjectsByFromDateTest() throws ParseException, TimecastNotFoundException, TimecastInternalServerErrorException {
+	public void getAllProjectsByFromDateTest() {
 		Map<String, String> uriVar = new HashMap<>();
 		uriVar.put("fromDate", "2019-03-16");
 		
@@ -84,7 +84,7 @@ public class ProjectServiceTests {
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getProjects("2019-03-16", null);
+		List<Project> fetchedProjects = projectService.getProjects(-1, "2019-03-16", null);
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar);
@@ -106,7 +106,7 @@ public class ProjectServiceTests {
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getProjects(null, "2020-01-01");
+		List<Project> fetchedProjects = projectService.getProjects(-1, null, "2020-01-01");
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar);
@@ -128,7 +128,28 @@ public class ProjectServiceTests {
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getProjects("2019-01-01", "2020-01-01");
+		List<Project> fetchedProjects = projectService.getProjects(-1, "2019-01-01", "2020-01-01");
+		
+		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
+				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar);
+		
+		Assert.assertEquals(returnProjects, fetchedProjects);
+		
+	}
+	
+	@Test
+	public void getAllProjectsByProjectManagerId() {
+		Map<String, String> uriVar = new HashMap<>();
+		uriVar.put("projectManagerId", "1");
+		
+		List<Project> returnProjects = new ArrayList<>();
+		returnProjects = projects;
+		
+		Mockito.when(restTemplateMock.exchange(url, HttpMethod.GET,
+				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar))
+		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
+		
+		List<Project> fetchedProjects = projectService.getProjects(1, null, null);
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
 				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar);
@@ -158,7 +179,7 @@ public class ProjectServiceTests {
 		newProject.setEndDate("2019-10-10");
 		newProject.setProjectManagerId(0);
 		HttpEntity<Project> request = new HttpEntity<>(newProject);
-		Mockito.when(restTemplateMock.exchange(url, HttpMethod.POST, request, Project.class)).thenReturn(new ResponseEntity<Project>(newProject, HttpStatus.OK));
+		Mockito.when(restTemplateMock.exchange(url, HttpMethod.POST, request, Project.class)).thenReturn(new ResponseEntity<Project>(newProject, HttpStatus.CREATED));
 		
 		Project createdProject = projectService.create(newProject);
 		
@@ -186,7 +207,7 @@ public class ProjectServiceTests {
 	public void deleteProjectTest() throws TimecastInternalServerErrorException, TimecastForbiddenException, TimecastNotFoundException {
 					
 		Mockito.when(restTemplateMock.exchange(url + "/1", HttpMethod.DELETE,
-		null, Void.class)).thenReturn(new ResponseEntity<Void>(HttpStatus.OK));
+		null, Void.class)).thenReturn(new ResponseEntity<Void>(HttpStatus.NO_CONTENT));
 		
 		projectService.deleteById(1);
 		

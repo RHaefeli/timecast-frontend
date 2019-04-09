@@ -47,15 +47,19 @@ public class ProjectController {
     }
 
     @GetMapping()
-    public String getAll(@RequestParam(value = "fromDate", required = false) String fromDateString, @RequestParam(value = "toDate", required = false) String toDateString, Model model) {
-        logger.debug("Get all projects");
+    public String getAll(@RequestParam(value = "projectManagerId", required = false) Long projectManagerId, @RequestParam(value = "fromDate", required = false) String fromDateString, @RequestParam(value = "toDate", required = false) String toDateString, Model model) {
+        logger.debug("Get all projects with params {} {} {}", projectManagerId, fromDateString, toDateString);
     	List<Project> projects;
 		try {
 			//TODO check
-			if ("".equals(fromDateString) && "".equals(toDateString)) {
+			if ("".equals(fromDateString) && "".equals(toDateString) && null == projectManagerId) {
 				projects = projectService.getAll();
 			} else {
-				projects = projectService.getProjects(fromDateString, toDateString);
+				//TODO fix
+				if (projectManagerId == null) {
+					projectManagerId = (long) -1;
+				}
+ 				projects = projectService.getProjects(Long.valueOf(projectManagerId), fromDateString, toDateString);
 			}
 			
 			model.addAttribute("projects", projects);

@@ -63,7 +63,7 @@ public abstract class AbstractService<T extends AbstractTimecastEntity> {
         ResponseEntity<T> response = restTemplate.exchange(apiURL, HttpMethod.POST, request, serviceEntityClass);
 
         HttpStatus statusCode = response.getStatusCode();
-        if (statusCode != HttpStatus.OK) {
+        if (statusCode != HttpStatus.CREATED) {
             throwStatusCodeException(statusCode);
         }
 
@@ -94,14 +94,14 @@ public abstract class AbstractService<T extends AbstractTimecastEntity> {
         ResponseEntity<Void> response = restTemplate.exchange(apiURL + "/" + id, HttpMethod.DELETE, null, Void.class);
 
         HttpStatus statusCode = response.getStatusCode();
-        if (statusCode != HttpStatus.OK) {
+        if (statusCode != HttpStatus.NO_CONTENT) {
             throwStatusCodeException(statusCode);
         }
 
         logger.debug("Deleted " + serviceEntityClass + " entity with id: " + id);
     }
 
-    private static void throwStatusCodeException(HttpStatus statusCode) throws TimecastUnauthorizedException,
+    public static void throwStatusCodeException(HttpStatus statusCode) throws TimecastUnauthorizedException,
             TimecastForbiddenException, TimecastNotFoundException, TimecastPreconditionFailedException,
             TimecastInternalServerErrorException, IllegalStateException {
         switch (statusCode) {
