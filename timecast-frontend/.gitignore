@@ -38,3 +38,7 @@ local.properties
 .settings/
 .loadpath
 .recommenders
+
+### Application Specific ###
+application.properties
+*.pem

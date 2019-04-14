@@ -86,7 +86,7 @@ Content
     padding-top: 50px;
     padding-left: 50px;
     width: calc(100vw - 300px - 50px);
-    min-width: 1000px;
+    min-width: 700px;
 }
 
 .app-content {
@@ -98,6 +98,10 @@ Content
 
 .button-row {
     margin-top: 20px;
+}
+
+.col-md-5 {
+    min-width: 300px;
 }
 
 

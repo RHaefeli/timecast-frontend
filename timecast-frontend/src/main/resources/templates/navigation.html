@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<div th:fragment="navigation">
+<div th:unless="${permission == 'NONE'}" th:fragment="navigation">
     <nav class="sidebar bg-light">
         <div class="sidebar-sticky">
             <h6 class="sidebar-heading px-0 mt-4">Employees</h6>
             <ul class="navbar-nav flex-column px-2">
-                <li th:if="${permission == 'DEVELOPER'}" class="nav-item">
+                <li th:if="${permission == 'PROJECTMANAGER' or permission =='ADMINISTRATOR'}" class="nav-item">
                     <a class="nav-link h6" th:href="@{/employees}">Show Employees</a>
                 </li>
                 <li class="nav-item">

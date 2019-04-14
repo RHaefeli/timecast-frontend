@@ -3,32 +3,48 @@ package wodss.timecastfrontend.web;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.client.RestTemplate;
+import wodss.timecastfrontend.domain.Employee;
+import wodss.timecastfrontend.domain.Token;
+import wodss.timecastfrontend.services.auth.CookieUtil;
+import wodss.timecastfrontend.services.auth.JwtUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @ControllerAdvice
 public class GlobalPermissionHandler {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final RestTemplate restTemplate;
+    private final JwtUtil jwtUtil;
+
+    @Value("${wodss.timecastfrontend.cookies.token}")
+    private String tokenCookieName;
 
     @Autowired
-    GlobalPermissionHandler(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public GlobalPermissionHandler(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
     }
 
     @ModelAttribute
-    public void addPermissionsToModel(Model model) {
-        // TODO: Check permissions based on user. (What if connection error?)
-        try {
-            String permission = "DEVELOPER";
-            String user = "..tbd..";
-            logger.debug("Employee " + user + " has permission: " + permission);
-            model.addAttribute("permission", permission);
-        } catch (Exception ex) {
-            logger.error("Exception while accessing api for a user. Set no permissions for user.");
-            model.addAttribute("permission", "");
+    public void addPermissionsToModel(HttpServletRequest request, HttpServletResponse response, Model model) {
+        String email = "_unknown_";
+        String permission = "NONE";
+        Employee employee = null;
+
+        String tokenValue = CookieUtil.getValue(request, tokenCookieName);
+        if (tokenValue != null) {
+            Token token = new Token(tokenValue);
+            employee = jwtUtil.getEmployeeFromToken(token);
         }
+
+        if (employee != null) {
+            email = employee.getEmailAddress();
+            permission = employee.getRole().getValue().toUpperCase();
+        }
+        logger.debug("Employee " + email + " has permission: " + permission);
+        model.addAttribute("permission", permission);
     }
 }

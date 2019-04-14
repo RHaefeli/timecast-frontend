@@ -5,7 +5,8 @@
         <a class="navbar-brand" th:href="@{/}">Timecast</a>
         <ul class="navbar-nav">
             <li class="nav-item text-nowrap">
-                <a class="nav-link" th:href="@{/}">Logout</a>
+                <a th:if="${permission == 'NONE'}" class="nav-link" th:href="@{/login}">Login</a>
+                <a th:unless="${permission == 'NONE'}" class="nav-link" th:href="@{/logout}">Logout</a>
             </li>
         </ul>
     </nav>
