@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import wodss.timecastfrontend.domain.Allocation;
-import wodss.timecastfrontend.domain.Project;
+import wodss.timecastfrontend.domain.dto.AllocationDTO;
+import wodss.timecastfrontend.domain.dto.ProjectDTO;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
@@ -54,7 +54,7 @@ public class AllocationController {
 		model.addAttribute("fromDateFilter", fromDateString);
 		model.addAttribute("employeeIdFilter", employeeId);
 		model.addAttribute("toDateFilter", toDateString);
-    	List<Allocation> allocations;
+    	List<AllocationDTO> allocations;
     	try {
 			//TODO check
 			if ("".equals(fromDateString) && "".equals(toDateString) && null == employeeId && null == projectId) {
@@ -80,7 +80,7 @@ public class AllocationController {
     
     @GetMapping(params = "form")
 	public String createAllocationForm(@RequestParam(value = "projectId", required = false) Long projectId, Model model) {
-    	Allocation allocation = new Allocation();
+    	AllocationDTO allocation = new AllocationDTO();
     	if (projectId != null) {
     		allocation.setProjectId(projectId);
     	}
@@ -89,7 +89,7 @@ public class AllocationController {
 	}
     
     @PostMapping()
-    public String createAllocation(@Valid @ModelAttribute("allocation") Allocation allocation, BindingResult bindingResult, Model model) {
+    public String createAllocation(@Valid @ModelAttribute("allocation") AllocationDTO allocation, BindingResult bindingResult, Model model) {
     	if (bindingResult.hasErrors()) {
     		//TODO
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
@@ -109,7 +109,7 @@ public class AllocationController {
     @GetMapping(value = "/{id}", params = "form")
 	public String updateAllocationForm(@PathVariable long id, Model model) {
 		try {
-			Allocation allocation = allocationService.getById(id);
+			AllocationDTO allocation = allocationService.getById(id);
 			model.addAttribute("allocation", allocation);
 			return "allocations/update";
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
@@ -122,7 +122,7 @@ public class AllocationController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public String update(@PathVariable long id, @Valid Allocation allocation, BindingResult bindingResult) {
+	public String update(@PathVariable long id, @Valid AllocationDTO allocation, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "allocations/update";

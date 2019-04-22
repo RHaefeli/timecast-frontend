@@ -1,6 +1,4 @@
-package wodss.timecastfrontend.domain;
-
-import java.util.List;
+package wodss.timecastfrontend.domain.dto;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -9,7 +7,7 @@ import org.springframework.data.annotation.Id;
 
 import wodss.timecastfrontend.domain.AbstractTimecastEntity;
 
-public class Project extends AbstractTimecastEntity {
+public class ProjectDTO extends AbstractTimecastEntity {
 	
 	@NotNull
 	@Size(min=1, max=50)
@@ -26,16 +24,8 @@ public class Project extends AbstractTimecastEntity {
 	@Size(min=10, max=10)
 	private String endDate;
 	
-	private Employee projectManager;
-	
-	public Project() {}
-	
-	public Project(String name, long ftePercentage, String startDate, String endDate) {
-		this.name = name;
-		this.ftePercentage = ftePercentage;
-		this.startDate = startDate;
-		this.endDate = endDate;
-	}
+	@NotNull
+	private long projectManagerId;
 
 	public String getName() {
 		return name;
@@ -69,12 +59,13 @@ public class Project extends AbstractTimecastEntity {
 		this.endDate = endDate;
 	}
 
-	public Employee getProjectManager() {
-		return projectManager;
+	public long getProjectManagerId() {
+		return projectManagerId;
 	}
 
-	public void setProjectManager(Employee projectManager) {
-		this.projectManager = projectManager;
-	}	
+	public void setProjectManagerId(long projectManagerId) {
+		this.projectManagerId = projectManagerId;
+	}
+	
 	
 }

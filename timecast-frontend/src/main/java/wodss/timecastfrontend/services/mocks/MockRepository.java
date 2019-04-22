@@ -6,17 +6,17 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import wodss.timecastfrontend.domain.Allocation;
-import wodss.timecastfrontend.domain.Contract;
-import wodss.timecastfrontend.domain.Employee;
-import wodss.timecastfrontend.domain.Project;
+import wodss.timecastfrontend.domain.dto.AllocationDTO;
+import wodss.timecastfrontend.domain.dto.ContractDTO;
+import wodss.timecastfrontend.domain.dto.EmployeeDTO;
+import wodss.timecastfrontend.domain.dto.ProjectDTO;
 
 public final class MockRepository {
 	
-	public static List<Project> projects = new ArrayList<>();
-	public static List<Employee> employees = new ArrayList<>();
-	public static List<Contract> contracts = new ArrayList<>();
-	public static List<Allocation> allocations = new ArrayList<>();
+	public static List<ProjectDTO> projects = new ArrayList<>();
+	public static List<EmployeeDTO> employees = new ArrayList<>();
+	public static List<ContractDTO> contracts = new ArrayList<>();
+	public static List<AllocationDTO> allocations = new ArrayList<>();
 	
 	public static int nextProjectId = 1;
 	public static int nextEmployeeId = 1;
@@ -40,29 +40,29 @@ public final class MockRepository {
 	}
 	
 	private static void generateProjects() {
-		Project project1 = new Project();
+		ProjectDTO project1 = new ProjectDTO();
 		project1.setId(nextProjectId++);
 		project1.setName("Project1");
 		project1.setFtePercentage(100);
 		project1.setStartDate("2019-03-16");
 		project1.setEndDate("2019-10-10");
-		project1.setProjectManagerId(3);
+		project1.setProjectManagerId(2);
 		
-		Project project2 = new Project();
+		ProjectDTO project2 = new ProjectDTO();
 		project2.setId(nextProjectId++);
 		project2.setName("Project2");
 		project2.setFtePercentage(200);
 		project2.setStartDate("2018-03-16");
 		project2.setEndDate("2018-10-10");
-		project2.setProjectManagerId(3);
+		project2.setProjectManagerId(2);
 		
-		Project project3 = new Project();
+		ProjectDTO project3 = new ProjectDTO();
 		project3.setId(nextProjectId++);
 		project3.setName("Project3");
 		project3.setFtePercentage(300);
 		project3.setStartDate("2020-03-16");
 		project3.setEndDate("2020-10-10");
-		project3.setProjectManagerId(3);
+		project3.setProjectManagerId(2);
 		
 		projects.add(project1);
 		projects.add(project2);
@@ -71,7 +71,7 @@ public final class MockRepository {
 	}
 	
 	private static void generateEmployees() {
-        Employee emp1 = new Employee();
+        EmployeeDTO emp1 = new EmployeeDTO();
         emp1.setId(nextEmployeeId++);
         emp1.setLastName("Müller");
         emp1.setFirstName("Kurt");
@@ -79,7 +79,7 @@ public final class MockRepository {
         emp1.setEmailAddress("k.mueller@mail.com");
         emp1.setRole("Admin");
 
-        Employee emp2 = new Employee();
+        EmployeeDTO emp2 = new EmployeeDTO();
         emp2.setId(nextEmployeeId++);
         emp2.setLastName("Meier");
         emp2.setFirstName("Jonathan");
@@ -87,7 +87,7 @@ public final class MockRepository {
         emp2.setEmailAddress("j.meier@mail.com");
         emp2.setRole("Developer");
 
-        Employee emp3 = new Employee();
+        EmployeeDTO emp3 = new EmployeeDTO();
         emp3.setId(nextEmployeeId++);
         emp3.setLastName("Brösmeli");
         emp3.setFirstName("Guschdi");
@@ -101,14 +101,14 @@ public final class MockRepository {
     }
 	
 	private static void generateContracts() {		
-		Contract con1 = new Contract();
+		ContractDTO con1 = new ContractDTO();
 		con1.setId(nextContractId++);
 		con1.setStartDate("2019-03-16");
 		con1.setEndDate("2019-10-10");
 		con1.setPensumPercentage(100);
 		con1.setEmployeeId(2);
 		
-		Contract con2 = new Contract();
+		ContractDTO con2 = new ContractDTO();
 		con2.setId(nextContractId++);
 		con2.setStartDate("2019-03-16");
 		con2.setEndDate("2019-10-31");
@@ -120,7 +120,7 @@ public final class MockRepository {
 	}
 	
 	private static void generateAllocations() {
-		Allocation alloc1 = new Allocation();
+		AllocationDTO alloc1 = new AllocationDTO();
 		alloc1.setId(nextAllocationId++);
 		alloc1.setStartDate("2019-03-16");
 		alloc1.setEndDate("2019-10-10");
@@ -128,7 +128,7 @@ public final class MockRepository {
 		alloc1.setProjectId(1);
 		alloc1.setContractId(1);
 		
-		Allocation alloc2 = new Allocation();
+		AllocationDTO alloc2 = new AllocationDTO();
 		alloc2.setId(nextAllocationId++);
 		alloc2.setStartDate("2019-03-16");
 		alloc2.setEndDate("2019-05-20");
@@ -136,7 +136,7 @@ public final class MockRepository {
 		alloc2.setProjectId(1);
 		alloc2.setContractId(2);
 		
-		Allocation alloc3 = new Allocation();
+		AllocationDTO alloc3 = new AllocationDTO();
 		alloc3.setId(nextAllocationId++);
 		alloc3.setStartDate("2019-06-01");
 		alloc3.setEndDate("2019-10-10");

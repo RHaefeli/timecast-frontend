@@ -18,8 +18,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import wodss.timecastfrontend.domain.Allocation;
-import wodss.timecastfrontend.domain.Project;
+import wodss.timecastfrontend.domain.dto.AllocationDTO;
+import wodss.timecastfrontend.domain.dto.ProjectDTO;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
@@ -38,13 +38,13 @@ public class MockAllocationService extends AllocationService {
 	}
 	
 	@Override
-	public List<Allocation> getAll() {
+	public List<AllocationDTO> getAll() {
 		return MockRepository.allocations;
 	}
 
 	@Override
-	public List<Allocation> getAllocations(long employeeId, long projectId, String fromDateString, String toDateString) {
-		Stream<Allocation> stream = MockRepository.allocations.stream();
+	public List<AllocationDTO> getAllocations(long employeeId, long projectId, String fromDateString, String toDateString) {
+		Stream<AllocationDTO> stream = MockRepository.allocations.stream();
 		if (projectId >= 0 ) {
 			stream = stream.filter(a -> a.getProjectId() == projectId);
 		}
@@ -79,7 +79,7 @@ public class MockAllocationService extends AllocationService {
 	}
 
 	@Override
-	public Allocation getById(long id) {
+	public AllocationDTO getById(long id) {
 		if (MockRepository.allocations.stream().anyMatch(a -> a.getId() == id)) {
 			return MockRepository.allocations.stream().filter(a -> a.getId() == id).findFirst().get();
 		} else {
@@ -88,16 +88,16 @@ public class MockAllocationService extends AllocationService {
 	}
 
 	@Override
-	public Allocation create(Allocation newAllocation) {
+	public AllocationDTO create(AllocationDTO newAllocation) {
 		newAllocation.setId(MockRepository.nextAllocationId++);
 		MockRepository.allocations.add(newAllocation);
 		return newAllocation;
 	}
 
 	@Override
-	public Allocation update(Allocation updatedAllocation) {
+	public AllocationDTO update(AllocationDTO updatedAllocation) {
 		if (MockRepository.allocations.stream().anyMatch(a -> a.getId() == updatedAllocation.getId())) {
-			Allocation oldAllocation = MockRepository.allocations.stream().filter(a -> a.getId() == updatedAllocation.getId()).findFirst().get();
+			AllocationDTO oldAllocation = MockRepository.allocations.stream().filter(a -> a.getId() == updatedAllocation.getId()).findFirst().get();
 			oldAllocation.setContractId(updatedAllocation.getContractId());
 			oldAllocation.setStartDate(updatedAllocation.getStartDate());
 			oldAllocation.setEndDate(updatedAllocation.getEndDate());

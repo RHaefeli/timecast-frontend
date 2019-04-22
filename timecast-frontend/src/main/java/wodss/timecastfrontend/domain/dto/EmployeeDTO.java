@@ -1,28 +1,15 @@
-package wodss.timecastfrontend.domain;
-
-import java.util.List;
+package wodss.timecastfrontend.domain.dto;
 
 import wodss.timecastfrontend.domain.AbstractTimecastEntity;
 
-public class Employee extends AbstractTimecastEntity {
+public class EmployeeDTO extends AbstractTimecastEntity {
     private boolean active;
     private String lastName;
     private String firstName;
     private String emailAddress;
     private String role;
-    
-    public Employee(boolean active, String lastName, String firstName, String emailAddress, String role) {
-    	this.active = active;
-    	this.lastName = lastName;
-    	this.firstName = firstName;
-    	this.emailAddress = emailAddress;
-    	this.role = role;
-    }
 
-    public Employee() {
-	}
-
-	public boolean isActive() {
+    public boolean isActive() {
         return active;
     }
 
@@ -62,7 +49,7 @@ public class Employee extends AbstractTimecastEntity {
         this.role = role;
     }
 
-	@Override
+    @Override
     public String toString() {
         return lastName + " " + firstName + ", " + role;
     }

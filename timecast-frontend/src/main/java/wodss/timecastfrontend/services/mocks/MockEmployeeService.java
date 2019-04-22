@@ -5,7 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import wodss.timecastfrontend.domain.Employee;
+
+import wodss.timecastfrontend.domain.dto.EmployeeDTO;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 import wodss.timecastfrontend.services.EmployeeService;
 
@@ -17,7 +18,7 @@ import java.util.Optional;
 @Component
 public class MockEmployeeService extends EmployeeService {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private List<Employee> employeeRepo;
+    private List<EmployeeDTO> employeeRepo;
     private int nextProjectId = 0;
 
     public MockEmployeeService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.employee}") String apiURL) {
@@ -28,13 +29,13 @@ public class MockEmployeeService extends EmployeeService {
     }
 
     @Override
-    public List<Employee> getAll() {
+    public List<EmployeeDTO> getAll() {
         return employeeRepo;
     }
 
     @Override
-    public Employee getById(long id) {
-        Optional<Employee> employee = employeeRepo.stream().filter(e -> e.getId() == id).findFirst();
+    public EmployeeDTO getById(long id) {
+        Optional<EmployeeDTO> employee = employeeRepo.stream().filter(e -> e.getId() == id).findFirst();
         if (employee.isPresent()) {
             return employee.get();
         } else {
@@ -43,17 +44,17 @@ public class MockEmployeeService extends EmployeeService {
     }
 
     @Override
-    public Employee create(Employee newEmployee) {
+    public EmployeeDTO create(EmployeeDTO newEmployee) {
         newEmployee.setId(nextProjectId++);
         employeeRepo.add(newEmployee);
         return newEmployee;
     }
 
     @Override
-    public Employee update(Employee updatedEmployee) {
-        Optional<Employee> result = employeeRepo.stream().filter(e -> e.getId() == updatedEmployee.getId()).findFirst();
+    public EmployeeDTO update(EmployeeDTO updatedEmployee) {
+        Optional<EmployeeDTO> result = employeeRepo.stream().filter(e -> e.getId() == updatedEmployee.getId()).findFirst();
         if (result.isPresent()) {
-            Employee oldEmployee = result.get();
+            EmployeeDTO oldEmployee = result.get();
             oldEmployee.setLastName(updatedEmployee.getLastName());
             oldEmployee.setFirstName(updatedEmployee.getEmailAddress());
             oldEmployee.setActive(updatedEmployee.isActive());
@@ -75,8 +76,8 @@ public class MockEmployeeService extends EmployeeService {
     }
 
 
-    private List<Employee> generateEmployees() {
-        Employee emp1 = new Employee();
+    private List<EmployeeDTO> generateEmployees() {
+        EmployeeDTO emp1 = new EmployeeDTO();
         emp1.setId(nextProjectId++);
         emp1.setLastName("Müller");
         emp1.setFirstName("Kurt");
@@ -84,7 +85,7 @@ public class MockEmployeeService extends EmployeeService {
         emp1.setEmailAddress("k.mueller@mail.com");
         emp1.setRole("Admin");
 
-        Employee emp2 = new Employee();
+        EmployeeDTO emp2 = new EmployeeDTO();
         emp2.setId(nextProjectId++);
         emp2.setLastName("Meier");
         emp2.setFirstName("Jonathan");
@@ -92,7 +93,7 @@ public class MockEmployeeService extends EmployeeService {
         emp2.setEmailAddress("j.meier@mail.com");
         emp2.setRole("Developer");
 
-        Employee emp3 = new Employee();
+        EmployeeDTO emp3 = new EmployeeDTO();
         emp3.setId(nextProjectId++);
         emp3.setLastName("Brösmeli");
         emp3.setFirstName("Guschdi");
@@ -100,7 +101,7 @@ public class MockEmployeeService extends EmployeeService {
         emp3.setEmailAddress("g.broesmeli@mail.com");
         emp3.setRole("Project Leader");
 
-        List<Employee> employees = new ArrayList<>();
+        List<EmployeeDTO> employees = new ArrayList<>();
         employees.add(emp1);
         employees.add(emp2);
         employees.add(emp3);

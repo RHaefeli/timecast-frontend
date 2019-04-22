@@ -15,20 +15,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import wodss.timecastfrontend.domain.Allocation;
-import wodss.timecastfrontend.domain.Project;
+import wodss.timecastfrontend.domain.dto.AllocationDTO;
+import wodss.timecastfrontend.domain.dto.ProjectDTO;
 
 @Component
-public class AllocationService extends AbstractService<Allocation>{
+public class AllocationService extends AbstractService<AllocationDTO>{
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     public AllocationService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.allocation}") String apiURL) {
-        super(restTemplate, apiURL, Allocation.class);
+        super(restTemplate, apiURL, AllocationDTO.class);
     }
     
-    public List<Allocation> getAllocations(long employeeId, long projectId, String fromDate, String toDate) {
+    public List<AllocationDTO> getAllocations(long employeeId, long projectId, String fromDate, String toDate) {
     	Map<String, String> uriVar = new HashMap<>();
 		if (employeeId >= 0) {
 			uriVar.put("employeeId", String.valueOf(employeeId));
@@ -43,15 +43,15 @@ public class AllocationService extends AbstractService<Allocation>{
 			uriVar.put("toDate", toDate);
 		}
 		logger.debug("Get Allocations with params: {} {} {} {}",  employeeId, projectId, fromDate, toDate );
-		ResponseEntity<List<Allocation>> response = restTemplate.exchange(apiURL, HttpMethod.GET, null,
-				new ParameterizedTypeReference<List<Allocation>>() {
+		ResponseEntity<List<AllocationDTO>> response = restTemplate.exchange(apiURL, HttpMethod.GET, null,
+				new ParameterizedTypeReference<List<AllocationDTO>>() {
 				}, uriVar);
 		
 		if (response.getStatusCode() != HttpStatus.OK) {
 			AbstractService.throwStatusCodeException(response.getStatusCode());
 		}
 		
-		List<Allocation> allocations = response.getBody();
+		List<AllocationDTO> allocations = response.getBody();
         logger.debug("Received allocations: {}", allocations);
 		
 		return response.getBody();

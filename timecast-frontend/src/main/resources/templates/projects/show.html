@@ -43,9 +43,9 @@
         
         <div class="form-row">
             <div class="form-group col-md-5">
-                <label for="projectManagerId">Project Manager ID</label>
-                <input type="text" class="form-control" id="projectManagerId" th:field="*{projectManagerId}" th:errorclas="fieldError" readonly/>
-                <span th:if="${#fields.hasErrors('projectManagerId')}" th:errors="*{projectManagerId}" class="fieldErrorText"></span>
+                <label for="projectManager">Project Manager</label>
+                <input type="text" class="form-control" id="projectManager" th:field="*{projectManager.lastName}" th:errorclas="fieldError" readonly/>
+                <span th:if="${#fields.hasErrors('projectManager')}" th:errors="*{projectManager.name}" class="fieldErrorText"></span>
             </div>
         </div>
         	<h4>Allocations</h4>

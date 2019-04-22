@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 
-import wodss.timecastfrontend.domain.Project;
+import wodss.timecastfrontend.domain.dto.ProjectDTO;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
@@ -17,7 +17,7 @@ import wodss.timecastfrontend.services.ProjectService;
 
 public class MockProjectService extends ProjectService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	private List<Project> projectRepo;
+	private List<ProjectDTO> projectRepo;
 
 	public MockProjectService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.project}") String apiURL) {
 		super(restTemplate, apiURL);
@@ -32,13 +32,13 @@ public class MockProjectService extends ProjectService {
 	}
 	
 	@Override
-	public List<Project> getAll() {
+	public List<ProjectDTO> getAll() {
 		logger.debug("Get all projects without param");
 		return projectRepo;
 	}
 
 	@Override
-	public List<Project> getProjects(long projectManagerId, String fromDate, String toDate){
+	public List<ProjectDTO> getProjects(long projectManagerId, String fromDate, String toDate){
 		logger.debug("Get all projects with params {} {} {}",projectManagerId, fromDate, toDate);
 		if (("".equals(fromDate) && "".equals(toDate)) || (fromDate == null) || (toDate == null)) {
 			return projectRepo;
@@ -48,7 +48,7 @@ public class MockProjectService extends ProjectService {
 	}
 
 	@Override
-	public Project getById(long id) {
+	public ProjectDTO getById(long id) {
 		if (projectRepo.stream().anyMatch(p -> p.getId() == id)) {
 			return projectRepo.stream().filter(p -> p.getId() == id).findFirst().get();
 		} else {
@@ -57,16 +57,16 @@ public class MockProjectService extends ProjectService {
 	}
 
 	@Override
-	public Project create(Project newProject) throws TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
+	public ProjectDTO create(ProjectDTO newProject) throws TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
 		newProject.setId(MockRepository.nextProjectId++);
 		projectRepo.add(newProject);
 		return newProject;
 	}
 
 	@Override
-	public Project update(Project updatedProject) throws TimecastNotFoundException, TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
+	public ProjectDTO update(ProjectDTO updatedProject) throws TimecastNotFoundException, TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
 		if (projectRepo.stream().anyMatch(p -> p.getId() == updatedProject.getId())) {
-			Project oldProject = projectRepo.stream().filter(p -> p.getId() == updatedProject.getId()).findFirst().get();
+			ProjectDTO oldProject = projectRepo.stream().filter(p -> p.getId() == updatedProject.getId()).findFirst().get();
 			oldProject.setName(updatedProject.getName());
 			oldProject.setFtePercentage(updatedProject.getFtePercentage());
 			oldProject.setProjectManagerId(updatedProject.getProjectManagerId());

@@ -1,7 +1,10 @@
 package wodss.timecastfrontend.web;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -21,14 +24,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import wodss.timecastfrontend.domain.Allocation;
+import wodss.timecastfrontend.domain.Contract;
+import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Project;
+import wodss.timecastfrontend.domain.dto.AllocationDTO;
+import wodss.timecastfrontend.domain.dto.ContractDTO;
+import wodss.timecastfrontend.domain.dto.EmployeeDTO;
+import wodss.timecastfrontend.domain.dto.ProjectDTO;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 import wodss.timecastfrontend.services.AllocationService;
+import wodss.timecastfrontend.services.ContractService;
+import wodss.timecastfrontend.services.EmployeeService;
 import wodss.timecastfrontend.services.ProjectService;
 import wodss.timecastfrontend.services.mocks.MockAllocationService;
+import wodss.timecastfrontend.services.mocks.MockContractService;
+import wodss.timecastfrontend.services.mocks.MockEmployeeService;
 import wodss.timecastfrontend.services.mocks.MockProjectService;
 
 @Controller
@@ -38,6 +51,8 @@ public class ProjectController {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ProjectService projectService;
     private final AllocationService allocationService;
+    private final EmployeeService employeeService;
+    private final ContractService contractService;
 
     //TODO activate when backend is ready
 //    @Autowired
@@ -49,24 +64,29 @@ public class ProjectController {
     public ProjectController() {
     	projectService = new MockProjectService(null, "");
     	allocationService = new MockAllocationService(null, "");
+    	employeeService = new MockEmployeeService(null, "");
+    	contractService = new MockContractService(null, "");
     }
 
     @GetMapping()
     public String getAll(@RequestParam(value = "projectManagerId", required = false) Long projectManagerId, @RequestParam(value = "fromDate", required = false) String fromDateString, @RequestParam(value = "toDate", required = false) String toDateString, Model model) {
         logger.debug("Get all projects with params {} {} {}", projectManagerId, fromDateString, toDateString);
-    	List<Project> projects;
+    	List<ProjectDTO> projectDtos;
+    	List<Project> projects = new ArrayList<Project>();
 		try {
 			//TODO check
 			if ("".equals(fromDateString) && "".equals(toDateString) && null == projectManagerId) {
-				projects = projectService.getAll();
+				projectDtos = projectService.getAll();
+				projects = getProjects(projectDtos);
 			} else {
 				//TODO fix
 				if (projectManagerId == null) {
 					projectManagerId = (long) -1;
 				}
- 				projects = projectService.getProjects(Long.valueOf(projectManagerId), fromDateString, toDateString);
+ 				projectDtos = projectService.getProjects(Long.valueOf(projectManagerId), fromDateString, toDateString);
+ 				projects = getProjects(projectDtos);
 			}
-			
+			logger.debug("Projects: " + projects);
 			model.addAttribute("projects", projects);
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException e) {
 			// TODO Handle error
@@ -79,10 +99,12 @@ public class ProjectController {
     @GetMapping(value = "/{id}")
 	public String getProjectById(@PathVariable long id, Model model) {
     	logger.debug("Get project by id: " + id);
-    	Project project;
+    	ProjectDTO projectDto;
     	try {
-			project = projectService.getById(id);
-			List<Allocation> allocations = allocationService.getAllocations(-1, project.getId(), null, null);
+			projectDto = projectService.getById(id);
+			Project project = getProject(projectDto);
+			List<AllocationDTO> allocationDtos = allocationService.getAllocations(-1, project.getId(), null, null);
+			List<Allocation> allocations = getAllocations(allocationDtos, project);
 			model.addAttribute("project", project);
 			model.addAttribute("allocations", allocations);
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
@@ -97,6 +119,9 @@ public class ProjectController {
     @GetMapping(params = "form")
 	public String createProjectForm(Model model) {
 		model.addAttribute("project", new Project());
+		List<Employee> projectManagers = getProjectManagers();
+		logger.debug("managers: {}", projectManagers);
+		model.addAttribute("managers", projectManagers);
 		return "projects/create";
 	}
     @PostMapping()
@@ -107,7 +132,7 @@ public class ProjectController {
 			return "projects/create";
 		}
     	try {
-			projectService.create(project);
+			projectService.create(getProjectDto(project));
 		} catch (TimecastPreconditionFailedException | TimecastForbiddenException
 				| TimecastInternalServerErrorException e) {
 			// TODO handle error
@@ -120,7 +145,8 @@ public class ProjectController {
     @GetMapping(value = "/{id}", params = "form")
 	public String updateProjectForm(@PathVariable long id, Model model) {
 		try {
-			Project project = projectService.getById(id);
+			ProjectDTO projectDto = projectService.getById(id);
+			Project project = getProject(projectDto);
 			model.addAttribute("project", project);
 			return "projects/update";
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
@@ -139,7 +165,7 @@ public class ProjectController {
 			return "project/update";
 		}
 			try {
-				projectService.update(project);
+				projectService.update(getProjectDto(project));
 			} catch (TimecastNotFoundException | TimecastPreconditionFailedException | TimecastForbiddenException
 					| TimecastInternalServerErrorException e) {
 				// TODO handle error
@@ -158,6 +184,67 @@ public class ProjectController {
 		}
 		
 		return "redirect:/projects";
+	}
+	
+	private List<Project> getProjects(List<ProjectDTO> projectDtos) {
+		List<Project> projects = new ArrayList<Project>();
+		for (ProjectDTO projectDTO : projectDtos) {
+			projects.add(getProject(projectDTO));
+		}
+		
+		return projects;
+	}
+	
+	private Project getProject(ProjectDTO projectDto) {
+		//TODO improve
+		Project p = new Project(projectDto.getName(), projectDto.getFtePercentage(), projectDto.getStartDate(), projectDto.getEndDate());
+		p.setId(projectDto.getId());
+		EmployeeDTO eDto = employeeService.getById(projectDto.getProjectManagerId());
+		Employee e = new Employee(eDto.isActive(), eDto.getLastName(), eDto.getFirstName(), eDto.getEmailAddress(), eDto.getRole());
+		p.setProjectManager(e);
+		return p;
+	}
+	
+	private List<Allocation> getAllocations(List<AllocationDTO> allocationDtos, Project project) {
+		List<Allocation> allocations = new ArrayList<Allocation>();
+		for (AllocationDTO allocDto : allocationDtos) {
+			Allocation alloc = new Allocation(allocDto.getStartDate(), allocDto.getEndDate(), allocDto.getPensumPercentage());
+			alloc.setId(allocDto.getId());
+			alloc.setProject(project);
+			ContractDTO contractDto = contractService.getById(allocDto.getContractId());
+			Contract contract = new Contract(contractDto.getStartDate(), contractDto.getEndDate(), contractDto.getPensumPercentage());
+			contract.setId(contractDto.getId());
+			EmployeeDTO eDto = employeeService.getById(contractDto.getEmployeeId());
+			Employee e = new Employee(eDto.isActive(), eDto.getLastName(), eDto.getFirstName(), eDto.getEmailAddress(), eDto.getRole());
+			e.setId(eDto.getId());
+			contract.setEmployee(e);
+			alloc.setContract(contract);
+			allocations.add(alloc);
+		}
+		
+		return allocations;
+	}
+	
+	private ProjectDTO getProjectDto(Project project) {
+		ProjectDTO projectDto = new ProjectDTO();
+		projectDto.setName(project.getName());
+		projectDto.setStartDate(project.getStartDate());
+		projectDto.setEndDate(project.getEndDate());
+		projectDto.setFtePercentage(project.getFtePercentage());
+		projectDto.setProjectManagerId(project.getProjectManager().getId());
+		return projectDto;
+	}
+	
+	private List<Employee> getProjectManagers() {
+		List<Employee> managers = new ArrayList<Employee>();
+		List<EmployeeDTO> eDtos = employeeService.getAll().stream().filter(e -> e.getRole().equals("Project Leader")).collect(Collectors.toList());;
+		for (EmployeeDTO employeeDTO : eDtos) {
+			Employee e = new Employee(employeeDTO.isActive(), employeeDTO.getLastName(), employeeDTO.getFirstName(), employeeDTO.getEmailAddress(), employeeDTO.getRole());
+			e.setId(employeeDTO.getId());
+			managers.add(e);
+		}
+		
+		return managers;
 	}
 }
 

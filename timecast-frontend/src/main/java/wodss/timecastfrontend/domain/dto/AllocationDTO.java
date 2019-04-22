@@ -1,12 +1,13 @@
-package wodss.timecastfrontend.domain;
+package wodss.timecastfrontend.domain.dto;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import wodss.timecastfrontend.domain.AbstractTimecastEntity;
 
-public class Contract extends AbstractTimecastEntity{
-	
+public class AllocationDTO extends AbstractTimecastEntity {
 	@NotNull
 	@Size(min=10, max=10)
 	String startDate;
@@ -16,16 +17,15 @@ public class Contract extends AbstractTimecastEntity{
 	String endDate;
 	
 	@NotNull
-	@Size(min=0, max=100)
+	@Min(0)
+	@Max(100)
 	int pensumPercentage;
 	
-	Employee employee;
+	@NotNull
+	long contractId;
 	
-	public Contract(String startDate, String endDate, int pensumPercentage) {
-		this.startDate = startDate;
-		this.endDate = endDate;
-		this.pensumPercentage = pensumPercentage;
-	}
+	@NotNull
+	long projectId;
 
 	public String getStartDate() {
 		return startDate;
@@ -51,12 +51,21 @@ public class Contract extends AbstractTimecastEntity{
 		this.pensumPercentage = pensumPercentage;
 	}
 
-	public Employee getEmployee() {
-		return employee;
+	public long getContractId() {
+		return contractId;
 	}
 
-	public void setEmployee(Employee employee) {
-		this.employee = employee;
+	public void setContractId(long contractId) {
+		this.contractId = contractId;
 	}
 
+	public long getProjectId() {
+		return projectId;
+	}
+
+	public void setProjectId(long projectId) {
+		this.projectId = projectId;
+	}
+	
+	
 }

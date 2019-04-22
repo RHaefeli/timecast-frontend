@@ -41,13 +41,15 @@
                 <input type="text" class="form-control" id="endDate" th:field="*{endDate}" th:errorclas="fieldError"/>
                 <span th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}" class="fieldErrorText"></span>
             </div>
-        </div>
+        </div>        
         
         <div class="form-row">
             <div class="form-group col-md-5">
-                <label for="projectManagerId">Project Manager ID</label>
-                <input type="text" class="form-control" id="projectManagerId" th:field="*{projectManagerId}" th:errorclas="fieldError"/>
-                <span th:if="${#fields.hasErrors('projectManagerId')}" th:errors="*{projectManagerId}" class="fieldErrorText"></span>
+            <label for="projectManager">Project Manager</label>
+                <select id="projectManager" th:field="*{projectManager}">
+            	<option th:each="manager: ${managers}"
+                	th:value="${manager.id}" th:text="${manager}"></option>
+				</select>
             </div>
         </div>
 

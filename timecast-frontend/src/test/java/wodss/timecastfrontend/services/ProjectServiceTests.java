@@ -28,7 +28,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
 import org.junit.Assert;
-import wodss.timecastfrontend.domain.Project;
+
+import wodss.timecastfrontend.domain.dto.ProjectDTO;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
@@ -45,7 +46,7 @@ public class ProjectServiceTests {
 	//TODO replace by dynamic url
 	private String url = null;
 	
-	private List<Project> projects;
+	private List<ProjectDTO> projects;
 
 	
 	@Before
@@ -62,7 +63,7 @@ public class ProjectServiceTests {
                 Mockito.any(ParameterizedTypeReference.class)))
 		.thenReturn(new ResponseEntity(projects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getAll();
+		List<ProjectDTO> fetchedProjects = projectService.getAll();
 		
 		verify(restTemplateMock, times(1)).exchange(Mockito.eq(url), Mockito.eq(HttpMethod.GET), Mockito.eq(null),
                 Mockito.any(ParameterizedTypeReference.class));
@@ -76,18 +77,18 @@ public class ProjectServiceTests {
 		Map<String, String> uriVar = new HashMap<>();
 		uriVar.put("fromDate", "2019-03-16");
 		
-		List<Project> returnProjects = new ArrayList<>();
+		List<ProjectDTO> returnProjects = new ArrayList<>();
 		returnProjects.add(projects.get(0));
 		returnProjects.add(projects.get(2));
 		
 		Mockito.when(restTemplateMock.exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar))
+				null, new ParameterizedTypeReference<List<ProjectDTO>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getProjects(-1, "2019-03-16", null);
+		List<ProjectDTO> fetchedProjects = projectService.getProjects(-1, "2019-03-16", null);
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar);
+				null, new ParameterizedTypeReference<List<ProjectDTO>>(){}, uriVar);
 		
 		Assert.assertEquals(returnProjects, fetchedProjects);
 		
@@ -98,18 +99,18 @@ public class ProjectServiceTests {
 		Map<String, String> uriVar = new HashMap<>();
 		uriVar.put("toDate", "2020-01-01");
 		
-		List<Project> returnProjects = new ArrayList<>();
+		List<ProjectDTO> returnProjects = new ArrayList<>();
 		returnProjects.add(projects.get(0));
 		returnProjects.add(projects.get(1));
 		
 		Mockito.when(restTemplateMock.exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar))
+				null, new ParameterizedTypeReference<List<ProjectDTO>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getProjects(-1, null, "2020-01-01");
+		List<ProjectDTO> fetchedProjects = projectService.getProjects(-1, null, "2020-01-01");
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar);
+				null, new ParameterizedTypeReference<List<ProjectDTO>>(){}, uriVar);
 		
 		Assert.assertEquals(returnProjects, fetchedProjects);
 		
@@ -121,17 +122,17 @@ public class ProjectServiceTests {
 		uriVar.put("fromDate", "2019-01-01");
 		uriVar.put("toDate", "2020-01-01");
 		
-		List<Project> returnProjects = new ArrayList<>();
+		List<ProjectDTO> returnProjects = new ArrayList<>();
 		returnProjects.add(projects.get(0));
 		
 		Mockito.when(restTemplateMock.exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar))
+				null, new ParameterizedTypeReference<List<ProjectDTO>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getProjects(-1, "2019-01-01", "2020-01-01");
+		List<ProjectDTO> fetchedProjects = projectService.getProjects(-1, "2019-01-01", "2020-01-01");
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar);
+				null, new ParameterizedTypeReference<List<ProjectDTO>>(){}, uriVar);
 		
 		Assert.assertEquals(returnProjects, fetchedProjects);
 		
@@ -142,17 +143,17 @@ public class ProjectServiceTests {
 		Map<String, String> uriVar = new HashMap<>();
 		uriVar.put("projectManagerId", "1");
 		
-		List<Project> returnProjects = new ArrayList<>();
+		List<ProjectDTO> returnProjects = new ArrayList<>();
 		returnProjects = projects;
 		
 		Mockito.when(restTemplateMock.exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar))
+				null, new ParameterizedTypeReference<List<ProjectDTO>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
-		List<Project> fetchedProjects = projectService.getProjects(1, null, null);
+		List<ProjectDTO> fetchedProjects = projectService.getProjects(1, null, null);
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<Project>>(){}, uriVar);
+				null, new ParameterizedTypeReference<List<ProjectDTO>>(){}, uriVar);
 		
 		Assert.assertEquals(returnProjects, fetchedProjects);
 		
@@ -160,45 +161,45 @@ public class ProjectServiceTests {
 	
 	@Test
 	public void getProjectByIdTest() throws TimecastNotFoundException, TimecastInternalServerErrorException, TimecastForbiddenException {
-		Mockito.when(restTemplateMock.getForEntity(url + "/1" , Project.class)).thenReturn(new ResponseEntity<Project>(projects.get(0), HttpStatus.OK));
+		Mockito.when(restTemplateMock.getForEntity(url + "/1" , ProjectDTO.class)).thenReturn(new ResponseEntity<ProjectDTO>(projects.get(0), HttpStatus.OK));
 		
-		Project fetchedProject = projectService.getById(1);
+		ProjectDTO fetchedProject = projectService.getById(1);
 		
-		verify(restTemplateMock, times(1)).getForEntity(url + "/1", Project.class);
+		verify(restTemplateMock, times(1)).getForEntity(url + "/1", ProjectDTO.class);
 		
 		Assert.assertEquals(projects.get(0), fetchedProject);
 	}
 	
 	@Test
 	public void createProjectTest() throws TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
-		Project newProject = new Project();
+		ProjectDTO newProject = new ProjectDTO();
 		newProject.setId(99);
 		newProject.setName("ProjectNew");
 		newProject.setFtePercentage(100);
 		newProject.setStartDate("2019-03-16");
 		newProject.setEndDate("2019-10-10");
 		newProject.setProjectManagerId(0);
-		HttpEntity<Project> request = new HttpEntity<>(newProject);
-		Mockito.when(restTemplateMock.exchange(url, HttpMethod.POST, request, Project.class)).thenReturn(new ResponseEntity<Project>(newProject, HttpStatus.CREATED));
+		HttpEntity<ProjectDTO> request = new HttpEntity<>(newProject);
+		Mockito.when(restTemplateMock.exchange(url, HttpMethod.POST, request, ProjectDTO.class)).thenReturn(new ResponseEntity<ProjectDTO>(newProject, HttpStatus.CREATED));
 		
-		Project createdProject = projectService.create(newProject);
+		ProjectDTO createdProject = projectService.create(newProject);
 		
-		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.POST, request, Project.class);
+		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.POST, request, ProjectDTO.class);
 		
 		Assert.assertEquals(newProject, createdProject);
 	}
 	
 	@Test
 	public void updateProjectTest() throws TimecastNotFoundException, TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
-		Project updatedProject = projects.get(0);
+		ProjectDTO updatedProject = projects.get(0);
 		updatedProject.setName("ProjectnameNew");
-		HttpEntity<Project> requestEntity = new HttpEntity<Project>(updatedProject);
+		HttpEntity<ProjectDTO> requestEntity = new HttpEntity<ProjectDTO>(updatedProject);
 		
-		Mockito.when(restTemplateMock.exchange(url + "/1", HttpMethod.PUT, requestEntity, Project.class)).thenReturn(new ResponseEntity<Project>(updatedProject, HttpStatus.OK));
+		Mockito.when(restTemplateMock.exchange(url + "/1", HttpMethod.PUT, requestEntity, ProjectDTO.class)).thenReturn(new ResponseEntity<ProjectDTO>(updatedProject, HttpStatus.OK));
 		
-		Project responseProject = projectService.update(updatedProject);
+		ProjectDTO responseProject = projectService.update(updatedProject);
 		
-		verify(restTemplateMock, times(1)).exchange(url+ "/1", HttpMethod.PUT, requestEntity, Project.class);
+		verify(restTemplateMock, times(1)).exchange(url+ "/1", HttpMethod.PUT, requestEntity, ProjectDTO.class);
 		
 		Assert.assertEquals(updatedProject, responseProject);
 	}
@@ -216,8 +217,8 @@ public class ProjectServiceTests {
 	}
 	
 	
-	private List<Project> generateProjects() {
-		Project project1 = new Project();
+	private List<ProjectDTO> generateProjects() {
+		ProjectDTO project1 = new ProjectDTO();
 		project1.setId(1);
 		project1.setName("Project1");
 		project1.setFtePercentage(100);
@@ -225,7 +226,7 @@ public class ProjectServiceTests {
 		project1.setEndDate("2019-10-10");
 		project1.setProjectManagerId(0);
 		
-		Project project2 = new Project();
+		ProjectDTO project2 = new ProjectDTO();
 		project2.setId(1);
 		project2.setName("Project2");
 		project2.setFtePercentage(200);
@@ -233,7 +234,7 @@ public class ProjectServiceTests {
 		project2.setEndDate("2018-10-10");
 		project2.setProjectManagerId(0);
 		
-		Project project3 = new Project();
+		ProjectDTO project3 = new ProjectDTO();
 		project3.setId(1);
 		project3.setName("Project3");
 		project3.setFtePercentage(300);
@@ -241,7 +242,7 @@ public class ProjectServiceTests {
 		project3.setEndDate("2020-10-10");
 		project3.setProjectManagerId(0);
 		
-		List<Project> projects = new ArrayList();
+		List<ProjectDTO> projects = new ArrayList();
 		projects.add(project1);
 		projects.add(project2);
 		projects.add(project3);
