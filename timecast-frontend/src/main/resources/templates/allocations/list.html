@@ -22,11 +22,21 @@
 				</button>
 			</form>
 		</div>
+		<div th:fragment="allocations">
 		<div th:if="${allocations.isEmpty()}">
 			<h2 style="text-align: center">No Allocations found</h2>
 		</div>
 		<div style="padding-top: 10px;">
 			<table class="table table-condensed table-hover">
+			<thead>
+			<tr>
+			<th>ID</th>
+			<th>Contract ID</th>
+			<th>Start Date</th>
+			<th>End Date</th>
+			<th>Pensum</th>
+			<th>Project ID</th>
+			</thead>
 				<tbody>
 					<tr th:each="allocation : ${allocations}">
 						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.id}" />
@@ -63,6 +73,7 @@
 					</tr>
 				</tbody>
 			</table>
+		</div>
 		</div>
 	</section>
 

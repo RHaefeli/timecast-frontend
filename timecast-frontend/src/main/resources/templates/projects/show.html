@@ -48,7 +48,9 @@
                 <span th:if="${#fields.hasErrors('projectManagerId')}" th:errors="*{projectManagerId}" class="fieldErrorText"></span>
             </div>
         </div>
-                    <div class="form-group row">
+        	<h4>Allocations</h4>
+            <div th:insert="allocations/list.html :: allocations"></div>
+            <div class="form-group row">
                 <a class="btn btn-default" th:href="@{/projects}">Close</a>
             </div>
         </form>

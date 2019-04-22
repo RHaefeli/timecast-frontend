@@ -79,8 +79,12 @@ public class AllocationController {
     }
     
     @GetMapping(params = "form")
-	public String createAllocationForm(Model model) {
-		model.addAttribute("allocation", new Allocation());
+	public String createAllocationForm(@RequestParam(value = "projectId", required = false) Long projectId, Model model) {
+    	Allocation allocation = new Allocation();
+    	if (projectId != null) {
+    		allocation.setProjectId(projectId);
+    	}
+		model.addAttribute("allocation", allocation);
 		return "allocations/create";
 	}
     

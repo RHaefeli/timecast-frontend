@@ -20,12 +20,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import wodss.timecastfrontend.domain.Allocation;
 import wodss.timecastfrontend.domain.Project;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
+import wodss.timecastfrontend.services.AllocationService;
 import wodss.timecastfrontend.services.ProjectService;
+import wodss.timecastfrontend.services.mocks.MockAllocationService;
 import wodss.timecastfrontend.services.mocks.MockProjectService;
 
 @Controller
@@ -34,6 +37,7 @@ public class ProjectController {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ProjectService projectService;
+    private final AllocationService allocationService;
 
     //TODO activate when backend is ready
 //    @Autowired
@@ -44,6 +48,7 @@ public class ProjectController {
     //Used for early testing
     public ProjectController() {
     	projectService = new MockProjectService(null, "");
+    	allocationService = new MockAllocationService(null, "");
     }
 
     @GetMapping()
@@ -77,7 +82,9 @@ public class ProjectController {
     	Project project;
     	try {
 			project = projectService.getById(id);
+			List<Allocation> allocations = allocationService.getAllocations(-1, project.getId(), null, null);
 			model.addAttribute("project", project);
+			model.addAttribute("allocations", allocations);
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
 			// TODO handle error
 			e.printStackTrace();
