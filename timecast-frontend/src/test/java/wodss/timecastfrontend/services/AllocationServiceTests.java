@@ -62,7 +62,7 @@ public class AllocationServiceTests {
 				null, new ParameterizedTypeReference<List<Allocation>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnAllocations, HttpStatus.OK));
 		
-		List<Allocation> fetchedAllocations = allocationService.getAllocations(2, -1);
+		List<Allocation> fetchedAllocations = allocationService.getAllocations(2, -1, null, null);
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
 				null, new ParameterizedTypeReference<List<Allocation>>(){}, uriVar);
@@ -84,7 +84,7 @@ public class AllocationServiceTests {
 				null, new ParameterizedTypeReference<List<Allocation>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnAllocations, HttpStatus.OK));
 		
-		List<Allocation> fetchedAllocations = allocationService.getAllocations(-1, 2);
+		List<Allocation> fetchedAllocations = allocationService.getAllocations(-1, 2, null, null);
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
 				null, new ParameterizedTypeReference<List<Allocation>>(){}, uriVar);
@@ -105,7 +105,7 @@ public class AllocationServiceTests {
 				null, new ParameterizedTypeReference<List<Allocation>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(returnAllocations, HttpStatus.OK));
 		
-		List<Allocation> fetchedAllocations = allocationService.getAllocations(2, 2);
+		List<Allocation> fetchedAllocations = allocationService.getAllocations(2, 2, null, null);
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
 				null, new ParameterizedTypeReference<List<Allocation>>(){}, uriVar);
@@ -125,7 +125,7 @@ public class AllocationServiceTests {
 				null, new ParameterizedTypeReference<List<Allocation>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(HttpStatus.NOT_FOUND));
 		
-		allocationService.getAllocations(10, -1);
+		allocationService.getAllocations(10, -1, null, null);
 	}
 	
 	@Test(expected=TimecastForbiddenException.class)
@@ -139,7 +139,7 @@ public class AllocationServiceTests {
 				null, new ParameterizedTypeReference<List<Allocation>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(HttpStatus.FORBIDDEN));
 		
-		allocationService.getAllocations(1, -1);
+		allocationService.getAllocations(1, -1, null, null);
 	}
 	
 	@Test(expected=TimecastInternalServerErrorException.class)
@@ -153,7 +153,7 @@ public class AllocationServiceTests {
 				null, new ParameterizedTypeReference<List<Allocation>>(){}, uriVar))
 		.thenReturn(new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR));
 		
-		allocationService.getAllocations(1, -1);
+		allocationService.getAllocations(1, -1, null, null);
 	}
 	
 	

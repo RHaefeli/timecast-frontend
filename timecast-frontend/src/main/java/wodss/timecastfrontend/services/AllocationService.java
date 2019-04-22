@@ -28,7 +28,7 @@ public class AllocationService extends AbstractService<Allocation>{
         super(restTemplate, apiURL, Allocation.class);
     }
     
-    public List<Allocation> getAllocations(long employeeId, long projectId) {
+    public List<Allocation> getAllocations(long employeeId, long projectId, String fromDate, String toDate) {
     	Map<String, String> uriVar = new HashMap<>();
 		if (employeeId >= 0) {
 			uriVar.put("employeeId", String.valueOf(employeeId));
@@ -36,7 +36,13 @@ public class AllocationService extends AbstractService<Allocation>{
 		if (projectId >= 0) {
 			uriVar.put("projectId", String.valueOf(projectId));
 		}
-		logger.debug("Get Allocations with params: {} {}",  employeeId, projectId );
+		if (fromDate != null && !fromDate.equals("")) {
+			uriVar.put("fromDate", fromDate);
+		}
+		if (toDate != null && !toDate.equals("")) {
+			uriVar.put("toDate", toDate);
+		}
+		logger.debug("Get Allocations with params: {} {} {} {}",  employeeId, projectId, fromDate, toDate );
 		ResponseEntity<List<Allocation>> response = restTemplate.exchange(apiURL, HttpMethod.GET, null,
 				new ParameterizedTypeReference<List<Allocation>>() {
 				}, uriVar);

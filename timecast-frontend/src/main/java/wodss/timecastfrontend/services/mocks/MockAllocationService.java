@@ -1,5 +1,7 @@
 package wodss.timecastfrontend.services.mocks;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +29,7 @@ import wodss.timecastfrontend.services.ProjectService;
 
 public class MockAllocationService extends AllocationService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 	public MockAllocationService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.allocation}") String apiURL) {
 		super(restTemplate, apiURL);
@@ -40,16 +43,38 @@ public class MockAllocationService extends AllocationService {
 	}
 
 	@Override
-	public List<Allocation> getAllocations(long employeeId, long projectId) {
+	public List<Allocation> getAllocations(long employeeId, long projectId, String fromDateString, String toDateString) {
 		Stream<Allocation> stream = MockRepository.allocations.stream();
 		if (projectId >= 0 ) {
-			stream = stream.filter(a -> a.getProjectId() != projectId);
+			stream = stream.filter(a -> a.getProjectId() == projectId);
 		}
 		if (employeeId >= 0) {
 			List<Long> contractIds = MockRepository.contracts.stream().filter(c -> c.getEmployeeId() == employeeId).map(c -> c.getId()).collect(Collectors.toList());
 			stream = stream.filter(a -> contractIds.contains(a.getContractId()));
 		}
+		if (fromDateString != null && !fromDateString.equals("")) {
+			logger.debug("Filter allocations");
+			stream = stream.filter(a -> {
+				try {
+					return sdf.parse(a.getStartDate()).after(sdf.parse(fromDateString));
+				} catch (ParseException e) {
+					logger.debug("Exception");
+					throw new IllegalStateException();
+				}
+			});
+		}
 		
+		if (toDateString != null && !toDateString.equals("")) {
+			stream = stream.filter(a -> {
+				try {
+					return sdf.parse(a.getEndDate()).before(sdf.parse(toDateString));
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					throw new IllegalStateException();
+				}
+			});
+		}
+		logger.debug("Returning allocations");
 		return stream.collect(Collectors.toList());
 	}
 
