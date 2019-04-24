@@ -5,7 +5,7 @@ public class Employee extends AbstractTimecastEntity {
     private String lastName;
     private String firstName;
     private String emailAddress;
-    private String role;
+    private Role role;
 
     public boolean isActive() {
         return active;
@@ -39,11 +39,11 @@ public class Employee extends AbstractTimecastEntity {
         this.emailAddress = emailAddress;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
