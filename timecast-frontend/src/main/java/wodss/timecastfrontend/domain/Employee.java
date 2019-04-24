@@ -1,11 +1,20 @@
 package wodss.timecastfrontend.domain;
 
-public class Employee extends AbstractTimecastEntity {
+public class Employee implements AbstractTimecastEntity {
+    private long id;
     private boolean active;
     private String lastName;
     private String firstName;
     private String emailAddress;
     private Role role;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public boolean isActive() {
         return active;

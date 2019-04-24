@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import wodss.timecastfrontend.domain.Project;
+import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
@@ -34,12 +35,12 @@ public class MockProjectService extends ProjectService {
 	}
 	
 	@Override
-	public List<Project> getAll() throws TimecastNotFoundException, TimecastInternalServerErrorException {
+	public List<Project> getAll(Token token) throws TimecastNotFoundException, TimecastInternalServerErrorException {
 		return projectRepo;
 	}
 
 	@Override
-	public List<Project> getProjects(String fromDate, String toDate)
+	public List<Project> getProjects(Token token, String fromDate, String toDate)
 			throws TimecastNotFoundException, TimecastInternalServerErrorException {
 		if (("".equals(fromDate) && "".equals(toDate)) || (fromDate == null) || (toDate == null)) {
 			return projectRepo;
@@ -49,7 +50,7 @@ public class MockProjectService extends ProjectService {
 	}
 
 	@Override
-	public Project getById(long id) throws TimecastNotFoundException, TimecastInternalServerErrorException, TimecastForbiddenException {
+	public Project getById(Token token, long id) throws TimecastNotFoundException, TimecastInternalServerErrorException, TimecastForbiddenException {
 		if (projectRepo.stream().anyMatch(p -> p.getId() == id)) {
 			return projectRepo.stream().filter(p -> p.getId() == id).findFirst().get();
 		} else {
@@ -58,14 +59,14 @@ public class MockProjectService extends ProjectService {
 	}
 
 	@Override
-	public Project create(Project newProject) throws TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
+	public Project create(Token token, Project newProject) throws TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
 		newProject.setId(nextProjectId++);
 		projectRepo.add(newProject);
 		return newProject;
 	}
 
 	@Override
-	public Project update(Project updatedProject) throws TimecastNotFoundException, TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
+	public Project update(Token token, Project updatedProject) throws TimecastNotFoundException, TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
 		if (projectRepo.stream().anyMatch(p -> p.getId() == updatedProject.getId())) {
 			Project oldProject = projectRepo.stream().filter(p -> p.getId() == updatedProject.getId()).findFirst().get();
 			oldProject.setName(updatedProject.getName());
@@ -80,7 +81,7 @@ public class MockProjectService extends ProjectService {
 	}
 
 	@Override
-	public void deleteById(long id) throws TimecastInternalServerErrorException, TimecastForbiddenException, TimecastNotFoundException {
+	public void deleteById(Token token, long id) throws TimecastInternalServerErrorException, TimecastForbiddenException, TimecastNotFoundException {
 		if (projectRepo.stream().anyMatch(p -> p.getId() == id)) {
 			projectRepo.removeIf(p -> p.getId() == id);
 		} else {

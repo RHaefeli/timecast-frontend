@@ -9,12 +9,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import wodss.timecastfrontend.domain.Project;
+import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 
@@ -28,7 +31,7 @@ public class ProjectService extends AbstractService<Project>{
         super(restTemplate, apiURL, Project.class);
     }
 
-	public List<Project> getProjects(String fromDate, String toDate)
+	public List<Project> getProjects(Token token, String fromDate, String toDate)
 			throws TimecastNotFoundException, TimecastInternalServerErrorException {
 		Map<String, String> uriVar = new HashMap<>();
 		if (fromDate != null) {
@@ -37,7 +40,11 @@ public class ProjectService extends AbstractService<Project>{
 		if (toDate != null) {
 			uriVar.put("toDate", toDate);
 		}
-		ResponseEntity<List<Project>> response = restTemplate.exchange(apiURL, HttpMethod.GET, null,
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBearerAuth(token.getToken());
+		HttpEntity<?> request = new HttpEntity<>(headers);
+		ResponseEntity<List<Project>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request,
 				new ParameterizedTypeReference<List<Project>>() {
 				}, uriVar);
 
