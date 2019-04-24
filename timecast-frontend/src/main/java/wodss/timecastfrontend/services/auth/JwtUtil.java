@@ -2,9 +2,7 @@ package wodss.timecastfrontend.services.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import org.springframework.beans.factory.annotation.Value;
+import io.jsonwebtoken.*;
 import org.springframework.stereotype.Component;
 import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Token;
@@ -16,8 +14,6 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    @Value("${wodss.timecastfrontend.api.pubkey}")
-    private String SECRET_KEY;
     private ObjectMapper objectMapper = new ObjectMapper();
     private PublicKey publicKey;
 
@@ -26,6 +22,11 @@ public class JwtUtil {
         publicKey = RsaUtil.getPublicKeyFromString(publicKeyPEM);
     }
 
+    /**
+     * Extracts the employee from the employee Claim in the JWT.
+     * @param token The JWT Token which contains an employee Claim.
+     * @return The extracted employee.
+     */
     public Employee getEmployeeFromToken(Token token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(publicKey)
@@ -33,12 +34,17 @@ public class JwtUtil {
         return objectMapper.convertValue(claims.get("employee"), Employee.class);
     }
 
+    /**
+     * Gets the expiration time of a JWT Token.
+     * @param token The JWT Token.
+     * @return The expiration time.
+     */
     public long getExpirationTimeFromToken(Token token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(publicKey)
                 .parseClaimsJws(token.getToken()).getBody();
         Date exp = claims.getExpiration();
-        if (exp == null) throw new TimecastInternalServerErrorException(""); // TODO: Error?
+        if (exp == null) throw new TimecastInternalServerErrorException("");
         Date now = new Date();
         return exp.getTime() - now.getTime();
     }

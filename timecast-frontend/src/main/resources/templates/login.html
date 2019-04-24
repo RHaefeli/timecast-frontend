@@ -8,13 +8,15 @@
 
 <body>
 <section>
-    <form class="login-form" method="POST" th:action="'login?redirect=' + ${redirect}">
+    <div th:if="${param.error}" class="alert alert-danger">Invalid username or password.</div>
+    <form class="login-form" method="POST" th:action="'login'">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
         <h2>Login</h2>
         <br>
         <div class="form-row">
             <div class="form-group col-md-5">
-                <label for="email">Email</label>
-                <input id="email" name="email" type="text" class="form-control" placeholder="mail@mail.com" autofocus/>
+                <label for="username">Email</label>
+                <input id="username" name="username" type="text" class="form-control" placeholder="mail@mail.com" autofocus/>
             </div>
         </div>
 

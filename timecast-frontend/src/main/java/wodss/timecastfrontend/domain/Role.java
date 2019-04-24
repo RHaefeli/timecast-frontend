@@ -1,9 +1,9 @@
 package wodss.timecastfrontend.domain;
 
 public enum  Role {
-    ADMINISTRATOR("administrator"),
-    DEVELOPER("developer"),
-    PROJECTMANAGER("projectmanager");
+    ADMINISTRATOR("ADMINISTRATOR"),
+    DEVELOPER("DEVELOPER"),
+    PROJECTMANAGER("PROJECTMANAGER");
 
     private String value;
     Role(String value) {

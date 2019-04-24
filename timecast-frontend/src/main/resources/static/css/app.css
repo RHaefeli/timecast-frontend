@@ -16,6 +16,16 @@ Header
 }
 
 
+/*
+Footer
+ */
+.footer {
+    position: absolute;
+    margin-left: 10px;
+    bottom: 10px;
+}
+
+
 
 /*
 Sidebar
