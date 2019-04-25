@@ -3,6 +3,7 @@ package wodss.timecastfrontend.services;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +44,8 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(token.getToken());
 		HttpEntity<?> request = new HttpEntity<>(headers);
-		ResponseEntity<List<Project>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request,
-				new ParameterizedTypeReference<List<Project>>() {
+		ResponseEntity<List<ProjectDto>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request,
+				new ParameterizedTypeReference<List<ProjectDto>>() {
 				}, uriVar);
 
 		switch (response.getStatusCode()) {
@@ -53,7 +54,11 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 		case INTERNAL_SERVER_ERROR:
 			throw new TimecastInternalServerErrorException(response.getStatusCode().getReasonPhrase());
 		case OK:
-			return response.getBody();
+			List<ProjectDto> dtos = response.getBody();
+			if (dtos == null) {
+				return null;
+			}
+			return dtos.stream().map(dto -> mapDtoToEntity(dto)).collect(Collectors.toList());
 		}
 		// TODO fix
 		throw new IllegalStateException();
@@ -70,7 +75,7 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
     	dto.setStartDate(entity.getStartDate());
     	dto.setEndDate(entity.getEndDate());
     	dto.setProjectManagerId(entity.getProjectManagerId());
-		return null;
+		return dto;
 	}
 
 	@Override
@@ -83,6 +88,6 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 		entity.setStartDate(dto.getStartDate());
 		entity.setEndDate(dto.getEndDate());
 		entity.setProjectManagerId(dto.getProjectManagerId());
-		return null;
+		return entity;
 	}
 }
