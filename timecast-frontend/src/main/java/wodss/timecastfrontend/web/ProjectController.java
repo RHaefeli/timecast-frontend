@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,12 +22,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import wodss.timecastfrontend.domain.Project;
+import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 import wodss.timecastfrontend.services.ProjectService;
-import wodss.timecastfrontend.services.ProjectServiceFake;
+import wodss.timecastfrontend.services.mocks.MockProjectService;
 
 @Controller
 @RequestMapping(value="/projects")
@@ -43,19 +45,20 @@ public class ProjectController {
     
     //Used for early testing
     public ProjectController() {
-    	projectService = new ProjectServiceFake(null);
+    	projectService = new MockProjectService(null, "");
     }
 
     @GetMapping()
     public String getAll(@RequestParam(value = "fromDate", required = false) String fromDateString, @RequestParam(value = "toDate", required = false) String toDateString, Model model) {
         logger.debug("Get all projects");
     	List<Project> projects;
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		try {
 			//TODO check
 			if ("".equals(fromDateString) && "".equals(toDateString)) {
-				projects = projectService.getProjects();
+				projects = projectService.getAll(new Token(token));
 			} else {
-				projects = projectService.getProjects(fromDateString, toDateString);
+				projects = projectService.getProjects(new Token(token), fromDateString, toDateString);
 			}
 			
 			model.addAttribute("projects", projects);
@@ -68,11 +71,12 @@ public class ProjectController {
     }
     
     @GetMapping(value = "/{id}")
-	public String getProjectById(@PathVariable int id, Model model) {
+	public String getProjectById(@PathVariable long id, Model model) {
     	logger.debug("Get project by id: " + id);
     	Project project;
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     	try {
-			project = projectService.getProject(id);
+			project = projectService.getById(new Token(token), id);
 			model.addAttribute("project", project);
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
 			// TODO handle error
@@ -95,8 +99,9 @@ public class ProjectController {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "projects/create";
 		}
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     	try {
-			projectService.createProject(project);
+			projectService.create(new Token(token), project);
 		} catch (TimecastPreconditionFailedException | TimecastForbiddenException
 				| TimecastInternalServerErrorException e) {
 			// TODO handle error
@@ -107,9 +112,10 @@ public class ProjectController {
     }
     
     @GetMapping(value = "/{id}", params = "form")
-	public String updateProjectForm(@PathVariable int id, Model model) {
+	public String updateProjectForm(@PathVariable long id, Model model) {
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		try {
-			Project project = projectService.getProject(id);
+			Project project = projectService.getById(new Token(token), id);
 			model.addAttribute("project", project);
 			return "projects/update";
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
@@ -122,25 +128,27 @@ public class ProjectController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public String update(@PathVariable String id, @Valid Project project, BindingResult bindingResult) {
+	public String update(@PathVariable long id, @Valid Project project, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "project/update";
 		}
-			try {
-				projectService.updateProject(project.getId(), project);
-			} catch (TimecastNotFoundException | TimecastPreconditionFailedException | TimecastForbiddenException
-					| TimecastInternalServerErrorException e) {
-				// TODO handle error
-				e.printStackTrace();
-			}
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		try {
+			projectService.update(new Token(token), project);
+		} catch (TimecastNotFoundException | TimecastPreconditionFailedException | TimecastForbiddenException
+				| TimecastInternalServerErrorException e) {
+			// TODO handle error
+			e.printStackTrace();
+		}
 		return "redirect:/projects";
 	}
 	
 	@DeleteMapping(value = "/{id}")
-	public String delete(@PathVariable int id) {
+	public String delete(@PathVariable long id) {
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		try {
-			projectService.deleteProject(id);
+			projectService.deleteById(new Token(token), id);
 		} catch (TimecastInternalServerErrorException | TimecastForbiddenException | TimecastNotFoundException e) {
 			// TODO handle error
 			e.printStackTrace();

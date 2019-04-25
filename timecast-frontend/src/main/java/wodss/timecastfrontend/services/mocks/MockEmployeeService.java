@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import wodss.timecastfrontend.domain.Employee;
+import wodss.timecastfrontend.domain.Role;
+import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 import wodss.timecastfrontend.services.EmployeeService;
 
@@ -28,12 +30,14 @@ public class MockEmployeeService extends EmployeeService {
     }
 
     @Override
-    public List<Employee> getAll() {
+    public List<Employee> getAll(Token token) {
+        logger.debug("Request list of employees in MockEmployeeService");
         return employeeRepo;
     }
 
     @Override
-    public Employee getById(long id) {
+    public Employee getById(Token token, long id) {
+        logger.debug("Request employee with id " + id + " in MockEmployeeService");
         Optional<Employee> employee = employeeRepo.stream().filter(e -> e.getId() == id).findFirst();
         if (employee.isPresent()) {
             return employee.get();
@@ -43,14 +47,16 @@ public class MockEmployeeService extends EmployeeService {
     }
 
     @Override
-    public Employee create(Employee newEmployee) {
+    public Employee create(Token token, Employee newEmployee) {
+        logger.debug("Create new employee " + newEmployee + " in MockEmployeeService");
         newEmployee.setId(nextProjectId++);
         employeeRepo.add(newEmployee);
         return newEmployee;
     }
 
     @Override
-    public Employee update(Employee updatedEmployee) {
+    public Employee update(Token token, Employee updatedEmployee) {
+        logger.debug("Update employee with id " + updatedEmployee.getId() + " in MockEmployeeService");
         Optional<Employee> result = employeeRepo.stream().filter(e -> e.getId() == updatedEmployee.getId()).findFirst();
         if (result.isPresent()) {
             Employee oldEmployee = result.get();
@@ -66,7 +72,8 @@ public class MockEmployeeService extends EmployeeService {
     }
 
     @Override
-    public void deleteById(long id) {
+    public void deleteById(Token token, long id) {
+        logger.debug("Delete employee with id " + id + " in MockEmployeeService");
         if (employeeRepo.stream().anyMatch(e -> e.getId() == id)) {
             employeeRepo.removeIf(e -> e.getId() == id);
         } else {
@@ -82,7 +89,7 @@ public class MockEmployeeService extends EmployeeService {
         emp1.setFirstName("Kurt");
         emp1.setActive(true);
         emp1.setEmailAddress("k.mueller@mail.com");
-        emp1.setRole("Admin");
+        emp1.setRole(Role.ADMINISTRATOR);
 
         Employee emp2 = new Employee();
         emp2.setId(nextProjectId++);
@@ -90,7 +97,7 @@ public class MockEmployeeService extends EmployeeService {
         emp2.setFirstName("Jonathan");
         emp2.setActive(true);
         emp2.setEmailAddress("j.meier@mail.com");
-        emp2.setRole("Developer");
+        emp2.setRole(Role.DEVELOPER);
 
         Employee emp3 = new Employee();
         emp3.setId(nextProjectId++);
@@ -98,7 +105,7 @@ public class MockEmployeeService extends EmployeeService {
         emp3.setFirstName("Guschdi");
         emp3.setActive(true);
         emp3.setEmailAddress("g.broesmeli@mail.com");
-        emp3.setRole("Project Leader");
+        emp3.setRole(Role.PROJECTMANAGER);
 
         List<Employee> employees = new ArrayList<>();
         employees.add(emp1);
