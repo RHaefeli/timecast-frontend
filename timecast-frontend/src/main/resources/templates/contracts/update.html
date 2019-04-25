@@ -15,6 +15,7 @@
 <body>
 <section>
     <div th:if="${exception != null}" class="alert alert-danger" th:text="${exception}"></div>
+    <div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
     <h2>Edit Contract</h2>
     <br>
 
@@ -58,7 +59,7 @@
 
                 <!-- Buttons -->
                 <div class="form-row button-row">
-                    <a class="btn btn-default" th:href="@{/employees/} + ${contract.employee.id}">See Employee</a>
+                    <a class="btn btn-default" th:href="@{/employees/} + ${contract.employee.id}">See related Employee</a>
                     <button type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>

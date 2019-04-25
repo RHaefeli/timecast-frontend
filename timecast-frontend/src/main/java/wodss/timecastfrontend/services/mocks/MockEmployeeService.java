@@ -61,7 +61,7 @@ public class MockEmployeeService extends EmployeeService {
         if (result.isPresent()) {
             Employee oldEmployee = result.get();
             oldEmployee.setLastName(updatedEmployee.getLastName());
-            oldEmployee.setFirstName(updatedEmployee.getEmailAddress());
+            oldEmployee.setFirstName(updatedEmployee.getFirstName());
             oldEmployee.setActive(updatedEmployee.isActive());
             oldEmployee.setEmailAddress(updatedEmployee.getEmailAddress());
             oldEmployee.setRole(updatedEmployee.getRole());

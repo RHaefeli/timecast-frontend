@@ -42,6 +42,7 @@ public class MockLoginService extends LoginService {
     public Token createToken(String email, String password) {
         logger.debug("Create Token for " + email);
         Employee employee = new Employee();
+        employee.setId(0);
         employee.setEmailAddress(email);
         employee.setRole(Role.ADMINISTRATOR);
 

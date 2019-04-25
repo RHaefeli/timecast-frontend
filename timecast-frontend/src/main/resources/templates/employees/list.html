@@ -9,6 +9,7 @@
 
 <body>
 <section>
+    <div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
     <a class="btn btn-primary float-right" href="?form">
         Create new Employee
     </a>

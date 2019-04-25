@@ -5,7 +5,11 @@
 <div th:fragment="header">
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
         <a class="navbar-brand" th:href="@{/}">Timecast</a>
+
         <ul class="navbar-nav">
+            <li sec:authorize="isAuthenticated()" class="nav-item text-nowrap">
+                <a class="nav-link" th:href="@{/myprofile}">My Profile</a>
+            </li>
             <li class="nav-item text-nowrap">
                 <a sec:authorize="isAnonymous()" class="nav-link" th:href="@{/login}">Login</a>
                 <a sec:authorize="isAuthenticated()" class="nav-link" href="#" onclick="document.getElementById('logout').submit();">Logout</a>

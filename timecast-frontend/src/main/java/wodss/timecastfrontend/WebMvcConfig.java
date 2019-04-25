@@ -14,6 +14,8 @@ import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.services.auth.CustomAuthenticationProvider;
 import wodss.timecastfrontend.web.SessionHandlerInterceptor;
 
+import java.util.regex.Pattern;
+
 
 @Configuration
 @EnableWebSecurity
@@ -39,8 +41,12 @@ public class WebMvcConfig extends WebSecurityConfigurerAdapter implements WebMvc
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/css/app.css", "/css/login.css").permitAll() // Allow css styles for login page
-                .antMatchers("/employees/{id}").hasAuthority(Role.ADMINISTRATOR.getValue())
                 .antMatchers("/employees").hasAuthority(Role.ADMINISTRATOR.getValue())
+                .antMatchers("/employees/{id}").hasAuthority(Role.ADMINISTRATOR.getValue())
+                .antMatchers("/employees/{id}/contracts").hasAuthority(Role.ADMINISTRATOR.getValue())
+                .antMatchers("/projects").hasAnyAuthority(Role.ADMINISTRATOR.getValue(), Role.PROJECTMANAGER.getValue())
+                .antMatchers("/projects/{id}").hasAnyAuthority(Role.ADMINISTRATOR.getValue(), Role.PROJECTMANAGER.getValue())
+                // TODO: matchers for path params (/employees?form)
                 .anyRequest().authenticated()
                 .and()
             .formLogin()

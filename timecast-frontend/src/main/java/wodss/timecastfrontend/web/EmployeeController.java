@@ -18,7 +18,6 @@ import wodss.timecastfrontend.services.EmployeeService;
 import wodss.timecastfrontend.services.mocks.MockContractService;
 import wodss.timecastfrontend.services.mocks.MockEmployeeService;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -36,7 +35,7 @@ public class EmployeeController {
     }
 
     @GetMapping
-    public String getAll(HttpServletRequest request, Model model) {
+    public String getAll(Model model) {
         logger.debug("Get all employees");
         String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Employee> employees = employeeService.getAll(new Token(token));
@@ -46,15 +45,15 @@ public class EmployeeController {
     }
 
     @GetMapping(params = "form")
-    public String createForm(HttpServletRequest request, Model model) {
+    public String createForm(Model model) {
         logger.debug("Get create employee form");
         model.addAttribute("employee", new Employee());
         return "employees/create";
     }
 
     @PostMapping
-    public String create(HttpServletRequest request, @Valid @ModelAttribute("employee") Employee employee,
-                         BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+    public String create(@Valid @ModelAttribute("employee") Employee employee, BindingResult bindingResult, Model model,
+                         RedirectAttributes redirectAttributes) {
         logger.debug("Create employee: " + employee);
         if (bindingResult.hasErrors()) {
             logger.debug("Binding error: " + bindingResult.getAllErrors());
@@ -73,7 +72,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public String getById(HttpServletRequest request, @PathVariable long id, Model model) {
+    public String getById(@PathVariable long id, Model model) {
         logger.debug("Get employee by id: " + id);
         String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Employee employee = employeeService.getById(new Token(token), id);
@@ -85,9 +84,8 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public String updateById(HttpServletRequest request, @PathVariable Long id,
-                             @Valid @ModelAttribute("employee") Employee employee, BindingResult bindingResult,
-                             Model model, RedirectAttributes redirectAttributes) {
+    public String updateById(@PathVariable Long id, @Valid @ModelAttribute("employee") Employee employee,
+                             BindingResult bindingResult, Model model) {
         logger.debug("Update employee by id: " + id);
         if (bindingResult.hasErrors()) {
             logger.debug("Binding error: " + bindingResult.getAllErrors());
@@ -96,8 +94,9 @@ public class EmployeeController {
         String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
             Employee updatedEmployee = employeeService.update(new Token(token), employee);
-            redirectAttributes.addFlashAttribute("success", "Successfully updated Employee.");
-            return "employees/list";
+            model.addAttribute("employee", updatedEmployee);
+            model.addAttribute("success", "Successfully updated Employee.");
+            return "employees/update";
         } catch (TimecastPreconditionFailedException ex) {
             model.addAttribute("exception", ex.getMessage());
             return "employees/update";
@@ -105,13 +104,13 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteById(HttpServletRequest request, @PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String deleteById(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         logger.debug("Delete employee by id: " + id);
         String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         employeeService.deleteById(new Token(token), id);
 
         redirectAttributes.addFlashAttribute("success", "Successfully deleted Employee.");
-        return "employees/list";
+        return "redirect:/employees";
     }
 
     @GetMapping(value = "/{id}/contracts", params = "form")
