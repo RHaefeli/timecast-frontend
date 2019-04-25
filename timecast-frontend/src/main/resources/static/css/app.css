@@ -105,7 +105,11 @@ Content
     border-radius: 5px;
     padding: 25px;
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-    max-height: 75vh;
+    height: 75vh;
+}
+
+.app-content .form {
+    height: 100%;
 }
 
 .dataTables_wrapper {
@@ -117,8 +121,26 @@ Content
     margin-top: 20px;
 }
 
+.button-row .btn {
+    margin-right: 10px;
+}
+
 .col-md-5 {
     min-width: 300px;
+}
+
+.btn-default {
+    background-color: #f4f4f4;
+}
+
+.btn-default:hover {
+    background-color: lightgrey;
+}
+
+.vertical-line {
+    border-left: thin solid #707579;
+    margin-left: 40px;
+    padding-left: 50px
 }
 
 

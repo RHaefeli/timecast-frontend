@@ -20,7 +20,7 @@ import java.util.Optional;
 public class MockEmployeeService extends EmployeeService {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private List<Employee> employeeRepo;
-    private int nextProjectId = 0;
+    private int nextEmployeeId = 0;
 
     public MockEmployeeService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.employee}") String apiURL) {
         super(restTemplate, apiURL);
@@ -49,7 +49,7 @@ public class MockEmployeeService extends EmployeeService {
     @Override
     public Employee create(Token token, Employee newEmployee) {
         logger.debug("Create new employee " + newEmployee + " in MockEmployeeService");
-        newEmployee.setId(nextProjectId++);
+        newEmployee.setId(nextEmployeeId++);
         employeeRepo.add(newEmployee);
         return newEmployee;
     }
@@ -84,7 +84,7 @@ public class MockEmployeeService extends EmployeeService {
 
     private List<Employee> generateEmployees() {
         Employee emp1 = new Employee();
-        emp1.setId(nextProjectId++);
+        emp1.setId(nextEmployeeId++);
         emp1.setLastName("Müller");
         emp1.setFirstName("Kurt");
         emp1.setActive(true);
@@ -92,7 +92,7 @@ public class MockEmployeeService extends EmployeeService {
         emp1.setRole(Role.ADMINISTRATOR);
 
         Employee emp2 = new Employee();
-        emp2.setId(nextProjectId++);
+        emp2.setId(nextEmployeeId++);
         emp2.setLastName("Meier");
         emp2.setFirstName("Jonathan");
         emp2.setActive(true);
@@ -100,7 +100,7 @@ public class MockEmployeeService extends EmployeeService {
         emp2.setRole(Role.DEVELOPER);
 
         Employee emp3 = new Employee();
-        emp3.setId(nextProjectId++);
+        emp3.setId(nextEmployeeId++);
         emp3.setLastName("Brösmeli");
         emp3.setFirstName("Guschdi");
         emp3.setActive(true);

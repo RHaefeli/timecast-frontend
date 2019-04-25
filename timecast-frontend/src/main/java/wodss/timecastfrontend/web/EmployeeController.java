@@ -9,10 +9,13 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import wodss.timecastfrontend.domain.Contract;
 import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.*;
+import wodss.timecastfrontend.services.ContractService;
 import wodss.timecastfrontend.services.EmployeeService;
+import wodss.timecastfrontend.services.mocks.MockContractService;
 import wodss.timecastfrontend.services.mocks.MockEmployeeService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,10 +27,12 @@ import java.util.List;
 public class EmployeeController {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private final EmployeeService employeeService;
+    private final ContractService contractService;
 
     @Autowired
-    public EmployeeController(MockEmployeeService employeeService) {
+    public EmployeeController(MockEmployeeService employeeService, MockContractService contractService) {
         this.employeeService = employeeService;
+        this.contractService = contractService;
     }
 
     @GetMapping
@@ -59,13 +64,12 @@ public class EmployeeController {
         try {
             employee.setActive(true);
             Employee newEmployee = employeeService.create(new Token(token), employee);
+            redirectAttributes.addFlashAttribute("success", "Successfully created Employee.");
+            return "redirect:/employees/" + newEmployee.getId();
         } catch (TimecastPreconditionFailedException ex) {
             model.addAttribute("exception", ex.getMessage());
             return "employees/create";
         }
-
-        redirectAttributes.addFlashAttribute("success", "Success");
-        return "redirect:/employees";
     }
 
     @GetMapping("/{id}")
@@ -73,7 +77,9 @@ public class EmployeeController {
         logger.debug("Get employee by id: " + id);
         String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Employee employee = employeeService.getById(new Token(token), id);
+        List<Contract> contracts = contractService.getByEmployee(new Token(token), employee);
         model.addAttribute("employee", employee);
+        model.addAttribute("contracts", contracts);
 
         return "employees/update";
     }
@@ -90,13 +96,12 @@ public class EmployeeController {
         String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
             Employee updatedEmployee = employeeService.update(new Token(token), employee);
+            redirectAttributes.addFlashAttribute("success", "Successfully updated Employee.");
+            return "employees/list";
         } catch (TimecastPreconditionFailedException ex) {
             model.addAttribute("exception", ex.getMessage());
             return "employees/update";
         }
-
-        redirectAttributes.addFlashAttribute("success", "Successfully updated Employee");
-        return "employees/list";
     }
 
     @DeleteMapping("/{id}")
@@ -105,7 +110,43 @@ public class EmployeeController {
         String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         employeeService.deleteById(new Token(token), id);
 
-        redirectAttributes.addFlashAttribute("success", "Successfully deleted Employee");
+        redirectAttributes.addFlashAttribute("success", "Successfully deleted Employee.");
         return "employees/list";
+    }
+
+    @GetMapping(value = "/{id}/contracts", params = "form")
+    public String createContractForm(@PathVariable Long id, Model model) {
+        logger.debug("Get create contract form for employee: " + id);
+        String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Employee employee = employeeService.getById(new Token(token), id);
+        Contract contract = new Contract();
+        contract.setEmployee(employee);
+        List<Contract> contracts = contractService.getByEmployee(new Token(token), employee);
+
+        model.addAttribute("contract", contract);
+        model.addAttribute("contracts", contracts);
+        return "employees/contracts/create";
+    }
+
+    @PostMapping("/{id}/contracts")
+    public String createContract(@PathVariable Long id, @Valid @ModelAttribute("contract") Contract contract,
+                                 BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {
+        logger.debug("Create Contract: " + contract);
+        if (bindingResult.hasErrors()) {
+            logger.debug("Binding error: " + bindingResult.getAllErrors());
+            return "employees/contracts/create";
+        }
+        try {
+            String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Employee employee = employeeService.getById(new Token(token), id);
+            contract.setEmployee(employee);
+            Contract newContract = contractService.create(new Token(token), contract);
+
+            redirectAttributes.addFlashAttribute("success", "Successfully created Contract.");
+            return "redirect:/contracts/" + newContract.getId();
+        } catch (TimecastPreconditionFailedException ex) {
+            model.addAttribute("exception", ex.getMessage());
+            return "employees/contracts/create";
+        }
     }
 }

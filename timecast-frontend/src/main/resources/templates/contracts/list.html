@@ -9,7 +9,7 @@
 
 <body>
 <section>
-    <a class="btn btn-primary float-right" href="?form">
+    <a class="btn btn-success float-right" href="?form">
         Create new Employee
     </a>
     <h2>Employees</h2>
@@ -31,10 +31,10 @@
             </thead>
             <tbody>
                 <tr th:each="employee : ${employees}">
+                    <td style="vertical-align: middle;" th:text="${employee.id}" ></td>
                     <td style="vertical-align: middle;">
-                        <a th:href="@{employees/} + ${employee.id}" th:text="${employee.id}"/>
+                        <a th:href="@{employees/} + ${employee.id}" th:text="${employee.lastName}"/>
                     </td>
-                    <td style="vertical-align: middle;" th:text="${employee.lastName}" ></td>
                     <td style="vertical-align: middle;" th:text="${employee.firstName}"></td>
                     <td style="vertical-align: middle;" th:text="${employee.role}"></td>
                 </tr>

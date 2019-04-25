@@ -26,7 +26,7 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
     public Employee create(Token token, Employee entity) throws TimecastUnauthorizedException, TimecastForbiddenException,
             TimecastNotFoundException, TimecastPreconditionFailedException, TimecastInternalServerErrorException {
         logger.debug("Create Employee entity " + entity + " to api: " + apiURL);
-        EmployeeDto employeeDto = mapEntityToDto(entity);
+        EmployeeDto employeeDto = mapEntityToDto(token, entity);
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiURL)
                 .queryParam("password", entity.getPassword())
@@ -44,10 +44,10 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
 
         EmployeeDto newEntity = response.getBody();
         logger.debug("Received Employee entity: " + newEntity);
-        return mapDtoToEntity(newEntity);
+        return mapDtoToEntity(token, newEntity);
     }
 
-    protected EmployeeDto mapEntityToDto(Employee employee) {
+    protected EmployeeDto mapEntityToDto(Token token, Employee employee) {
         if (employee == null) return null;
         EmployeeDto employeeDto = new EmployeeDto();
         employeeDto.setId(employee.getId());
@@ -58,7 +58,7 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
         return employeeDto;
     }
 
-    protected Employee mapDtoToEntity(EmployeeDto employeeDto) {
+    protected Employee mapDtoToEntity(Token token, EmployeeDto employeeDto) {
         if (employeeDto == null) return null;
         Employee employee = new Employee();
         employee.setId(employeeDto.getId());

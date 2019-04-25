@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Create new Contract', links=~{::link}, scripts=~{::header_script})">
+
+<head>
+    <!-- jQuery -->
+    <script th:fragment="header_script" src="https://code.jquery.com/jquery-3.4.0.slim.min.js" integrity="sha256-ZaXnYkHGqIhqTbJ6MB4l9Frs/r7U4jlx7ir8PJYBqbI=" crossorigin="anonymous"></script>
+    <!-- Bootstrap Datatable -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css"/>
+    <script th:fragment="header_script" type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.js"></script>
+    <!-- Bootstrap Datepicker -->
+    <script th:fragment="header_script" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+</head>
+
+<body>
+<section>
+    <div th:if="${exception != null}" class="alert alert-danger" th:text="${exception}"></div>
+    <h2>Create new Contract</h2>
+    <br>
+
+    <div class="row app-content">
+        <!-- Left side -->
+        <div class="col-md-3">
+            <form th:action="@{contracts}" th:object="${contract}" method="post">
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="employee">Employee</label>
+                        <input id="employee" class="form-control" th:value="*{employee}" th:readonly="true">
+                    </div>
+                </div>
+
+                <br>
+                <br>
+
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="pensumPercentage">Pensum (in %)</label>
+                        <input type="text" class="form-control" id="pensumPercentage" th:field="*{pensumPercentage}" th:errorclas="fieldError"/>
+                        <span th:if="${#fields.hasErrors('pensumPercentage')}" th:errors="*{pensumPercentage}" class="fieldErrorText"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="startDate">Start Date</label>
+                        <input type="text" class="form-control" id="startDate" th:field="*{startDate}" th:errorclas="fieldError"/>
+                        <span th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" class="fieldErrorText"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="endDate">End Date</label>
+                        <input type="text" class="form-control" id="endDate" th:field="*{endDate}" th:errorclas="fieldError"/>
+                        <span th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}" class="fieldErrorText"></span>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="form-row button-row">
+                    <a class="btn btn-default" th:href="@{/employees/} + ${contract.employee.id}">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Side -->
+        <div class="col-md-8 vertical-line">
+            <h5>Contracts of the same Employee</h5>
+            <br>
+            <table id="contracts-table" class="table table-condensed table-hover">
+                <thead>
+                <tr>
+                    <th style="vertical-align: middle;">Id</th>
+                    <th style="vertical-align: middle;">Pensum</th>
+                    <th style="vertical-align: middle;">Start Date</th>
+                    <th style="vertical-align: middle;">End Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="contr : ${contracts}">
+                    <td style="vertical-align: middle;">
+                        <a th:href="@{/contracts/} + ${contr.id}" th:text="${contr.id}"/>
+                    </td>
+                    <td style="vertical-align: middle;" th:text="${contr.pensumPercentage} + '%'"></td>
+                    <td style="vertical-align: middle;" th:text="${#dates.format(contr.startDate, 'dd.MM.yyyy')}"></td>
+                    <td style="vertical-align: middle;" th:text="${#dates.format(contr.endDate, 'dd.MM.yyyy')}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // datatable
+        // requires jQuery
+        // requires datatables
+        $(document).ready(function() {
+            $('#contracts-table').DataTable({
+                scrollY: '45vh'
+            });
+        });
+
+        // datepicker
+        // requires jQuery
+        // requires datepicker
+        $(document).ready(function(){
+            var startDateInput=$('input[name="startDate"]');
+            var startDateOptions={
+                format: 'dd.mm.yyyy',
+                todayHighlight: true,
+                autoclose: true
+            };
+            startDateInput.datepicker(startDateOptions);
+
+            var endDateInput=$('input[name="endDate"]');
+            var endDateOptions={
+                format: 'dd.mm.yyyy',
+                todayHighlight: true,
+                autoclose: true
+            };
+            endDateInput.datepicker(endDateOptions);
+        })
+    </script>
+</section>
+</body>
+
+</html>

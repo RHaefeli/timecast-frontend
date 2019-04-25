@@ -58,7 +58,7 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 			if (dtos == null) {
 				return null;
 			}
-			return dtos.stream().map(dto -> mapDtoToEntity(dto)).collect(Collectors.toList());
+			return dtos.stream().map(dto -> mapDtoToEntity(token, dto)).collect(Collectors.toList());
 		}
 		// TODO fix
 		throw new IllegalStateException();
@@ -66,7 +66,7 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 	}
 
 	@Override
-	protected ProjectDto mapEntityToDto(Project entity) {
+	protected ProjectDto mapEntityToDto(Token token, Project entity) {
     	if (entity == null) return null;
     	ProjectDto dto = new ProjectDto();
     	dto.setId(entity.getId());
@@ -79,7 +79,7 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 	}
 
 	@Override
-	protected Project mapDtoToEntity(ProjectDto dto) {
+	protected Project mapDtoToEntity(Token token, ProjectDto dto) {
 		if (dto == null) return null;
 		Project entity = new Project();
 		entity.setId(dto.getId());

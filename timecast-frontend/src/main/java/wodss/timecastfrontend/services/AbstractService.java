@@ -44,7 +44,7 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         if (dtos == null) {
             return null;
         }
-        return dtos.stream().map(dto -> mapDtoToEntity(dto)).collect(Collectors.toList());
+        return dtos.stream().map(dto -> mapDtoToEntity(token, dto)).collect(Collectors.toList());
     }
 
     public E getById(Token token, long id) throws TimecastUnauthorizedException, TimecastForbiddenException,
@@ -62,7 +62,7 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
 
         DTO dto = response.getBody();
         logger.debug("Received " + serviceEntityClass + " entity: " + dto);
-        return mapDtoToEntity(dto);
+        return mapDtoToEntity(token, dto);
     }
 
     public E create(Token token, E entity) throws TimecastUnauthorizedException, TimecastForbiddenException,
@@ -70,7 +70,7 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         logger.debug("Create " + serviceEntityClass + " entity " + entity + " to api: " + apiURL);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
-        HttpEntity<DTO> request = new HttpEntity<>(mapEntityToDto(entity), headers);
+        HttpEntity<DTO> request = new HttpEntity<>(mapEntityToDto(token, entity), headers);
         ResponseEntity<DTO> response = restTemplate.exchange(apiURL, HttpMethod.POST, request, serviceEntityClass);
 
         HttpStatus statusCode = response.getStatusCode();
@@ -80,7 +80,7 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
 
         DTO dto = response.getBody();
         logger.debug("Received " + serviceEntityClass + " entity: " + dto);
-        return mapDtoToEntity(dto);
+        return mapDtoToEntity(token, dto);
     }
 
     public E update(Token token, E entity) throws TimecastUnauthorizedException, TimecastForbiddenException,
@@ -88,7 +88,7 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         logger.debug("Update " + serviceEntityClass + " entity " + entity + " to api: " + apiURL);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
-        HttpEntity<DTO> requestEntity = new HttpEntity<>(mapEntityToDto(entity), headers);
+        HttpEntity<DTO> requestEntity = new HttpEntity<>(mapEntityToDto(token, entity), headers);
         ResponseEntity<DTO> response = restTemplate.exchange(apiURL + "/" + entity.getId(), HttpMethod.PUT, requestEntity, serviceEntityClass);
 
         HttpStatus statusCode = response.getStatusCode();
@@ -98,7 +98,7 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
 
         DTO dto = response.getBody();
         logger.debug("Received " + serviceEntityClass + " entity: " + dto);
-        return mapDtoToEntity(dto);
+        return mapDtoToEntity(token, dto);
     }
 
     public void deleteById(Token token, long id) throws TimecastUnauthorizedException, TimecastForbiddenException,
@@ -130,6 +130,6 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         }
     }
 
-    protected abstract DTO mapEntityToDto(E entity);
-    protected abstract E mapDtoToEntity(DTO dto);
+    protected abstract DTO mapEntityToDto(Token token, E entity);
+    protected abstract E mapDtoToEntity(Token token, DTO dto);
 }

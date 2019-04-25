@@ -1,8 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Edit Employee', links=~{}, scripts=~{})">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="layout :: maincontent(content=~{::section}, title='Edit Employee', links=~{::link}, scripts=~{::header_script})">
 
 <head>
-    <!-- Put additional style links here -->
+    <!-- jQuery -->
+    <script th:fragment="header_script" src="https://code.jquery.com/jquery-3.4.0.slim.min.js" integrity="sha256-ZaXnYkHGqIhqTbJ6MB4l9Frs/r7U4jlx7ir8PJYBqbI=" crossorigin="anonymous"></script>
+    <!-- Bootstrap datatables -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css"/>
+    <script th:fragment="header_script" type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.js"></script>
 </head>
 
 <body>
@@ -10,44 +16,89 @@
     <div th:if="${exception != null}" class="alert alert-danger" th:text="${exception}"></div>
     <h2>Edit Employee</h2>
     <br>
+    <div class="row app-content">
+        <!-- Left side -->
+        <div class="col-md-3">
+            <form th:action="@{/employees} + '/' + ${employee.id}" th:object="${employee}" th:method="put">
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" class="form-control" id="lastName" th:field="*{lastName}" th:errorclass="fieldError" autofocus/>
+                        <span th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="fieldErrorText"></span>
+                    </div>
+                </div>
 
-    <form class="app-content" th:action="@{/employees} + '/' + ${employee.id}" th:object="${employee}" method="post">
-        <div class="form-row">
-            <div class="form-group col-md-5">
-                <label for="lastName">Last Name</label>
-                <input type="text" class="form-control" id="lastName" th:field="*{lastName}" th:errorclass="fieldError" autofocus/>
-                <span th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="fieldErrorText"></span>
-            </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="firstName">First Name</label>
+                        <input type="text" class="form-control" id="firstName" th:field="*{firstName}" th:errorclass="fieldError"/>
+                        <span th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="fieldErrorText"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="emailAddress">Email Address</label>
+                        <input type="text" class="form-control" id="emailAddress" th:field="*{emailAddress}" th:errorclass="fieldError"/>
+                        <span th:if="${#fields.hasErrors('emailAddress')}" th:errors="*{emailAddress}" class="fieldErrorText"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="role">Role</label>
+                        <input type="text" class="form-control" id="role" th:field="*{role}" readonly/>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="form-row button-row">
+                    <a class="btn btn-default" th:href="@{/employees}">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
         </div>
 
-        <div class="form-row">
-            <div class="form-group col-md-5">
-                <label for="firstName">First Name</label>
-                <input type="text" class="form-control" id="firstName" th:field="*{firstName}" th:errorclass="fieldError"/>
-                <span th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="fieldErrorText"></span>
-            </div>
+        <!-- Right side -->
+        <div class="col-md-8 vertical-line">
+            <a sec:authorize="hasAuthority('ADMINISTRATOR')" class="btn btn-primary float-right" th:href="@{/employees/} + ${employee.id} + '/contracts?form'">
+                Create new Contract
+            </a>
+            <h5>Contracts</h5>
+            <br>
+            <table id="contracts-table" class="table table-condensed table-hover">
+                <thead>
+                <tr>
+                    <th style="vertical-align: middle;">Id</th>
+                    <th style="vertical-align: middle;">Pensum</th>
+                    <th style="vertical-align: middle;">Start Date</th>
+                    <th style="vertical-align: middle;">End Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="contract : ${contracts}">
+                    <td style="vertical-align: middle;">
+                        <a th:href="@{/contracts/} + ${contract.id}" th:text="${contract.id}"/>
+                    </td>
+                    <td style="vertical-align: middle;" th:text="${contract.pensumPercentage} + '%'"></td>
+                    <td style="vertical-align: middle;" th:text="${#dates.format(contract.startDate, 'dd.MM.yyyy')}"></td>
+                    <td style="vertical-align: middle;" th:text="${#dates.format(contract.endDate, 'dd.MM.yyyy')}"></td>
+                </tr>
+                </tbody>
+            </table>
         </div>
+    </div>
 
-        <div class="form-row">
-            <div class="form-group col-md-5">
-                <label for="emailAddress">Email Address</label>
-                <input type="text" class="form-control" id="emailAddress" th:field="*{emailAddress}" th:errorclass="fieldError"/>
-                <span th:if="${#fields.hasErrors('emailAddress')}" th:errors="*{emailAddress}" class="fieldErrorText"></span>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group col-md-5">
-                <label for="role">Role</label>
-                <input type="text" class="form-control" id="role" th:field="*{role}" readonly/>
-            </div>
-        </div>
-
-        <div class="form-row button-row">
-            <a class="btn btn-default" th:href="@{/employees}">Cancel</a>
-            <button type="submit" class="btn btn-primary">Save</button>
-        </div>
-    </form>
+    <script>
+        // datatable
+        // requires jQuery
+        // requires datatables
+        $(document).ready(function() {
+            $('#contracts-table').DataTable({
+                scrollY: '45vh',
+            });
+        });
+    </script>
 </section>
 </body>
 

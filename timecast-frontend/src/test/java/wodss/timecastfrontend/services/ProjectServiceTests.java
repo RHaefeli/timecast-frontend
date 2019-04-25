@@ -243,7 +243,7 @@ public class ProjectServiceTests {
 
 	private List<ProjectDto> mapProjectToDtos(List<Project> projects) {
 		return projects.stream()
-				.map(project -> projectService.mapEntityToDto(project))
+				.map(project -> projectService.mapEntityToDto(token, project))
 				.collect(Collectors.toList());
 	}
 }

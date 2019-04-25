@@ -1,5 +1,7 @@
 package wodss.timecastfrontend.domain;
 
+import java.util.Objects;
+
 public class Employee implements TimecastEntity {
     private long id;
     private boolean active;
@@ -68,6 +70,25 @@ public class Employee implements TimecastEntity {
     @Override
     public String toString() {
         return lastName + " " + firstName + ", " + role;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Employee employee = (Employee) o;
+        return id == employee.id &&
+                active == employee.active &&
+                Objects.equals(lastName, employee.lastName) &&
+                Objects.equals(firstName, employee.firstName) &&
+                Objects.equals(emailAddress, employee.emailAddress) &&
+                Objects.equals(password, employee.password) &&
+                role == employee.role;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, active, lastName, firstName, emailAddress, password, role);
     }
 
 }
