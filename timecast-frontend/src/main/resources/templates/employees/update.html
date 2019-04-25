@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Edit Employee', links=~{})">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Edit Employee', links=~{}, scripts=~{})">
 
 <head>
     <!-- Put additional style links here -->
@@ -39,8 +39,7 @@
         <div class="form-row">
             <div class="form-group col-md-5">
                 <label for="role">Role</label>
-                <input type="text" class="form-control" id="role" th:field="*{role}" th:errorclass="fieldError"/>
-                <span th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="fieldErrorText"></span>
+                <input type="text" class="form-control" id="role" th:field="*{role}" readonly/>
             </div>
         </div>
 

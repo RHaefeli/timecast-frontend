@@ -3,25 +3,12 @@ package wodss.timecastfrontend.domain;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class Project implements TimecastEntity {
+public class ProjectDto implements TimecastDto {
 	private long id;
-
-	@NotNull
-	@Size(min=1, max=50)
 	private String name;
-	
-	@NotNull
 	private int ftePercentage;
-	
-	@NotNull
-	@Size(min=10, max=10)
 	private String startDate;
-	
-	@NotNull
-	@Size(min=10, max=10)
 	private String endDate;
-	
-	@NotNull
 	private int projectManagerId;
 
 	public long getId() {

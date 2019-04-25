@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Create new Employee', links=~{})">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Create new Employee', links=~{}, scripts=~{})">
 
 <head>
     <!-- Put additional style links here -->
@@ -14,8 +14,27 @@
     <form class="app-content" th:action="@{/employees}" th:object="${employee}" method="post">
         <div class="form-row">
             <div class="form-group col-md-5">
+                <label for="emailAddress">Email Address</label>
+                <input type="text" class="form-control" id="emailAddress" th:field="*{emailAddress}" th:errorclas="fieldError" autofocus/>
+                <span th:if="${#fields.hasErrors('emailAddress')}" th:errors="*{emailAddress}" class="fieldErrorText"></span>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-5">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" th:field="*{password}" th:errorclas="fieldError"/>
+                <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="fieldErrorText"></span>
+            </div>
+        </div>
+
+        <br>
+        <br>
+
+        <div class="form-row">
+            <div class="form-group col-md-5">
                 <label for="lastName">Last Name</label>
-                <input type="text" class="form-control" id="lastName" th:field="*{lastName}" th:errorclas="fieldError" autofocus/>
+                <input type="text" class="form-control" id="lastName" th:field="*{lastName}" th:errorclas="fieldError"/>
                 <span th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="fieldErrorText"></span>
             </div>
         </div>
@@ -30,17 +49,13 @@
 
         <div class="form-row">
             <div class="form-group col-md-5">
-                <label for="emailAddress">Email Address</label>
-                <input type="text" class="form-control" id="emailAddress" th:field="*{emailAddress}" th:errorclas="fieldError"/>
-                <span th:if="${#fields.hasErrors('emailAddress')}" th:errors="*{emailAddress}" class="fieldErrorText"></span>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group col-md-5">
                 <label for="role">Role</label>
-                <input type="text" class="form-control" id="role" th:field="*{role}" th:errorclas="fieldError"/>
-                <span th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="fieldErrorText"></span>
+                <select id="role" class="form-control" th:field="*{role}">
+                    <option th:each="role : ${T(wodss.timecastfrontend.domain.Role).values()}"
+                            th:value="${role}"
+                            th:text="${role}">
+                    </option>
+                </select>
             </div>
         </div>
 

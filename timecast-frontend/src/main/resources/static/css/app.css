@@ -16,6 +16,17 @@ Header
 }
 
 
+/*
+Footer
+ */
+.footer {
+    position: absolute;
+    right: 0;
+    margin-right: 10px;
+    bottom: 10px;
+}
+
+
 
 /*
 Sidebar
@@ -86,7 +97,7 @@ Content
     padding-top: 50px;
     padding-left: 50px;
     width: calc(100vw - 300px - 50px);
-    min-width: 1000px;
+    min-width: 700px;
 }
 
 .app-content {
@@ -94,10 +105,20 @@ Content
     border-radius: 5px;
     padding: 25px;
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    max-height: 75vh;
+}
+
+.dataTables_wrapper {
+    position: relative;
+    height: 100%;
 }
 
 .button-row {
     margin-top: 20px;
+}
+
+.col-md-5 {
+    min-width: 300px;
 }
 
 

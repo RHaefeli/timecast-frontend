@@ -1,12 +1,11 @@
 package wodss.timecastfrontend.domain;
 
-public class Employee implements TimecastEntity {
+public class EmployeeDto implements TimecastDto {
     private long id;
     private boolean active;
     private String lastName;
     private String firstName;
     private String emailAddress;
-    private String password;
     private Role role;
 
     public long getId() {
@@ -56,18 +55,4 @@ public class Employee implements TimecastEntity {
     public void setRole(Role role) {
         this.role = role;
     }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    @Override
-    public String toString() {
-        return lastName + " " + firstName + ", " + role;
-    }
-
 }

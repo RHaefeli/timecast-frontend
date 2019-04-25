@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Login', links=~{::link}, scripts=~{})">
+
+<head>
+    <!-- Put additional style links here -->
+    <link rel="stylesheet" th:href="@{/css/login.css}" />
+</head>
+
+<body>
+<section>
+    <div th:if="${param.error}" class="alert alert-danger">Invalid username or password.</div>
+    <form class="login-form" method="POST" th:action="'login'">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+        <h2>Login</h2>
+        <br>
+        <div class="form-row">
+            <div class="form-group col-md-5">
+                <label for="username">Email</label>
+                <input id="username" name="username" type="text" class="form-control" placeholder="mail@mail.com" autofocus/>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-5">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" class="form-control" placeholder="Password"/>
+            </div>
+        </div>
+
+        <br/>
+        <div class="form-row button-row">
+            <button type="submit" class="btn btn-primary">Log In</button>
+        </div>
+    </form>
+</section>
+</body>
+</html>
