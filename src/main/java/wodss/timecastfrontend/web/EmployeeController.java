@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import wodss.timecastfrontend.domain.Contract;
 import wodss.timecastfrontend.domain.Employee;
+import wodss.timecastfrontend.domain.PasswordValidator;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.*;
 import wodss.timecastfrontend.services.ContractService;
@@ -54,6 +55,9 @@ public class EmployeeController {
     @PostMapping
     public String create(@Valid @ModelAttribute("employee") Employee employee, BindingResult bindingResult, Model model,
                          RedirectAttributes redirectAttributes) {
+        PasswordValidator passwordValidator = new PasswordValidator();
+        passwordValidator.validate(employee, bindingResult);
+
         logger.debug("Create employee: " + employee);
         if (bindingResult.hasErrors()) {
             logger.debug("Binding error: " + bindingResult.getAllErrors());

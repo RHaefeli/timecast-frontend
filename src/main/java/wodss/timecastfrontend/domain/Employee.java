@@ -1,14 +1,36 @@
 package wodss.timecastfrontend.domain;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Objects;
 
 public class Employee implements TimecastEntity {
     private long id;
     private boolean active;
+
+    @NotNull
+    @Size(min=1, max=50)
     private String lastName;
+
+    @NotNull
+    @Size(min=1, max=50)
     private String firstName;
+
+    @NotNull
+    @Size(min=1, max=50)
+    @Email
     private String emailAddress;
+
+    @NotNull
+    // See separate PasswordValidator
     private String password;
+
+    @NotNull
+    // See separate PasswordValidator
+    private String confirmPassword;
+
+    @NotNull
     private Role role;
 
     public long getId() {
@@ -65,6 +87,14 @@ public class Employee implements TimecastEntity {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
     }
 
     @Override

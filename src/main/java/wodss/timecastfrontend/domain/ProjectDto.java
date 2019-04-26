@@ -58,6 +58,6 @@ public class ProjectDto implements TimecastDto {
 	public void setProjectManagerId(int projectManagerId) {
 		this.projectManagerId = projectManagerId;
 	}
-	
-	
+
+
 }
