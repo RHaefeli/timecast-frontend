@@ -63,6 +63,13 @@
                     </div>
                 </div>
 
+                <!-- Hidden Fields to map nested objects -->
+                <input type="hidden" th:field="*{employee.id}">
+                <input type="hidden" th:field="*{employee.emailAddress}">
+                <input type="hidden" th:field="*{employee.firstName}">
+                <input type="hidden" th:field="*{employee.lastName}">
+                <input type="hidden" th:field="*{employee.role}">
+
                 <!-- Buttons -->
                 <div class="form-row button-row">
                     <a class="btn btn-default" th:href="@{/employees/} + ${contract.employee.id}">Cancel</a>

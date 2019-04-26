@@ -28,6 +28,14 @@
             </div>
         </div>
 
+        <div class="form-row">
+            <div class="form-group col-md-5">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmPassword" th:field="*{confirmPassword}" th:errorclas="fieldError"/>
+                <span th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="fieldErrorText"></span>
+            </div>
+        </div>
+
         <br>
         <br>
 

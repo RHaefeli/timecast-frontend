@@ -65,7 +65,9 @@ public class ContractController {
         String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
             Contract updatedContract = contractService.update(new Token(token), contract);
+            List<Contract> contracts = contractService.getByEmployee(new Token(token), updatedContract.getEmployee());
             model.addAttribute("contract", updatedContract);
+            model.addAttribute("contracts", contracts);
             model.addAttribute("success", "Successfully updated Contract.");
             return "contracts/update";
         } catch (TimecastPreconditionFailedException ex) {

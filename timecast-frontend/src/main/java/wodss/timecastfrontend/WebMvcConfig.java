@@ -8,13 +8,15 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.services.auth.CustomAuthenticationProvider;
 import wodss.timecastfrontend.web.SessionHandlerInterceptor;
 
-import java.util.regex.Pattern;
+import java.util.Locale;
 
 
 @Configuration
@@ -69,5 +71,12 @@ public class WebMvcConfig extends WebSecurityConfigurerAdapter implements WebMvc
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public LocaleResolver localeResolver() {
+        SessionLocaleResolver slr = new SessionLocaleResolver();
+        slr.setDefaultLocale(Locale.US);
+        return slr;
     }
 }
