@@ -53,6 +53,12 @@ public class HomeController {
         return "login";
     }
 
+    @GetMapping("about")
+    public String getAboutPage() {
+        logger.debug("Request About page");
+        return "about";
+    }
+
     @GetMapping("myprofile")
     public String getProfile(Model model) {
         Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());

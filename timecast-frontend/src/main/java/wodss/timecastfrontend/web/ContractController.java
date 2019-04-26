@@ -73,4 +73,14 @@ public class ContractController {
             return "contracts/update";
         }
     }
+
+    @DeleteMapping("/{id}")
+    public String deleteById(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        logger.debug("Delete contract by id: " + id);
+        String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        contractService.deleteById(new Token(token), id);
+
+        redirectAttributes.addFlashAttribute("success", "Successfully deleted Contract.");
+        return "redirect:/contracts";
+    }
 }

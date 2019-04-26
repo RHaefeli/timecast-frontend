@@ -10,6 +10,8 @@
     <!-- Bootstrap Datepicker -->
     <script th:fragment="header_script" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+    <!-- FontAwesome -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" type="text/css" rel="stylesheet">
 </head>
 
 <body>
@@ -26,7 +28,12 @@
                 <div class="form-row">
                     <div class="form-group col-md-12">
                         <label for="employee">Employee</label>
-                        <input id="employee" class="form-control" th:value="*{employee}" th:readonly="true">
+                        <div class="input-group">
+                            <input id="employee" class="form-control" th:value="*{employee}" th:readonly="true">
+                            <span style="margin-right: -26px; padding-left: 10px; font-size: 20px;">
+                                <a th:href="@{/employees/} + ${contract.employee.id}"><i class="fa fa-eye"></i></a>
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -59,10 +66,11 @@
 
                 <!-- Buttons -->
                 <div class="form-row button-row">
-                    <a class="btn btn-default" th:href="@{/employees/} + ${contract.employee.id}">See related Employee</a>
                     <button type="submit" class="btn btn-primary">Save</button>
+                    <button id="delete-btn" type="button" class="btn btn-danger" onclick="deleteRequest()">Delete</button>
                 </div>
             </form>
+            <form id="delete-form" action="#" th:action="@{/contracts/} + ${contract.id}" th:method="delete"></form>
         </div>
 
         <!-- Right Side -->
@@ -121,7 +129,12 @@
                 autoclose: true
             };
             endDateInput.datepicker(endDateOptions);
-        })
+        });
+
+        // delete request
+        function deleteRequest() {
+            document.getElementById('delete-form').submit();
+        }
     </script>
 </section>
 </body>

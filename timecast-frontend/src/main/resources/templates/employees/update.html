@@ -54,13 +54,11 @@
 
                 <!-- Buttons -->
                 <div class="form-row button-row">
-                    <a class="btn btn-default" th:href="@{/employees}">See Employees List</a>
                     <button type="submit" class="btn btn-primary">Save</button>
+                    <button id="delete-btn" type="button" class="btn btn-danger" onclick="deleteRequest()">Delete</button>
                 </div>
             </form>
-            <form action="#" th:action="@{/employees} + '/' + ${employee.id}" th:method="delete">
-                <button type="submit" class="btn btn-danger">Delete</button>
-            </form>
+            <form id="delete-form" action="#" th:action="@{/employees/} + ${employee.id}" th:method="delete"></form>
         </div>
 
         <!-- Right side -->
@@ -102,6 +100,11 @@
                 scrollY: '45vh',
             });
         });
+
+        // delete request
+        function deleteRequest() {
+            document.getElementById('delete-form').submit();
+        }
     </script>
 </section>
 </body>
