@@ -41,20 +41,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(TimecastForbiddenException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
     public String handleForbiddenException() {
         logger.warn("Attempt to get access without having the required permissions");
         return "redirect:/errors/403";
     }
 
     @ExceptionHandler(TimecastNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleNotFoundException() {
         return "redirect:/errors/404";
     }
 
     @ExceptionHandler(TimecastInternalServerErrorException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleInternalServerErrorException(TimecastInternalServerErrorException ex) {
         logger.error("Internal Server Error: " + ex.getMessage());
         return "redirect:/errors/500";

@@ -2,27 +2,13 @@ package wodss.timecastfrontend.domain;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Objects;
 
-public class Project implements TimecastEntity {
+public class ProjectDto implements TimecastDto {
 	private long id;
-
-	@NotNull
-	@Size(min=1, max=50)
 	private String name;
-	
-	@NotNull
 	private int ftePercentage;
-	
-	@NotNull
-	@Size(min=10, max=10)
 	private String startDate;
-	
-	@NotNull
-	@Size(min=10, max=10)
 	private String endDate;
-	
-	@NotNull
 	private int projectManagerId;
 
 	public long getId() {
@@ -72,22 +58,6 @@ public class Project implements TimecastEntity {
 	public void setProjectManagerId(int projectManagerId) {
 		this.projectManagerId = projectManagerId;
 	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		Project project = (Project) o;
-		return id == project.id &&
-				ftePercentage == project.ftePercentage &&
-				projectManagerId == project.projectManagerId &&
-				Objects.equals(name, project.name) &&
-				Objects.equals(startDate, project.startDate) &&
-				Objects.equals(endDate, project.endDate);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, name, ftePercentage, startDate, endDate, projectManagerId);
-	}
+	
+	
 }

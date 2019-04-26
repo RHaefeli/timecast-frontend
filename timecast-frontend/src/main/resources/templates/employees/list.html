@@ -1,38 +1,57 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='List of Employees', links=~{})">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='List of Employees', links=~{::link}, scripts=~{::header_script})">
+
+<head>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css"/>
+    <script th:fragment="header_script" src="https://code.jquery.com/jquery-3.4.0.slim.min.js" integrity="sha256-ZaXnYkHGqIhqTbJ6MB4l9Frs/r7U4jlx7ir8PJYBqbI=" crossorigin="anonymous"></script>
+    <script th:fragment="header_script" type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.js"></script>
+</head>
 
 <body>
 <section>
-    <a class="btn btn-success float-right" href="?form">
-        Add Employee
+    <div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
+    <a class="btn btn-primary float-right" href="?form">
+        Create new Employee
     </a>
     <h2>Employees</h2>
     <br>
 
-    <div class="app-content" th:if="${employees.isEmpty()}">
+    <div th:if="${employees.isEmpty()}" class="app-content">
         <h2 style="text-align: center">No Employees found</h2>
     </div>
-    <div class="app-content" style="padding-top: 10px;">
+    <div th:unless="${employees.isEmpty()}" class="app-content" style="padding-top: 10px;">
         <br>
-        <table class="table table-condensed table-hover">
+        <table id="employee-table" class="table table-condensed table-hover">
+            <thead>
+                <tr>
+                    <th style="vertical-align: middle;">Id</th>
+                    <th style="vertical-align: middle;">Last Name</th>
+                    <th style="vertical-align: middle;">First Name</th>
+                    <th style="vertical-align: middle;">Role</th>
+                </tr>
+            </thead>
             <tbody>
-            <tr>
-                <th colspan="1" style="vertical-align: middle;">Id</th>
-                <th colspan="3" style="vertical-align: middle;">Last Name</th>
-                <th colspan="3" style="vertical-align: middle;">First Name</th>
-                <th colspan="2" style="vertical-align: middle;">Role</th>
-            </tr>
-            <tr th:each="employee : ${employees}">
-                <td colspan="1" style="vertical-align: middle;" th:text="${employee.id}" />
-                <td colspan="3" style="vertical-align: middle;">
-                    <a th:href="@{employees/} + ${employee.id}" th:text="${employee.lastName}"/>
-                </td>
-                <td colspan="3" style="vertical-align: middle;" th:text="${employee.firstName}" />
-                <td colspan="2" style="vertical-align: middle;" th:text="${employee.role}" />
-            </tr>
+                <tr th:each="employee : ${employees}">
+                    <td style="vertical-align: middle;">
+                        <a th:href="@{employees/} + ${employee.id}" th:text="${employee.id}"/>
+                    </td>
+                    <td style="vertical-align: middle;" th:text="${employee.lastName}" ></td>
+                    <td style="vertical-align: middle;" th:text="${employee.firstName}"></td>
+                    <td style="vertical-align: middle;" th:text="${employee.role}"></td>
+                </tr>
             </tbody>
         </table>
     </div>
+
+    <script>
+        // requires jQuery
+        // requires datatables
+        $(document).ready(function() {
+            $('#employee-table').DataTable({
+                scrollY: '55vh'
+            });
+        });
+    </script>
 </section>
 
 </body>

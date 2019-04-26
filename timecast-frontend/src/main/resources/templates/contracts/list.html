@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='List of Contracts', links=~{::link}, scripts=~{::header_script})">
+
+<head>
+    <!-- jQuery -->
+    <script th:fragment="header_script" src="https://code.jquery.com/jquery-3.4.0.slim.min.js" integrity="sha256-ZaXnYkHGqIhqTbJ6MB4l9Frs/r7U4jlx7ir8PJYBqbI=" crossorigin="anonymous"></script>
+    <!-- Bootstrap datatable -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css"/>
+    <script th:fragment="header_script" type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.js"></script>
+    <!-- FontAwesome -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" type="text/css" rel="stylesheet">
+</head>
+
+<body>
+<section>
+    <h2>Contracts</h2>
+    <br>
+
+    <div th:if="${contracts.isEmpty()}" class="app-content">
+        <h2 style="text-align: center">No Contracts found</h2>
+    </div>
+    <div th:unless="${contracts.isEmpty()}" class="app-content" style="padding-top: 10px;">
+        <br>
+
+        <table id="contracts-table" class="table table-condensed table-hover">
+            <thead>
+            <tr>
+                <th style="vertical-align: middle;">Id</th>
+                <th style="vertical-align: middle;">Employee</th>
+                <th style="vertical-align: middle;">Pensum</th>
+                <th style="vertical-align: middle;">Start Date</th>
+                <th style="vertical-align: middle;">End Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="contract : ${contracts}">
+                <td style="vertical-align: middle;">
+                    <a th:href="@{/contracts/} + ${contract.id}" th:text="${contract.id}"/>
+                </td>
+                <td style="vertical-align: middle;">
+                    <div class="input-group">
+                        <div th:text="${contract.employee}"></div>
+                        <span style="margin-right: -26px; margin-top: -5px; padding-left: 15px; font-size: 20px;">
+                            <a th:href="@{/employees/} + ${contract.employee.id}"><i class="fa fa-eye"></i></a>
+                        </span>
+                    </div>
+                </td>
+                <td style="vertical-align: middle;" th:text="${contract.pensumPercentage} + '%'"></td>
+                <td style="vertical-align: middle;" th:text="${#dates.format(contract.startDate, 'dd.MM.yyyy')}"></td>
+                <td style="vertical-align: middle;" th:text="${#dates.format(contract.endDate, 'dd.MM.yyyy')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // requires jQuery
+        // requires datatables
+        $(document).ready(function() {
+            $('#contracts-table').DataTable({
+                scrollY: '55vh'
+            });
+        });
+    </script>
+</section>
+
+</body>
+
+</html>

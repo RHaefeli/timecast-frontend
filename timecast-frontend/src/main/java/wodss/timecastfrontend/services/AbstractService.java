@@ -5,95 +5,100 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
-import wodss.timecastfrontend.domain.AbstractTimecastEntity;
+import wodss.timecastfrontend.domain.TimecastDto;
+import wodss.timecastfrontend.domain.TimecastEntity;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-public abstract class AbstractService<T extends AbstractTimecastEntity> {
+public abstract class AbstractService<E extends TimecastEntity, DTO extends TimecastDto> {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final String apiURL;
     protected final RestTemplate restTemplate;
-    private final Class<T> serviceEntityClass;
+    private final Class<DTO> serviceEntityClass;
 
-    protected AbstractService(RestTemplate restTemplate, String apiURL, Class<T> serviceEntityClass) {
+    protected AbstractService(RestTemplate restTemplate, String apiURL, Class<DTO> serviceEntityClass) {
         this.restTemplate = restTemplate;
         this.apiURL = apiURL;
         this.serviceEntityClass = serviceEntityClass;
     }
 
-    public List<T> getAll(Token token) throws TimecastUnauthorizedException, TimecastForbiddenException,
+    public List<E> getAll(Token token) throws TimecastUnauthorizedException, TimecastForbiddenException,
             TimecastNotFoundException, TimecastInternalServerErrorException {
         logger.debug("Request list for " + serviceEntityClass + " from api: " + apiURL);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
         HttpEntity<?> request = new HttpEntity<>(headers);
-        ResponseEntity<List<T>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request,
-                new ParameterizedTypeReference<List<T>>() {});
+        ResponseEntity<List<DTO>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request,
+                new ParameterizedTypeReference<List<DTO>>() {});
 
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.OK) {
             throwStatusCodeException(statusCode);
         }
 
-        List<T> entities = response.getBody();
-        logger.debug("Received " + serviceEntityClass + " list: " + entities);
-        return entities;
+        List<DTO> dtos = response.getBody();
+        logger.debug("Received " + serviceEntityClass + " list: " + dtos);
+        if (dtos == null) {
+            return null;
+        }
+        return dtos.stream().map(dto -> mapDtoToEntity(token, dto)).collect(Collectors.toList());
     }
 
-    public T getById(Token token, long id) throws TimecastUnauthorizedException, TimecastForbiddenException,
+    public E getById(Token token, long id) throws TimecastUnauthorizedException, TimecastForbiddenException,
             TimecastNotFoundException, TimecastInternalServerErrorException {
         logger.debug("Request " + serviceEntityClass + " entity with id " + id + " from api: " + apiURL);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
         HttpEntity<?> request = new HttpEntity<>(headers);
-        ResponseEntity<T> response = restTemplate.exchange(apiURL + "/" + id, HttpMethod.GET, request, serviceEntityClass);
+        ResponseEntity<DTO> response = restTemplate.exchange(apiURL + "/" + id, HttpMethod.GET, request, serviceEntityClass);
 
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.OK) {
             throwStatusCodeException(statusCode);
         }
 
-        T entity = response.getBody();
-        logger.debug("Received " + serviceEntityClass + " entity: " + entity);
-        return entity;
+        DTO dto = response.getBody();
+        logger.debug("Received " + serviceEntityClass + " entity: " + dto);
+        return mapDtoToEntity(token, dto);
     }
 
-    public T create(Token token, T entity) throws TimecastUnauthorizedException, TimecastForbiddenException,
+    public E create(Token token, E entity) throws TimecastUnauthorizedException, TimecastForbiddenException,
             TimecastNotFoundException, TimecastPreconditionFailedException, TimecastInternalServerErrorException {
         logger.debug("Create " + serviceEntityClass + " entity " + entity + " to api: " + apiURL);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
-        HttpEntity<T> request = new HttpEntity<>(entity, headers);
-        ResponseEntity<T> response = restTemplate.exchange(apiURL, HttpMethod.POST, request, serviceEntityClass);
+        HttpEntity<DTO> request = new HttpEntity<>(mapEntityToDto(token, entity), headers);
+        ResponseEntity<DTO> response = restTemplate.exchange(apiURL, HttpMethod.POST, request, serviceEntityClass);
 
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.OK) {
             throwStatusCodeException(statusCode);
         }
 
-        T newEntity = response.getBody();
-        logger.debug("Received " + serviceEntityClass + " entity: " + newEntity);
-        return newEntity;
+        DTO dto = response.getBody();
+        logger.debug("Received " + serviceEntityClass + " entity: " + dto);
+        return mapDtoToEntity(token, dto);
     }
 
-    public T update(Token token, T entity) throws TimecastUnauthorizedException, TimecastForbiddenException,
+    public E update(Token token, E entity) throws TimecastUnauthorizedException, TimecastForbiddenException,
             TimecastNotFoundException, TimecastPreconditionFailedException, TimecastInternalServerErrorException {
         logger.debug("Update " + serviceEntityClass + " entity " + entity + " to api: " + apiURL);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
-        HttpEntity<T> requestEntity = new HttpEntity<>(entity, headers);
-        ResponseEntity<T> response = restTemplate.exchange(apiURL + "/" + entity.getId(), HttpMethod.PUT, requestEntity, serviceEntityClass);
+        HttpEntity<DTO> requestEntity = new HttpEntity<>(mapEntityToDto(token, entity), headers);
+        ResponseEntity<DTO> response = restTemplate.exchange(apiURL + "/" + entity.getId(), HttpMethod.PUT, requestEntity, serviceEntityClass);
 
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.OK) {
             throwStatusCodeException(statusCode);
         }
 
-        T newEntity = response.getBody();
-        logger.debug("Received " + serviceEntityClass + " entity: " + newEntity);
-        return newEntity;
+        DTO dto = response.getBody();
+        logger.debug("Received " + serviceEntityClass + " entity: " + dto);
+        return mapDtoToEntity(token, dto);
     }
 
     public void deleteById(Token token, long id) throws TimecastUnauthorizedException, TimecastForbiddenException,
@@ -124,4 +129,7 @@ public abstract class AbstractService<T extends AbstractTimecastEntity> {
             default: throw new IllegalStateException();
         }
     }
+
+    protected abstract DTO mapEntityToDto(Token token, E entity);
+    protected abstract E mapDtoToEntity(Token token, DTO dto);
 }

@@ -10,8 +10,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.services.auth.CustomAuthenticationProvider;
 import wodss.timecastfrontend.web.SessionHandlerInterceptor;
+
+import java.util.regex.Pattern;
 
 
 @Configuration
@@ -38,8 +41,12 @@ public class WebMvcConfig extends WebSecurityConfigurerAdapter implements WebMvc
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/css/app.css", "/css/login.css").permitAll() // Allow css styles for login page
-                .antMatchers("/employees/{id}").hasAuthority("DEVELOPER")
-                .antMatchers("/employees").hasAuthority("ADMINISTRATOR")
+                .antMatchers("/employees").hasAuthority(Role.ADMINISTRATOR.getValue())
+                .antMatchers("/employees/{id}").hasAuthority(Role.ADMINISTRATOR.getValue())
+                .antMatchers("/employees/{id}/contracts").hasAuthority(Role.ADMINISTRATOR.getValue())
+                .antMatchers("/projects").hasAnyAuthority(Role.ADMINISTRATOR.getValue(), Role.PROJECTMANAGER.getValue())
+                .antMatchers("/projects/{id}").hasAnyAuthority(Role.ADMINISTRATOR.getValue(), Role.PROJECTMANAGER.getValue())
+                // TODO: matchers for path params (/employees?form)
                 .anyRequest().authenticated()
                 .and()
             .formLogin()

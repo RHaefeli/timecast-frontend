@@ -12,6 +12,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import wodss.timecastfrontend.domain.Project;
@@ -22,6 +23,7 @@ import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 import wodss.timecastfrontend.services.ProjectService;
 
+@Component
 public class MockProjectService extends ProjectService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	private List<Project> projectRepo;
