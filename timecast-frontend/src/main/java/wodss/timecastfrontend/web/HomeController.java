@@ -50,6 +50,16 @@ public class HomeController {
     @GetMapping("login")
     public String getLoginForm() {
         logger.debug("Request Login form");
+        Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        try {
+            Employee employee = jwtUtil.getEmployeeFromToken(token);
+            if (employee != null) {
+                // already logged in
+                return "redirect:/";
+            }
+        } catch (Exception ex) {
+            // ignore exception since it's only for checking if already logged in.
+        }
         return "login";
     }
 
