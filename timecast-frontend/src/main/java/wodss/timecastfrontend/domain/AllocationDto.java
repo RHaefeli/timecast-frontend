@@ -1,13 +1,14 @@
-package wodss.timecastfrontend.domain.dto;
+package wodss.timecastfrontend.domain;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import wodss.timecastfrontend.domain.AbstractTimecastEntity;
 
-public class AllocationDTO extends AbstractTimecastEntity {
+public class AllocationDto implements TimecastDto {
+	Long id;
+	
 	@NotNull
 	@Size(min=10, max=10)
 	String startDate;
@@ -65,6 +66,17 @@ public class AllocationDTO extends AbstractTimecastEntity {
 
 	public void setProjectId(long projectId) {
 		this.projectId = projectId;
+	}
+
+	@Override
+	public long getId() {
+		return this.id;
+	}
+
+	@Override
+	public void setId(long id) {
+		this.id = id;
+		
 	}
 	
 	

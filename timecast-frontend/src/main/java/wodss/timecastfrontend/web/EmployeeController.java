@@ -47,7 +47,7 @@ public class EmployeeController {
     @GetMapping(params = "form")
     public String createForm(Model model) {
         logger.debug("Get create employee form");
-        model.addAttribute("employee", new EmployeeDTO());
+        model.addAttribute("employee", new Employee());
         return "employees/create";
     }
 

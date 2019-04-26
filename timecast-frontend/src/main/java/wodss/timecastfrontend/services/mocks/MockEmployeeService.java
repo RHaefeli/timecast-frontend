@@ -59,7 +59,7 @@ public class MockEmployeeService extends EmployeeService {
         logger.debug("Update employee with id " + updatedEmployee.getId() + " in MockEmployeeService");
         Optional<Employee> result = employeeRepo.stream().filter(e -> e.getId() == updatedEmployee.getId()).findFirst();
         if (result.isPresent()) {
-            EmployeeDTO oldEmployee = result.get();
+            Employee oldEmployee = result.get();
             oldEmployee.setLastName(updatedEmployee.getLastName());
             oldEmployee.setFirstName(updatedEmployee.getFirstName());
             oldEmployee.setActive(updatedEmployee.isActive());
@@ -106,8 +106,16 @@ public class MockEmployeeService extends EmployeeService {
         emp3.setActive(true);
         emp3.setEmailAddress("g.broesmeli@mail.com");
         emp3.setRole(Role.PROJECTMANAGER);
+        
+        Employee emp4 = new Employee();
+        emp4.setId(nextEmployeeId++);
+        emp4.setLastName("Heftig");
+        emp4.setFirstName("Dud");
+        emp4.setActive(true);
+        emp4.setEmailAddress("g.Dudsmeli@mail.com");
+        emp4.setRole(Role.PROJECTMANAGER);
 
-        List<EmployeeDTO> employees = new ArrayList<>();
+        List<Employee> employees = new ArrayList<>();
         employees.add(emp1);
         employees.add(emp2);
         employees.add(emp3);
@@ -129,6 +137,7 @@ public class MockEmployeeService extends EmployeeService {
         employees.add(emp1);
         employees.add(emp2);
         employees.add(emp3);
+        employees.add(emp4);
 
         return employees;
     }

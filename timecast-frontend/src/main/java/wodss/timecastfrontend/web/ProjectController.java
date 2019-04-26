@@ -28,6 +28,7 @@ import wodss.timecastfrontend.domain.Allocation;
 import wodss.timecastfrontend.domain.Contract;
 import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Project;
+import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
@@ -53,17 +54,12 @@ public class ProjectController {
     private final ContractService contractService;
 
     //TODO activate when backend is ready
-//    @Autowired
-//    public ProjectController(ProjectService projectService) {
-//        this.projectService = projectService;
-//    }
-    
-    //Used for early testing
-    public ProjectController() {
-    	projectService = new MockProjectService(null, "");
-    	allocationService = new MockAllocationService(null, "");
-    	employeeService = new MockEmployeeService(null, "");
-    	contractService = new MockContractService(null, "");
+    @Autowired
+    public ProjectController(MockProjectService projectService, MockAllocationService allocationService, MockEmployeeService employeeService, MockContractService contractService) {
+        this.projectService = projectService;
+        this.allocationService = allocationService;
+        this.employeeService = employeeService;
+        this.contractService = contractService;
     }
 
     @GetMapping()
@@ -95,6 +91,7 @@ public class ProjectController {
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     	try {
 			project = projectService.getById(new Token(token), id);
+			List<Allocation> allocations = allocationService.getAllocations(new Token(token), -1, project.getId(), null, null);
 			model.addAttribute("project", project);
 			model.addAttribute("allocations", allocations);
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
@@ -109,9 +106,11 @@ public class ProjectController {
     @GetMapping(params = "form")
 	public String createProjectForm(Model model) {
 		model.addAttribute("project", new Project());
-		List<Employee> projectManagers = getProjectManagers();
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		List<Employee> projectManagers = employeeService.getAll(new Token(token)).stream().filter(e -> e.getRole() == Role.PROJECTMANAGER).collect(Collectors.toList());
 		logger.debug("managers: {}", projectManagers);
 		model.addAttribute("managers", projectManagers);
+		logger.debug("Init manager: " + projectManagers.get(0).getId());
 		return "projects/create";
 	}
     @PostMapping()
@@ -123,6 +122,9 @@ public class ProjectController {
 		}
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     	try {
+    		logger.debug("Manager selected: " + project.getId());
+    		Employee em = employeeService.getById(new Token(token), project.getId());
+    		project.setProjectManager(em);
 			projectService.create(new Token(token), project);
 		} catch (TimecastPreconditionFailedException | TimecastForbiddenException
 				| TimecastInternalServerErrorException e) {
@@ -139,6 +141,8 @@ public class ProjectController {
 		try {
 			Project project = projectService.getById(new Token(token), id);
 			model.addAttribute("project", project);
+			List<Employee> projectManagers = employeeService.getAll(new Token(token)).stream().filter(e -> e.getRole() == Role.PROJECTMANAGER).collect(Collectors.toList());
+			model.addAttribute("managers", projectManagers);
 			return "projects/update";
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
 			// TODO handle error
@@ -157,6 +161,8 @@ public class ProjectController {
 		}
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		try {
+			Employee projectManager = employeeService.getById(new Token(token), project.getProjectManager().getId());
+			project.setProjectManager(projectManager);
 			projectService.update(new Token(token), project);
 		} catch (TimecastNotFoundException | TimecastPreconditionFailedException | TimecastForbiddenException
 				| TimecastInternalServerErrorException e) {
@@ -177,67 +183,6 @@ public class ProjectController {
 		}
 		
 		return "redirect:/projects";
-	}
-	
-	private List<Project> getProjects(List<ProjectDTO> projectDtos) {
-		List<Project> projects = new ArrayList<Project>();
-		for (ProjectDTO projectDTO : projectDtos) {
-			projects.add(getProject(projectDTO));
-		}
-		
-		return projects;
-	}
-	
-	private Project getProject(ProjectDTO projectDto) {
-		//TODO improve
-		Project p = new Project(projectDto.getName(), projectDto.getFtePercentage(), projectDto.getStartDate(), projectDto.getEndDate());
-		p.setId(projectDto.getId());
-		EmployeeDTO eDto = employeeService.getById(projectDto.getProjectManagerId());
-		Employee e = new Employee(eDto.isActive(), eDto.getLastName(), eDto.getFirstName(), eDto.getEmailAddress(), eDto.getRole());
-		p.setProjectManager(e);
-		return p;
-	}
-	
-	private List<Allocation> getAllocations(List<AllocationDTO> allocationDtos, Project project) {
-		List<Allocation> allocations = new ArrayList<Allocation>();
-		for (AllocationDTO allocDto : allocationDtos) {
-			Allocation alloc = new Allocation(allocDto.getStartDate(), allocDto.getEndDate(), allocDto.getPensumPercentage());
-			alloc.setId(allocDto.getId());
-			alloc.setProject(project);
-			ContractDTO contractDto = contractService.getById(allocDto.getContractId());
-			Contract contract = new Contract(contractDto.getStartDate(), contractDto.getEndDate(), contractDto.getPensumPercentage());
-			contract.setId(contractDto.getId());
-			EmployeeDTO eDto = employeeService.getById(contractDto.getEmployeeId());
-			Employee e = new Employee(eDto.isActive(), eDto.getLastName(), eDto.getFirstName(), eDto.getEmailAddress(), eDto.getRole());
-			e.setId(eDto.getId());
-			contract.setEmployee(e);
-			alloc.setContract(contract);
-			allocations.add(alloc);
-		}
-		
-		return allocations;
-	}
-	
-	private ProjectDTO getProjectDto(Project project) {
-		ProjectDTO projectDto = new ProjectDTO();
-		projectDto.setName(project.getName());
-		projectDto.setStartDate(project.getStartDate());
-		projectDto.setEndDate(project.getEndDate());
-		projectDto.setFtePercentage(project.getFtePercentage());
-		projectDto.setProjectManagerId(project.getProjectManager().getId());
-		return projectDto;
-	}
-	
-	private List<Employee> getProjectManagers() {
-		List<Employee> managers = new ArrayList<Employee>();
-		List<EmployeeDTO> eDtos = employeeService.getAll().stream().filter(e -> e.getRole().equals("Project Leader")).collect(Collectors.toList());;
-		for (EmployeeDTO employeeDTO : eDtos) {
-			Employee e = new Employee(employeeDTO.isActive(), employeeDTO.getLastName(), employeeDTO.getFirstName(), employeeDTO.getEmailAddress(), employeeDTO.getRole());
-			e.setId(employeeDTO.getId());
-			managers.add(e);
-		}
-		
-		return managers;
 	}
 }
 

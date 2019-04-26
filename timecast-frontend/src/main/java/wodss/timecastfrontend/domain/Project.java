@@ -1,9 +1,13 @@
 package wodss.timecastfrontend.domain;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.util.Objects;
 
 public class Project implements TimecastEntity {
@@ -16,24 +20,14 @@ public class Project implements TimecastEntity {
 	@NotNull
 	private long ftePercentage;
 	
-	@NotNull
-	@Size(min=10, max=10)
-	private String startDate;
-	
-	@NotNull
-	@Size(min=10, max=10)
-	private String endDate;
+    @DateTimeFormat(pattern = "dd.MM.yyyy")
+    private Date startDate;
+    @DateTimeFormat(pattern = "dd.MM.yyyy")
+    private Date endDate;
 	
 	private Employee projectManager;
 	
 	public Project() {}
-	
-	public Project(String name, long ftePercentage, String startDate, String endDate) {
-		this.name = name;
-		this.ftePercentage = ftePercentage;
-		this.startDate = startDate;
-		this.endDate = endDate;
-	}
 
 	public long getId() {
 		return id;
@@ -59,30 +53,30 @@ public class Project implements TimecastEntity {
 		this.ftePercentage = ftePercentage;
 	}
 
-	public String getStartDate() {
+	public Date getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(String startDate) {
+	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
 	}
 
-	public String getEndDate() {
+	public Date getEndDate() {
 		return endDate;
 	}
 
-	public void setEndDate(String endDate) {
+	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
 
 	public Employee getProjectManager() {
 		return projectManager;
 	}
-
-	public void setProjectManagerId(int projectManagerId) {
-		this.projectManagerId = projectManagerId;
+	
+	public void setProjectManager(Employee projectManager) {
+		this.projectManager = projectManager;
 	}
-
+	
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -90,7 +84,7 @@ public class Project implements TimecastEntity {
 		Project project = (Project) o;
 		return id == project.id &&
 				ftePercentage == project.ftePercentage &&
-				projectManagerId == project.projectManagerId &&
+				projectManager.equals(project.projectManager) &&
 				Objects.equals(name, project.name) &&
 				Objects.equals(startDate, project.startDate) &&
 				Objects.equals(endDate, project.endDate);
@@ -98,6 +92,6 @@ public class Project implements TimecastEntity {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, ftePercentage, startDate, endDate, projectManagerId);
+		return Objects.hash(id, name, ftePercentage, startDate, endDate, projectManager);
 	}
 }

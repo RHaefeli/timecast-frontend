@@ -6,6 +6,8 @@ import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,14 +20,16 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import wodss.timecastfrontend.domain.dto.AllocationDTO;
-import wodss.timecastfrontend.domain.dto.ProjectDTO;
+import wodss.timecastfrontend.domain.Allocation;
+import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 import wodss.timecastfrontend.services.AllocationService;
+import wodss.timecastfrontend.services.ProjectService;
 import wodss.timecastfrontend.services.mocks.MockAllocationService;
+import wodss.timecastfrontend.services.mocks.MockProjectService;
 
 @Controller
 @RequestMapping(value="/allocations")
@@ -33,18 +37,15 @@ public class AllocationController {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
     private final AllocationService allocationService;
+    private final ProjectService projectService;
     private String filterStartDate;
     private String filterEndDate;
 
     //TODO activate when backend is ready
-//    @Autowired
-//    public AllocationController(AllocationService allocationService) {
-//        this.allocationService = allocationService;
-//    }
-    
-    //Used for early testing
-    public AllocationController() {
-    	allocationService = new MockAllocationService(null, "");
+    @Autowired
+    public AllocationController(MockAllocationService allocationService, MockProjectService projectService) {
+        this.allocationService = allocationService;
+        this.projectService = projectService;
     }
     
     @GetMapping()
@@ -54,11 +55,12 @@ public class AllocationController {
 		model.addAttribute("fromDateFilter", fromDateString);
 		model.addAttribute("employeeIdFilter", employeeId);
 		model.addAttribute("toDateFilter", toDateString);
-    	List<AllocationDTO> allocations;
+    	List<Allocation> allocations;
     	try {
+    		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			//TODO check
 			if ("".equals(fromDateString) && "".equals(toDateString) && null == employeeId && null == projectId) {
-				allocations = allocationService.getAll();
+				allocations = allocationService.getAll(new Token(token));
 			} else {
 				//TODO fix
 				if (employeeId == null) {
@@ -67,7 +69,7 @@ public class AllocationController {
 				if (projectId == null) {
 					projectId = (long) -1;
 				}
- 				allocations = allocationService.getAllocations(Long.valueOf(employeeId), Long.valueOf(projectId), fromDateString, toDateString);
+ 				allocations = allocationService.getAllocations(new Token(token), Long.valueOf(employeeId), Long.valueOf(projectId), fromDateString, toDateString);
 			}
 			
 			model.addAttribute("allocations", allocations);
@@ -80,23 +82,25 @@ public class AllocationController {
     
     @GetMapping(params = "form")
 	public String createAllocationForm(@RequestParam(value = "projectId", required = false) Long projectId, Model model) {
-    	AllocationDTO allocation = new AllocationDTO();
+    	Allocation allocation = new Allocation();
     	if (projectId != null) {
-    		allocation.setProjectId(projectId);
+    		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    		allocation.setProject(projectService.getById(new Token(token), projectId));
     	}
 		model.addAttribute("allocation", allocation);
 		return "allocations/create";
 	}
     
     @PostMapping()
-    public String createAllocation(@Valid @ModelAttribute("allocation") AllocationDTO allocation, BindingResult bindingResult, Model model) {
+    public String createAllocation(@Valid @ModelAttribute("allocation") Allocation allocation, BindingResult bindingResult, Model model) {
     	if (bindingResult.hasErrors()) {
     		//TODO
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "allocations/create";
 		}
     	try {
-			allocationService.create(allocation);
+    		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			allocationService.create(new Token(token), allocation);
 		} catch (TimecastPreconditionFailedException | TimecastForbiddenException
 				| TimecastInternalServerErrorException e) {
 			// TODO handle error
@@ -109,7 +113,8 @@ public class AllocationController {
     @GetMapping(value = "/{id}", params = "form")
 	public String updateAllocationForm(@PathVariable long id, Model model) {
 		try {
-			AllocationDTO allocation = allocationService.getById(id);
+			String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			Allocation allocation = allocationService.getById(new Token(token), id);
 			model.addAttribute("allocation", allocation);
 			return "allocations/update";
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
@@ -122,13 +127,14 @@ public class AllocationController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public String update(@PathVariable long id, @Valid AllocationDTO allocation, BindingResult bindingResult) {
+	public String update(@PathVariable long id, @Valid Allocation allocation, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "allocations/update";
 		}
 			try {
-				allocationService.update(allocation);
+				String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+				allocationService.update(new Token(token), allocation);
 			} catch (TimecastNotFoundException | TimecastPreconditionFailedException | TimecastForbiddenException
 					| TimecastInternalServerErrorException e) {
 				// TODO handle error
@@ -140,7 +146,8 @@ public class AllocationController {
 	@DeleteMapping(value = "/{id}")
 	public String delete(@PathVariable long id) {
 		try {
-			allocationService.deleteById(id);
+			String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			allocationService.deleteById(new Token(token), id);
 		} catch (TimecastInternalServerErrorException | TimecastForbiddenException | TimecastNotFoundException e) {
 			// TODO handle error
 			e.printStackTrace();

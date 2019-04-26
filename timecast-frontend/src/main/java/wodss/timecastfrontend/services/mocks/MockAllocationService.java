@@ -11,15 +11,18 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import wodss.timecastfrontend.domain.dto.AllocationDTO;
-import wodss.timecastfrontend.domain.dto.ProjectDTO;
+import wodss.timecastfrontend.domain.Allocation;
+import wodss.timecastfrontend.domain.AllocationDto;
+import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
@@ -27,30 +30,32 @@ import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 import wodss.timecastfrontend.services.AllocationService;
 import wodss.timecastfrontend.services.ProjectService;
 
+@Component
 public class MockAllocationService extends AllocationService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-	public MockAllocationService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.allocation}") String apiURL) {
-		super(restTemplate, apiURL);
+	@Autowired
+	public MockAllocationService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.allocation}") String apiURL,
+			MockContractService contractService, MockProjectService projectService) {
+		super(restTemplate, apiURL, contractService, projectService);
         logger.debug("Using Mock Allocation Service!");
         logger.debug("API URL " + apiURL + " will not be used in the mock service!");
 	}
-	
-	@Override
-	public List<AllocationDTO> getAll() {
+
+	public List<Allocation> getAll(Token token) {
 		return MockRepository.allocations;
 	}
-
+	
 	@Override
-	public List<AllocationDTO> getAllocations(long employeeId, long projectId, String fromDateString, String toDateString) {
-		Stream<AllocationDTO> stream = MockRepository.allocations.stream();
+	public List<Allocation> getAllocations(Token token, long employeeId, long projectId, String fromDateString, String toDateString) {
+		Stream<Allocation> stream = MockRepository.allocations.stream();
 		if (projectId >= 0 ) {
-			stream = stream.filter(a -> a.getProjectId() == projectId);
+			stream = stream.filter(a -> a.getProject().getId() == projectId);
 		}
 		if (employeeId >= 0) {
-			List<Long> contractIds = MockRepository.contracts.stream().filter(c -> c.getEmployeeId() == employeeId).map(c -> c.getId()).collect(Collectors.toList());
-			stream = stream.filter(a -> contractIds.contains(a.getContractId()));
+			List<Long> contractIds = MockRepository.contracts.stream().filter(c -> c.getEmployee().getId() == employeeId).map(c -> c.getId()).collect(Collectors.toList());
+			stream = stream.filter(a -> contractIds.contains(a.getContract().getId()));
 		}
 		if (fromDateString != null && !fromDateString.equals("")) {
 			logger.debug("Filter allocations");
@@ -79,7 +84,7 @@ public class MockAllocationService extends AllocationService {
 	}
 
 	@Override
-	public AllocationDTO getById(long id) {
+	public Allocation getById(Token token, long id) {
 		if (MockRepository.allocations.stream().anyMatch(a -> a.getId() == id)) {
 			return MockRepository.allocations.stream().filter(a -> a.getId() == id).findFirst().get();
 		} else {
@@ -88,21 +93,21 @@ public class MockAllocationService extends AllocationService {
 	}
 
 	@Override
-	public AllocationDTO create(AllocationDTO newAllocation) {
+	public Allocation create(Token token, Allocation newAllocation) {
 		newAllocation.setId(MockRepository.nextAllocationId++);
 		MockRepository.allocations.add(newAllocation);
 		return newAllocation;
 	}
 
 	@Override
-	public AllocationDTO update(AllocationDTO updatedAllocation) {
+	public Allocation update(Token token, Allocation updatedAllocation) {
 		if (MockRepository.allocations.stream().anyMatch(a -> a.getId() == updatedAllocation.getId())) {
-			AllocationDTO oldAllocation = MockRepository.allocations.stream().filter(a -> a.getId() == updatedAllocation.getId()).findFirst().get();
-			oldAllocation.setContractId(updatedAllocation.getContractId());
+			Allocation oldAllocation = MockRepository.allocations.stream().filter(a -> a.getId() == updatedAllocation.getId()).findFirst().get();
+			oldAllocation.setContract(updatedAllocation.getContract());
 			oldAllocation.setStartDate(updatedAllocation.getStartDate());
 			oldAllocation.setEndDate(updatedAllocation.getEndDate());
 			oldAllocation.setPensumPercentage(updatedAllocation.getPensumPercentage());
-			oldAllocation.setProjectId(updatedAllocation.getProjectId());
+			oldAllocation.setProject(updatedAllocation.getProject());
 			return oldAllocation;
 		} else {
 			throw new TimecastNotFoundException("Allocation not found");
@@ -110,7 +115,7 @@ public class MockAllocationService extends AllocationService {
 	}
 
 	@Override
-	public void deleteById(long id) {
+	public void deleteById(Token token, long id) {
 		if (MockRepository.allocations.stream().anyMatch(a -> a.getId() == id)) {
 			MockRepository.allocations.removeIf(a -> a.getId() == id);
 		} else {

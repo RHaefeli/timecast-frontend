@@ -1,5 +1,8 @@
 package wodss.timecastfrontend.services;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,15 +24,19 @@ import org.springframework.web.client.RestTemplate;
 import wodss.timecastfrontend.domain.*;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
+import wodss.timecastfrontend.services.mocks.MockEmployeeService;
 
 @Component
 public class ProjectService extends AbstractService<Project, ProjectDto>{
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	private EmployeeService employeeService;
 
     @Autowired
-    public ProjectService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.project}") String apiURL) {
+    public ProjectService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.project}") String apiURL, MockEmployeeService employeeService) {
         super(restTemplate, apiURL, ProjectDto.class);
+        this.employeeService = employeeService;
     }
 
 	public List<Project> getProjects(Token token, String fromDate, String toDate)
@@ -62,8 +69,7 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 			return dtos.stream().map(dto -> mapDtoToEntity(token, dto)).collect(Collectors.toList());
 		}
 		
-		return response.getBody();
-
+		throw new IllegalStateException();
 	}
 
 	@Override
@@ -73,9 +79,10 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
     	dto.setId(entity.getId());
     	dto.setName(entity.getName());
     	dto.setFtePercentage(entity.getFtePercentage());
-    	dto.setStartDate(entity.getStartDate());
-    	dto.setEndDate(entity.getEndDate());
-    	dto.setProjectManagerId(entity.getProjectManagerId());
+    	DateFormat domainFormat = new SimpleDateFormat("yyyy-MM-dd");
+    	dto.setStartDate(domainFormat.format(entity.getStartDate()));
+    	dto.setEndDate(domainFormat.format(entity.getEndDate()));
+    	dto.setProjectManagerId(entity.getProjectManager().getId());
 		return dto;
 	}
 
@@ -86,9 +93,15 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 		entity.setId(dto.getId());
 		entity.setName(dto.getName());
 		entity.setFtePercentage(dto.getFtePercentage());
-		entity.setStartDate(dto.getStartDate());
-		entity.setEndDate(dto.getEndDate());
-		entity.setProjectManagerId(dto.getProjectManagerId());
+		try {
+    	DateFormat dtoFormat = new SimpleDateFormat("yyyy-MM-dd");
+		entity.setStartDate(dtoFormat.parse(dto.getStartDate()));
+			entity.setEndDate(dtoFormat.parse(dto.getEndDate()));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		entity.setProjectManager(employeeService.getById(token, dto.getProjectManagerId()));
 		return entity;
 	}
 }

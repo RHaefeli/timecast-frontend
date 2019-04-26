@@ -5,9 +5,12 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import wodss.timecastfrontend.domain.AbstractTimecastEntity;
 
-public class Allocation extends AbstractTimecastEntity {
+public class Allocation implements TimecastEntity {
+	
+	//TODO
+	Long id;
+	
 	@NotNull
 	@Size(min=10, max=10)
 	String startDate;
@@ -24,6 +27,10 @@ public class Allocation extends AbstractTimecastEntity {
 	Contract contract;
 	
 	Project project;
+	
+	public Allocation() {
+		
+	}
 	
 	public Allocation(String startDate, String endDate, int pensumPercentage) {
 		this.startDate = startDate;
@@ -69,6 +76,18 @@ public class Allocation extends AbstractTimecastEntity {
 
 	public void setProject(Project project) {
 		this.project = project;
+	}
+
+	@Override
+	public long getId() {
+		
+		return id;
+	}
+
+	@Override
+	public void setId(long id) {
+		this.id = id;
+		
 	}
 	
 	

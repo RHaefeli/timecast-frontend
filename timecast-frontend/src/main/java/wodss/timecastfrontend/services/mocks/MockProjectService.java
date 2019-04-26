@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -24,10 +25,11 @@ import wodss.timecastfrontend.services.ProjectService;
 @Component
 public class MockProjectService extends ProjectService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	private List<ProjectDTO> projectRepo;
+	private List<Project> projectRepo;
 
-	public MockProjectService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.project}") String apiURL) {
-		super(restTemplate, apiURL);
+	@Autowired
+	public MockProjectService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.project}") String apiURL, MockEmployeeService employeeService) {
+		super(restTemplate, apiURL, employeeService);
         logger.debug("Using Mock Project Service!");
         logger.debug("API URL " + apiURL + " will not be used in the mock service!");
         
@@ -64,7 +66,7 @@ public class MockProjectService extends ProjectService {
 
 	@Override
 	public Project create(Token token, Project newProject) throws TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
-		newProject.setId(nextProjectId++);
+		newProject.setId(MockRepository.nextProjectId++);
 		projectRepo.add(newProject);
 		return newProject;
 	}
@@ -72,10 +74,10 @@ public class MockProjectService extends ProjectService {
 	@Override
 	public Project update(Token token, Project updatedProject) throws TimecastNotFoundException, TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
 		if (projectRepo.stream().anyMatch(p -> p.getId() == updatedProject.getId())) {
-			ProjectDTO oldProject = projectRepo.stream().filter(p -> p.getId() == updatedProject.getId()).findFirst().get();
+			Project oldProject = projectRepo.stream().filter(p -> p.getId() == updatedProject.getId()).findFirst().get();
 			oldProject.setName(updatedProject.getName());
 			oldProject.setFtePercentage(updatedProject.getFtePercentage());
-			oldProject.setProjectManagerId(updatedProject.getProjectManagerId());
+			oldProject.setProjectManager(updatedProject.getProjectManager());
 			oldProject.setStartDate(updatedProject.getStartDate());
 			oldProject.setEndDate(updatedProject.getEndDate());
 			return oldProject;
