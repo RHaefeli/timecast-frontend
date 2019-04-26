@@ -1,53 +1,76 @@
 package wodss.timecastfrontend.services;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+import wodss.timecastfrontend.domain.*;
+import wodss.timecastfrontend.exceptions.*;
+import wodss.timecastfrontend.services.mocks.MockEmployeeService;
 
-import wodss.timecastfrontend.domain.dto.ContractDTO;
-import wodss.timecastfrontend.domain.dto.ProjectDTO;
-import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
-import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
-public class ContractService extends AbstractService<ContractDTO> {
+public class ContractService extends AbstractService<Contract, ContractDto> {
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private EmployeeService employeeService;
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Autowired
+    public ContractService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.contract}") String apiURL,
+                           MockEmployeeService employeeService) {
+        super(restTemplate, apiURL, ContractDto.class);
+        this.employeeService = employeeService;
+    }
 
-	@Autowired
-	public ContractService(RestTemplate restTemplate,
-			@Value("${wodss.timecastfrontend.api.url.project}") String apiURL) {
-		super(restTemplate, apiURL, ContractDTO.class);
-	}
+    public List<Contract> getByEmployee(Token token, Employee employee) {
+        logger.debug("Request list for ContractDtos by Employee " + employee.getId() + " from api: " + apiURL);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token.getToken());
+        HttpEntity<?> request = new HttpEntity<>(headers);
+        ResponseEntity<List<ContractDto>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request,
+                new ParameterizedTypeReference<List<ContractDto>>() {});
 
-	public List<ContractDTO> getContracts(String fromDate, String toDate) {
-		Map<String, String> uriVar = new HashMap<>();
-		if (fromDate != null) {
-			uriVar.put("fromDate", fromDate);
-		}
-		if (toDate != null) {
-			uriVar.put("toDate", toDate);
-		}
-		ResponseEntity<List<ContractDTO>> response = restTemplate.exchange(apiURL, HttpMethod.GET, null,
-				new ParameterizedTypeReference<List<ContractDTO>>() {
-				}, uriVar);
-		
-		if (response.getStatusCode() != HttpStatus.OK) {
-			AbstractService.throwStatusCodeException(response.getStatusCode());
-		}
-		
-		return response.getBody();
+        HttpStatus statusCode = response.getStatusCode();
+        if (statusCode != HttpStatus.OK) {
+            throwStatusCodeException(statusCode);
+        }
 
-	}
+        List<ContractDto> dtos = response.getBody();
+        logger.debug("Received ContractDto list: " + dtos);
+        if (dtos == null) {
+            return null;
+        }
+        return dtos.stream()
+                .filter(dto -> dto.getEmployeeId() == employee.getId())
+                .map(dto -> mapDtoToEntity(token, dto))
+                .collect(Collectors.toList());
+    }
+
+    protected ContractDto mapEntityToDto(Token token, Contract entity) {
+        if (entity == null) return null;
+        ContractDto dto = new ContractDto();
+        dto.setId(entity.getId());
+        dto.setEmployeeId(entity.getEmployee().getId());
+        dto.setStartDate(entity.getStartDate());
+        dto.setEndDate(entity.getEndDate());
+        dto.setPensumPercentage(entity.getPensumPercentage());
+        return dto;
+    }
+
+    protected Contract mapDtoToEntity(Token token, ContractDto dto) {
+        if (dto == null) return null;
+        Contract entity = new Contract();
+        entity.setId(dto.getId());
+        entity.setEmployee(employeeService.getById(token, dto.getEmployeeId()));
+        entity.setStartDate(dto.getStartDate());
+        entity.setEndDate(dto.getEndDate());
+        entity.setPensumPercentage(dto.getPensumPercentage());
+        return entity;
+    }
 }

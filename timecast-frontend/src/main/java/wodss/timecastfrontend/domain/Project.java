@@ -4,13 +4,11 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Objects;
 
-import org.springframework.data.annotation.Id;
+public class Project implements TimecastEntity {
+	private long id;
 
-import wodss.timecastfrontend.domain.AbstractTimecastEntity;
-
-public class Project extends AbstractTimecastEntity {
-	
 	@NotNull
 	@Size(min=1, max=50)
 	private String name;
@@ -35,6 +33,14 @@ public class Project extends AbstractTimecastEntity {
 		this.ftePercentage = ftePercentage;
 		this.startDate = startDate;
 		this.endDate = endDate;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public String getName() {
@@ -73,8 +79,25 @@ public class Project extends AbstractTimecastEntity {
 		return projectManager;
 	}
 
-	public void setProjectManager(Employee projectManager) {
-		this.projectManager = projectManager;
-	}	
-	
+	public void setProjectManagerId(int projectManagerId) {
+		this.projectManagerId = projectManagerId;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Project project = (Project) o;
+		return id == project.id &&
+				ftePercentage == project.ftePercentage &&
+				projectManagerId == project.projectManagerId &&
+				Objects.equals(name, project.name) &&
+				Objects.equals(startDate, project.startDate) &&
+				Objects.equals(endDate, project.endDate);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, name, ftePercentage, startDate, endDate, projectManagerId);
+	}
 }

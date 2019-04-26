@@ -1,62 +1,73 @@
 package wodss.timecastfrontend.domain;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import wodss.timecastfrontend.domain.AbstractTimecastEntity;
+import java.util.Date;
+import java.util.Objects;
 
-public class Contract extends AbstractTimecastEntity{
-	
-	@NotNull
-	@Size(min=10, max=10)
-	String startDate;
-	
-	@NotNull
-	@Size(min=10, max=10)
-	String endDate;
-	
-	@NotNull
-	@Size(min=0, max=100)
-	int pensumPercentage;
-	
-	Employee employee;
-	
-	public Contract(String startDate, String endDate, int pensumPercentage) {
-		this.startDate = startDate;
-		this.endDate = endDate;
-		this.pensumPercentage = pensumPercentage;
-	}
+public class Contract implements TimecastEntity {
+    private long id;
+    private Employee employee;
+    @DateTimeFormat(pattern = "dd.MM.yyyy")
+    private Date startDate;
+    @DateTimeFormat(pattern = "dd.MM.yyyy")
+    private Date endDate;
+    private int pensumPercentage;
 
-	public String getStartDate() {
-		return startDate;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void setStartDate(String startDate) {
-		this.startDate = startDate;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public String getEndDate() {
-		return endDate;
-	}
+    public Date getStartDate() {
+        return startDate;
+    }
 
-	public void setEndDate(String endDate) {
-		this.endDate = endDate;
-	}
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
 
-	public int getPensumPercentage() {
-		return pensumPercentage;
-	}
+    public Date getEndDate() {
+        return endDate;
+    }
 
-	public void setPensumPercentage(int pensumPercentage) {
-		this.pensumPercentage = pensumPercentage;
-	}
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
 
-	public Employee getEmployee() {
-		return employee;
-	}
+    public int getPensumPercentage() {
+        return pensumPercentage;
+    }
 
-	public void setEmployee(Employee employee) {
-		this.employee = employee;
-	}
+    public void setPensumPercentage(int pensumPercentage) {
+        this.pensumPercentage = pensumPercentage;
+    }
 
+    public Employee getEmployee() {
+        return employee;
+    }
+
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Contract contract = (Contract) o;
+        return id == contract.id &&
+                pensumPercentage == contract.pensumPercentage &&
+                Objects.equals(employee, contract.employee) &&
+                Objects.equals(startDate, contract.startDate) &&
+                Objects.equals(endDate, contract.endDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, employee, startDate, endDate, pensumPercentage);
+    }
 }

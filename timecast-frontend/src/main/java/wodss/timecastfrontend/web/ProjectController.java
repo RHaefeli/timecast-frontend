@@ -11,6 +11,7 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -27,10 +28,7 @@ import wodss.timecastfrontend.domain.Allocation;
 import wodss.timecastfrontend.domain.Contract;
 import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Project;
-import wodss.timecastfrontend.domain.dto.AllocationDTO;
-import wodss.timecastfrontend.domain.dto.ContractDTO;
-import wodss.timecastfrontend.domain.dto.EmployeeDTO;
-import wodss.timecastfrontend.domain.dto.ProjectDTO;
+import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
@@ -69,22 +67,16 @@ public class ProjectController {
     }
 
     @GetMapping()
-    public String getAll(@RequestParam(value = "projectManagerId", required = false) Long projectManagerId, @RequestParam(value = "fromDate", required = false) String fromDateString, @RequestParam(value = "toDate", required = false) String toDateString, Model model) {
-        logger.debug("Get all projects with params {} {} {}", projectManagerId, fromDateString, toDateString);
-    	List<ProjectDTO> projectDtos;
-    	List<Project> projects = new ArrayList<Project>();
+    public String getAll(@RequestParam(value = "fromDate", required = false) String fromDateString, @RequestParam(value = "toDate", required = false) String toDateString, Model model) {
+        logger.debug("Get all projects");
+    	List<Project> projects;
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		try {
 			//TODO check
-			if ("".equals(fromDateString) && "".equals(toDateString) && null == projectManagerId) {
-				projectDtos = projectService.getAll();
-				projects = getProjects(projectDtos);
+			if ("".equals(fromDateString) && "".equals(toDateString)) {
+				projects = projectService.getAll(new Token(token));
 			} else {
-				//TODO fix
-				if (projectManagerId == null) {
-					projectManagerId = (long) -1;
-				}
- 				projectDtos = projectService.getProjects(Long.valueOf(projectManagerId), fromDateString, toDateString);
- 				projects = getProjects(projectDtos);
+				projects = projectService.getProjects(new Token(token), fromDateString, toDateString);
 			}
 			logger.debug("Projects: " + projects);
 			model.addAttribute("projects", projects);
@@ -99,12 +91,10 @@ public class ProjectController {
     @GetMapping(value = "/{id}")
 	public String getProjectById(@PathVariable long id, Model model) {
     	logger.debug("Get project by id: " + id);
-    	ProjectDTO projectDto;
+    	Project project;
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     	try {
-			projectDto = projectService.getById(id);
-			Project project = getProject(projectDto);
-			List<AllocationDTO> allocationDtos = allocationService.getAllocations(-1, project.getId(), null, null);
-			List<Allocation> allocations = getAllocations(allocationDtos, project);
+			project = projectService.getById(new Token(token), id);
 			model.addAttribute("project", project);
 			model.addAttribute("allocations", allocations);
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
@@ -131,8 +121,9 @@ public class ProjectController {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "projects/create";
 		}
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     	try {
-			projectService.create(getProjectDto(project));
+			projectService.create(new Token(token), project);
 		} catch (TimecastPreconditionFailedException | TimecastForbiddenException
 				| TimecastInternalServerErrorException e) {
 			// TODO handle error
@@ -144,9 +135,9 @@ public class ProjectController {
     
     @GetMapping(value = "/{id}", params = "form")
 	public String updateProjectForm(@PathVariable long id, Model model) {
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		try {
-			ProjectDTO projectDto = projectService.getById(id);
-			Project project = getProject(projectDto);
+			Project project = projectService.getById(new Token(token), id);
 			model.addAttribute("project", project);
 			return "projects/update";
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
@@ -164,20 +155,22 @@ public class ProjectController {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "project/update";
 		}
-			try {
-				projectService.update(getProjectDto(project));
-			} catch (TimecastNotFoundException | TimecastPreconditionFailedException | TimecastForbiddenException
-					| TimecastInternalServerErrorException e) {
-				// TODO handle error
-				e.printStackTrace();
-			}
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		try {
+			projectService.update(new Token(token), project);
+		} catch (TimecastNotFoundException | TimecastPreconditionFailedException | TimecastForbiddenException
+				| TimecastInternalServerErrorException e) {
+			// TODO handle error
+			e.printStackTrace();
+		}
 		return "redirect:/projects";
 	}
 	
 	@DeleteMapping(value = "/{id}")
 	public String delete(@PathVariable long id) {
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		try {
-			projectService.deleteById(id);
+			projectService.deleteById(new Token(token), id);
 		} catch (TimecastInternalServerErrorException | TimecastForbiddenException | TimecastNotFoundException e) {
 			// TODO handle error
 			e.printStackTrace();

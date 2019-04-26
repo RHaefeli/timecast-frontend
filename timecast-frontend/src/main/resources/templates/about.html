@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="layout :: maincontent(content=~{::section}, title='About', links=~{}, scripts=~{})">
+
+<head>
+</head>
+
+<body>
+<section>
+    <h2>About</h2>
+    <br>
+    <div class="app-content">
+        <h4>What is this application about?</h4>
+        <p>
+            This application is made in order of a school project.
+        </p>
+
+        <br>
+
+        <h4>Authors</h4>
+        <ul>
+            <li>Ronny Häfeli</li>
+            <li>Yves Simmen</li>
+            <li>Jonas Arab</li>
+            <li>Cagatay Özyurt</li>
+        </ul>
+
+        <br>
+
+        <h4>Referenced contributors</h4>
+        <ul>
+            <li>
+                <div>Favicon made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+            </li>
+        </ul>
+    </div>
+</section>
+</body>
+
+</html>

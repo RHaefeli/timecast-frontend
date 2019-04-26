@@ -1,3 +1,10 @@
+/**
+Body
+ */
+body {
+    overflow: hidden;
+}
+
 /*
 Header
  */
@@ -13,6 +20,22 @@ Header
 
 .navbar-nav {
     padding-right: 24px;
+    flex-direction: row;
+}
+
+.nav-item {
+    margin-left: 40px;
+}
+
+
+/*
+Footer
+ */
+.footer {
+    position: absolute;
+    right: 0;
+    margin-right: 10px;
+    bottom: 10px;
 }
 
 
@@ -86,7 +109,7 @@ Content
     padding-top: 50px;
     padding-left: 50px;
     width: calc(100vw - 300px - 50px);
-    min-width: 1000px;
+    min-width: 700px;
 }
 
 .app-content {
@@ -94,10 +117,54 @@ Content
     border-radius: 5px;
     padding: 25px;
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    height: 75vh;
+}
+
+.app-content .form {
+    height: 100%;
+}
+
+.dataTables_wrapper {
+    position: relative;
+    height: 100%;
 }
 
 .button-row {
     margin-top: 20px;
+}
+
+.button-row .btn {
+    margin-right: 10px;
+}
+
+.col-md-5 {
+    min-width: 300px;
+}
+
+.btn-default {
+    background-color: #f4f4f4;
+}
+
+.btn-default:hover {
+    background-color: lightgrey;
+}
+
+.vertical-line {
+    border-left: thin solid #707579;
+    margin-left: 40px;
+    padding-left: 50px
+}
+
+a .fa {
+    color: #707579;
+}
+
+a .fa:hover {
+    color: #343A40;
+}
+
+.alert-success {
+    margin-top: -30px;
 }
 
 

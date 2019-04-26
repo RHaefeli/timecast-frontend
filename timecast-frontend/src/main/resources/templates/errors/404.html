@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Error', links=~{})">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Error', links=~{}, scripts=~{})">
 
 <head>
     <!-- Put additional style links here -->
@@ -7,7 +7,7 @@
 
 <body>
 <section>
-    <h2>Error</h2>
+    <h2>404 Not Found</h2>
 
     <!-- Additional error information -->
     <h5 style="white-space: pre-line" th:if="${exception != null}" th:text="${exception}"></h5>

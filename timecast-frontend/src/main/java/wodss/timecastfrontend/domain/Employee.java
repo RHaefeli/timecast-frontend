@@ -1,26 +1,23 @@
 package wodss.timecastfrontend.domain;
 
-import java.util.List;
+import java.util.Objects;
 
-import wodss.timecastfrontend.domain.AbstractTimecastEntity;
-
-public class Employee extends AbstractTimecastEntity {
+public class Employee implements TimecastEntity {
+    private long id;
     private boolean active;
     private String lastName;
     private String firstName;
     private String emailAddress;
-    private String role;
-    
-    public Employee(boolean active, String lastName, String firstName, String emailAddress, String role) {
-    	this.active = active;
-    	this.lastName = lastName;
-    	this.firstName = firstName;
-    	this.emailAddress = emailAddress;
-    	this.role = role;
+    private String password;
+    private Role role;
+
+    public long getId() {
+        return id;
     }
 
-    public Employee() {
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
 	public boolean isActive() {
         return active;
@@ -54,16 +51,44 @@ public class Employee extends AbstractTimecastEntity {
         this.emailAddress = emailAddress;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
-	@Override
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
     public String toString() {
         return lastName + " " + firstName + ", " + role;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Employee employee = (Employee) o;
+        return id == employee.id &&
+                active == employee.active &&
+                Objects.equals(lastName, employee.lastName) &&
+                Objects.equals(firstName, employee.firstName) &&
+                Objects.equals(emailAddress, employee.emailAddress) &&
+                Objects.equals(password, employee.password) &&
+                role == employee.role;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, active, lastName, firstName, emailAddress, password, role);
+    }
+
 }

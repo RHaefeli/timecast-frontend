@@ -5,8 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
-import wodss.timecastfrontend.domain.dto.EmployeeDTO;
+import wodss.timecastfrontend.domain.Employee;
+import wodss.timecastfrontend.domain.Role;
+import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 import wodss.timecastfrontend.services.EmployeeService;
 
@@ -18,8 +19,8 @@ import java.util.Optional;
 @Component
 public class MockEmployeeService extends EmployeeService {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private List<EmployeeDTO> employeeRepo;
-    private int nextProjectId = 0;
+    private List<Employee> employeeRepo;
+    private int nextEmployeeId = 0;
 
     public MockEmployeeService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.employee}") String apiURL) {
         super(restTemplate, apiURL);
@@ -29,13 +30,15 @@ public class MockEmployeeService extends EmployeeService {
     }
 
     @Override
-    public List<EmployeeDTO> getAll() {
+    public List<Employee> getAll(Token token) {
+        logger.debug("Request list of employees in MockEmployeeService");
         return employeeRepo;
     }
 
     @Override
-    public EmployeeDTO getById(long id) {
-        Optional<EmployeeDTO> employee = employeeRepo.stream().filter(e -> e.getId() == id).findFirst();
+    public Employee getById(Token token, long id) {
+        logger.debug("Request employee with id " + id + " in MockEmployeeService");
+        Optional<Employee> employee = employeeRepo.stream().filter(e -> e.getId() == id).findFirst();
         if (employee.isPresent()) {
             return employee.get();
         } else {
@@ -44,19 +47,21 @@ public class MockEmployeeService extends EmployeeService {
     }
 
     @Override
-    public EmployeeDTO create(EmployeeDTO newEmployee) {
-        newEmployee.setId(nextProjectId++);
+    public Employee create(Token token, Employee newEmployee) {
+        logger.debug("Create new employee " + newEmployee + " in MockEmployeeService");
+        newEmployee.setId(nextEmployeeId++);
         employeeRepo.add(newEmployee);
         return newEmployee;
     }
 
     @Override
-    public EmployeeDTO update(EmployeeDTO updatedEmployee) {
-        Optional<EmployeeDTO> result = employeeRepo.stream().filter(e -> e.getId() == updatedEmployee.getId()).findFirst();
+    public Employee update(Token token, Employee updatedEmployee) {
+        logger.debug("Update employee with id " + updatedEmployee.getId() + " in MockEmployeeService");
+        Optional<Employee> result = employeeRepo.stream().filter(e -> e.getId() == updatedEmployee.getId()).findFirst();
         if (result.isPresent()) {
             EmployeeDTO oldEmployee = result.get();
             oldEmployee.setLastName(updatedEmployee.getLastName());
-            oldEmployee.setFirstName(updatedEmployee.getEmailAddress());
+            oldEmployee.setFirstName(updatedEmployee.getFirstName());
             oldEmployee.setActive(updatedEmployee.isActive());
             oldEmployee.setEmailAddress(updatedEmployee.getEmailAddress());
             oldEmployee.setRole(updatedEmployee.getRole());
@@ -67,7 +72,8 @@ public class MockEmployeeService extends EmployeeService {
     }
 
     @Override
-    public void deleteById(long id) {
+    public void deleteById(Token token, long id) {
+        logger.debug("Delete employee with id " + id + " in MockEmployeeService");
         if (employeeRepo.stream().anyMatch(e -> e.getId() == id)) {
             employeeRepo.removeIf(e -> e.getId() == id);
         } else {
@@ -76,32 +82,50 @@ public class MockEmployeeService extends EmployeeService {
     }
 
 
-    private List<EmployeeDTO> generateEmployees() {
-        EmployeeDTO emp1 = new EmployeeDTO();
-        emp1.setId(nextProjectId++);
+    private List<Employee> generateEmployees() {
+        Employee emp1 = new Employee();
+        emp1.setId(nextEmployeeId++);
         emp1.setLastName("Müller");
         emp1.setFirstName("Kurt");
         emp1.setActive(true);
         emp1.setEmailAddress("k.mueller@mail.com");
-        emp1.setRole("Admin");
+        emp1.setRole(Role.ADMINISTRATOR);
 
-        EmployeeDTO emp2 = new EmployeeDTO();
-        emp2.setId(nextProjectId++);
+        Employee emp2 = new Employee();
+        emp2.setId(nextEmployeeId++);
         emp2.setLastName("Meier");
         emp2.setFirstName("Jonathan");
         emp2.setActive(true);
         emp2.setEmailAddress("j.meier@mail.com");
-        emp2.setRole("Developer");
+        emp2.setRole(Role.DEVELOPER);
 
-        EmployeeDTO emp3 = new EmployeeDTO();
-        emp3.setId(nextProjectId++);
+        Employee emp3 = new Employee();
+        emp3.setId(nextEmployeeId++);
         emp3.setLastName("Brösmeli");
         emp3.setFirstName("Guschdi");
         emp3.setActive(true);
         emp3.setEmailAddress("g.broesmeli@mail.com");
-        emp3.setRole("Project Leader");
+        emp3.setRole(Role.PROJECTMANAGER);
 
         List<EmployeeDTO> employees = new ArrayList<>();
+        employees.add(emp1);
+        employees.add(emp2);
+        employees.add(emp3);
+        employees.add(emp1);
+        employees.add(emp2);
+        employees.add(emp3);
+        employees.add(emp1);
+        employees.add(emp2);
+        employees.add(emp3);
+        employees.add(emp1);
+        employees.add(emp2);
+        employees.add(emp3);
+        employees.add(emp1);
+        employees.add(emp2);
+        employees.add(emp3);
+        employees.add(emp1);
+        employees.add(emp2);
+        employees.add(emp3);
         employees.add(emp1);
         employees.add(emp2);
         employees.add(emp3);
