@@ -41,7 +41,7 @@ public class Employee implements TimecastEntity {
         this.id = id;
     }
 
-    public boolean isActive() {
+	public boolean isActive() {
         return active;
     }
 

@@ -49,7 +49,7 @@ public class ProjectServiceTests {
 	private String url = "url";
 	private Token token = new Token("any String");
 	
-	private List<Project> projects;
+	private List<ProjectDTO> projects;
 
 	
 	@Before
@@ -77,11 +77,11 @@ public class ProjectServiceTests {
 	}
 	
 	@Test
-	public void getAllProjectsByFromDateTest() throws ParseException, TimecastNotFoundException, TimecastInternalServerErrorException {
+	public void getAllProjectsByFromDateTest() {
 		Map<String, String> uriVar = new HashMap<>();
 		uriVar.put("fromDate", "2019-03-16");
 		
-		List<Project> returnProjects = new ArrayList<>();
+		List<ProjectDTO> returnProjects = new ArrayList<>();
 		returnProjects.add(projects.get(0));
 		returnProjects.add(projects.get(2));
 		List<ProjectDto> returnProjectDtos = mapProjectToDtos(returnProjects);
@@ -104,7 +104,7 @@ public class ProjectServiceTests {
 		Map<String, String> uriVar = new HashMap<>();
 		uriVar.put("toDate", "2020-01-01");
 		
-		List<Project> returnProjects = new ArrayList<>();
+		List<ProjectDTO> returnProjects = new ArrayList<>();
 		returnProjects.add(projects.get(0));
 		returnProjects.add(projects.get(1));
 		List<ProjectDto> returnProjectDtos = mapProjectToDtos(returnProjects);
@@ -127,7 +127,7 @@ public class ProjectServiceTests {
 		uriVar.put("fromDate", "2019-01-01");
 		uriVar.put("toDate", "2020-01-01");
 		
-		List<Project> returnProjects = new ArrayList<>();
+		List<ProjectDTO> returnProjects = new ArrayList<>();
 		returnProjects.add(projects.get(0));
 		List<ProjectDto> returnProjectDtos = mapProjectToDtos(returnProjects);
 		
@@ -163,34 +163,34 @@ public class ProjectServiceTests {
 	
 	@Test
 	public void createProjectTest() throws TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
-		Project newProject = new Project();
+		ProjectDTO newProject = new ProjectDTO();
 		newProject.setId(99);
 		newProject.setName("ProjectNew");
 		newProject.setFtePercentage(100);
 		newProject.setStartDate("2019-03-16");
 		newProject.setEndDate("2019-10-10");
 		newProject.setProjectManagerId(0);
-		HttpEntity<Project> request = new HttpEntity<>(newProject);
-		Mockito.when(restTemplateMock.exchange(url, HttpMethod.POST, request, Project.class)).thenReturn(new ResponseEntity<Project>(newProject, HttpStatus.OK));
+		HttpEntity<ProjectDTO> request = new HttpEntity<>(newProject);
+		Mockito.when(restTemplateMock.exchange(url, HttpMethod.POST, request, ProjectDTO.class)).thenReturn(new ResponseEntity<ProjectDTO>(newProject, HttpStatus.CREATED));
 		
 		Project createdProject = projectService.create(token, newProject);
 		
-		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.POST, request, Project.class);
+		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.POST, request, ProjectDTO.class);
 		
 		Assert.assertEquals(newProject, createdProject);
 	}
 	
 	@Test
 	public void updateProjectTest() throws TimecastNotFoundException, TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
-		Project updatedProject = projects.get(0);
+		ProjectDTO updatedProject = projects.get(0);
 		updatedProject.setName("ProjectnameNew");
-		HttpEntity<Project> requestEntity = new HttpEntity<Project>(updatedProject);
+		HttpEntity<ProjectDTO> requestEntity = new HttpEntity<ProjectDTO>(updatedProject);
 		
-		Mockito.when(restTemplateMock.exchange(url + "/1", HttpMethod.PUT, requestEntity, Project.class)).thenReturn(new ResponseEntity<Project>(updatedProject, HttpStatus.OK));
+		Mockito.when(restTemplateMock.exchange(url + "/1", HttpMethod.PUT, requestEntity, ProjectDTO.class)).thenReturn(new ResponseEntity<ProjectDTO>(updatedProject, HttpStatus.OK));
 		
 		Project responseProject = projectService.update(token, updatedProject);
 		
-		verify(restTemplateMock, times(1)).exchange(url+ "/1", HttpMethod.PUT, requestEntity, Project.class);
+		verify(restTemplateMock, times(1)).exchange(url+ "/1", HttpMethod.PUT, requestEntity, ProjectDTO.class);
 		
 		Assert.assertEquals(updatedProject, responseProject);
 	}
@@ -199,7 +199,7 @@ public class ProjectServiceTests {
 	public void deleteProjectTest() throws TimecastInternalServerErrorException, TimecastForbiddenException, TimecastNotFoundException {
 					
 		Mockito.when(restTemplateMock.exchange(url + "/1", HttpMethod.DELETE,
-		null, Void.class)).thenReturn(new ResponseEntity<Void>(HttpStatus.OK));
+		null, Void.class)).thenReturn(new ResponseEntity<Void>(HttpStatus.NO_CONTENT));
 		
 		projectService.deleteById(token, 1);
 		
@@ -208,8 +208,8 @@ public class ProjectServiceTests {
 	}
 	
 	
-	private List<Project> generateProjects() {
-		Project project1 = new Project();
+	private List<ProjectDTO> generateProjects() {
+		ProjectDTO project1 = new ProjectDTO();
 		project1.setId(1);
 		project1.setName("Project1");
 		project1.setFtePercentage(100);
@@ -217,7 +217,7 @@ public class ProjectServiceTests {
 		project1.setEndDate("2019-10-10");
 		project1.setProjectManagerId(0);
 		
-		Project project2 = new Project();
+		ProjectDTO project2 = new ProjectDTO();
 		project2.setId(1);
 		project2.setName("Project2");
 		project2.setFtePercentage(200);
@@ -225,7 +225,7 @@ public class ProjectServiceTests {
 		project2.setEndDate("2018-10-10");
 		project2.setProjectManagerId(0);
 		
-		Project project3 = new Project();
+		ProjectDTO project3 = new ProjectDTO();
 		project3.setId(1);
 		project3.setName("Project3");
 		project3.setFtePercentage(300);
@@ -233,7 +233,7 @@ public class ProjectServiceTests {
 		project3.setEndDate("2020-10-10");
 		project3.setProjectManagerId(0);
 		
-		List<Project> projects = new ArrayList();
+		List<ProjectDTO> projects = new ArrayList();
 		projects.add(project1);
 		projects.add(project2);
 		projects.add(project3);

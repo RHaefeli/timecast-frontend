@@ -43,14 +43,16 @@
         
         <div class="form-row">
             <div class="form-group col-md-5">
-                <label for="projectManagerId">Project Manager ID</label>
-                <input type="text" class="form-control" id="projectManagerId" th:field="*{projectManagerId}" th:errorclas="fieldError" readonly/>
-                <span th:if="${#fields.hasErrors('projectManagerId')}" th:errors="*{projectManagerId}" class="fieldErrorText"></span>
+                <label for="projectManager">Project Manager</label>
+                <input type="text" class="form-control" id="projectManager" th:value="*{projectManager.lastName} + ' ' + *{projectManager.firstName}" th:errorclas="fieldError" readonly/>
+                <span th:if="${#fields.hasErrors('projectManager')}" th:errors="*{projectManager.name}" class="fieldErrorText"></span>
             </div>
         </div>
-                    <div class="form-group row">
+        	<!-- <h4>Allocations</h4>
+            <div th:insert="allocations/list.html :: allocations"></div>
+            <div class="form-group row">
                 <a class="btn btn-default" th:href="@{/projects}">Close</a>
-            </div>
+            </div>-->
         </form>
     </section>
 </body>

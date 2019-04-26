@@ -1,7 +1,10 @@
 package wodss.timecastfrontend.web;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -21,13 +24,23 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import wodss.timecastfrontend.domain.Allocation;
+import wodss.timecastfrontend.domain.Contract;
+import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Project;
+import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
+import wodss.timecastfrontend.services.AllocationService;
+import wodss.timecastfrontend.services.ContractService;
+import wodss.timecastfrontend.services.EmployeeService;
 import wodss.timecastfrontend.services.ProjectService;
+import wodss.timecastfrontend.services.mocks.MockAllocationService;
+import wodss.timecastfrontend.services.mocks.MockContractService;
+import wodss.timecastfrontend.services.mocks.MockEmployeeService;
 import wodss.timecastfrontend.services.mocks.MockProjectService;
 
 @Controller
@@ -36,16 +49,17 @@ public class ProjectController {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ProjectService projectService;
+    private final AllocationService allocationService;
+    private final EmployeeService employeeService;
+    private final ContractService contractService;
 
     //TODO activate when backend is ready
-//    @Autowired
-//    public ProjectController(ProjectService projectService) {
-//        this.projectService = projectService;
-//    }
-    
-    //Used for early testing
-    public ProjectController() {
-    	projectService = new MockProjectService(null, "");
+    @Autowired
+    public ProjectController(MockProjectService projectService, MockAllocationService allocationService, MockEmployeeService employeeService, MockContractService contractService) {
+        this.projectService = projectService;
+        this.allocationService = allocationService;
+        this.employeeService = employeeService;
+        this.contractService = contractService;
     }
 
     @GetMapping()
@@ -60,7 +74,7 @@ public class ProjectController {
 			} else {
 				projects = projectService.getProjects(new Token(token), fromDateString, toDateString);
 			}
-			
+			logger.debug("Projects: " + projects);
 			model.addAttribute("projects", projects);
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException e) {
 			// TODO Handle error
@@ -77,7 +91,9 @@ public class ProjectController {
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     	try {
 			project = projectService.getById(new Token(token), id);
+			List<Allocation> allocations = allocationService.getAllocations(new Token(token), -1, project.getId(), null, null);
 			model.addAttribute("project", project);
+			model.addAttribute("allocations", allocations);
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
 			// TODO handle error
 			e.printStackTrace();
@@ -90,6 +106,11 @@ public class ProjectController {
     @GetMapping(params = "form")
 	public String createProjectForm(Model model) {
 		model.addAttribute("project", new Project());
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		List<Employee> projectManagers = employeeService.getAll(new Token(token)).stream().filter(e -> e.getRole() == Role.PROJECTMANAGER).collect(Collectors.toList());
+		logger.debug("managers: {}", projectManagers);
+		model.addAttribute("managers", projectManagers);
+		logger.debug("Init manager: " + projectManagers.get(0).getId());
 		return "projects/create";
 	}
     @PostMapping()
@@ -101,6 +122,9 @@ public class ProjectController {
 		}
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     	try {
+    		logger.debug("Manager selected: " + project.getId());
+    		Employee em = employeeService.getById(new Token(token), project.getId());
+    		project.setProjectManager(em);
 			projectService.create(new Token(token), project);
 		} catch (TimecastPreconditionFailedException | TimecastForbiddenException
 				| TimecastInternalServerErrorException e) {
@@ -117,6 +141,8 @@ public class ProjectController {
 		try {
 			Project project = projectService.getById(new Token(token), id);
 			model.addAttribute("project", project);
+			List<Employee> projectManagers = employeeService.getAll(new Token(token)).stream().filter(e -> e.getRole() == Role.PROJECTMANAGER).collect(Collectors.toList());
+			model.addAttribute("managers", projectManagers);
 			return "projects/update";
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
 			// TODO handle error
@@ -135,6 +161,8 @@ public class ProjectController {
 		}
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		try {
+			Employee projectManager = employeeService.getById(new Token(token), project.getProjectManager().getId());
+			project.setProjectManager(projectManager);
 			projectService.update(new Token(token), project);
 		} catch (TimecastNotFoundException | TimecastPreconditionFailedException | TimecastForbiddenException
 				| TimecastInternalServerErrorException e) {

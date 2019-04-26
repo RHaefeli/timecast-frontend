@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='List of Allocations', links=~{})">
+
+<body>
+	<section>
+		<a class="btn btn-success float-right" href="?form">
+			Add Allocation
+		</a>
+		<h3>Allocations</h3>
+		<div>
+			<form action="#" th:action="@{/allocations}" method="get">
+				<label for="employeeId">Employee ID</label>
+            	<input name="employeeId" type="text" class="form-control" id="employeeId" th:value="${employeeIdFilter}" th:errorclas="fieldError" autofocus/>
+            	<label for="projectId">Project ID</label>
+                <input name="projectId" type="text" class="form-control" id="projectId" th:value="${projectIdFilter}" th:errorclas="fieldError" autofocus/>
+				<label for="filterStartDate">Start Date</label>
+                <input name="fromDate" type="text" class="form-control" id="filterStartDate" th:value="${fromDateFilter}" th:errorclas="fieldError" autofocus/>
+                <label for="filterEndDate">End Date</label>
+                <input name="toDate" type="text" class="form-control" id="filterEndDate" th:value="${toDateFilter}" th:errorclas="fieldError" autofocus/>
+				<button type="submit" class="btn btn-secondary">
+					Filter
+				</button>
+			</form>
+		</div>
+		<div th:fragment="allocations">
+		<div th:if="${allocations.isEmpty()}">
+			<h2 style="text-align: center">No Allocations found</h2>
+		</div>
+		<div style="padding-top: 10px;">
+			<table class="table table-condensed table-hover">
+			<thead>
+			<tr>
+			<th>ID</th>
+			<th>Contract ID</th>
+			<th>Start Date</th>
+			<th>End Date</th>
+			<th>Pensum</th>
+			<th>Project ID</th>
+			</thead>
+				<tbody>
+					<tr th:each="allocation : ${allocations}">
+						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.id}" />
+						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.contractId}" />
+						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.startDate}" />
+						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.endDate}" />
+						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.pensumPercentage}" />
+						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.projectId}" />
+						<td>
+								<div>
+									<form action="#" th:action="@{/allocations/{id}(id=${allocation.id})}">
+										<!-- 
+											The action URL is mutated after submitting the form according to
+											https://www.w3.org/TR/2011/WD-html5-20110525/association-of-controls-and-forms.html#submit-mutate-action
+											The browser will trash the existing "?..." part of hte URI and replace it with a new one based on your form.
+										-->
+										<input type="hidden" name="form" />
+										<button class="btn btn-primary">
+											Edit
+										</button>
+									</form>
+								</div>
+
+								<div>
+									<form action="#" th:action="@{/allocations} + '/' + ${allocation.id}" method="post">
+										<input type="hidden" name="_method" value="DELETE" />
+										<button type="submit" class="btn btn-danger">
+											Delete
+										</button>
+									</form>
+								</div>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		</div>
+	</section>
+
+</body>
+
+</html>

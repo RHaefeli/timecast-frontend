@@ -1,8 +1,13 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Create new Project', links=~{}, scripts=~{})">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Create new Project', links=~{::link}, scripts=~{::header_script})">
 
 <head>
     <!-- Put additional style links here -->
+    <!-- jQuery -->
+    <script th:fragment="header_script" src="https://code.jquery.com/jquery-3.4.0.slim.min.js" integrity="sha256-ZaXnYkHGqIhqTbJ6MB4l9Frs/r7U4jlx7ir8PJYBqbI=" crossorigin="anonymous"></script>
+    <!-- Bootstrap Datepicker -->
+    <script th:fragment="header_script" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
 </head>
 
 <body>
@@ -29,9 +34,9 @@
 
         <div class="form-row">
             <div class="form-group col-md-5">
-                <label for="startDate">Start Date</label>
-                <input type="text" class="form-control" id="startDate" th:field="*{startDate}" th:errorclas="fieldError"/>
-                <span th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" class="fieldErrorText"></span>
+                        <label for="startDate">Start Date</label>
+                        <input type="text" class="form-control" id="startDate" th:field="*{startDate}" th:errorclas="fieldError"/>
+                        <span th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" class="fieldErrorText"></span>
             </div>
         </div>
         
@@ -41,13 +46,15 @@
                 <input type="text" class="form-control" id="endDate" th:field="*{endDate}" th:errorclas="fieldError"/>
                 <span th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}" class="fieldErrorText"></span>
             </div>
-        </div>
+        </div>        
         
         <div class="form-row">
             <div class="form-group col-md-5">
-                <label for="projectManagerId">Project Manager ID</label>
-                <input type="text" class="form-control" id="projectManagerId" th:field="*{projectManagerId}" th:errorclas="fieldError"/>
-                <span th:if="${#fields.hasErrors('projectManagerId')}" th:errors="*{projectManagerId}" class="fieldErrorText"></span>
+            <label for="projectManager">Project Manager</label>
+                <select id="projectManager" th:field="*{projectManager.id}">
+            	<option th:each="manager: ${managers}"
+                	th:value="${manager.id}" th:text="${manager}"></option>
+				</select>
             </div>
         </div>
 
@@ -55,7 +62,32 @@
             <a class="btn btn-default" th:href="@{/projects}">Cancel</a>
             <button type="submit" class="btn btn-primary">Save</button>
         </div>
+        
     </form>
+    
+    <script>
+        // datepicker
+        // requires jQuery
+        // requires datepicker
+        $(document).ready(function(){
+            var startDateInput=$('input[name="startDate"]');
+            var startDateOptions={
+                format: 'dd.mm.yyyy',
+                todayHighlight: true,
+                autoclose: true
+            };
+            startDateInput.datepicker(startDateOptions);
+
+            var endDateInput=$('input[name="endDate"]');
+            var endDateOptions={
+                format: 'dd.mm.yyyy',
+                todayHighlight: true,
+                autoclose: true
+            };
+            endDateInput.datepicker(endDateOptions);
+        });
+    </script>
+    
 </section>
 </body>
 

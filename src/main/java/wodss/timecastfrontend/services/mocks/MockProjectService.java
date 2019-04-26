@@ -1,12 +1,11 @@
 package wodss.timecastfrontend.services.mocks;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -27,13 +26,18 @@ import wodss.timecastfrontend.services.ProjectService;
 public class MockProjectService extends ProjectService {
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 	private List<Project> projectRepo;
-	private int nextProjectId = 0;
 
-	public MockProjectService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.project}") String apiURL) {
-		super(restTemplate, apiURL);
+	@Autowired
+	public MockProjectService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.project}") String apiURL, MockEmployeeService employeeService) {
+		super(restTemplate, apiURL, employeeService);
         logger.debug("Using Mock Project Service!");
         logger.debug("API URL " + apiURL + " will not be used in the mock service!");
-		projectRepo = generateProjects();
+        
+        //TODO fix workaround
+        logger.debug("Generating mock projects");
+        MockRepository.generateRepository();
+        projectRepo = MockRepository.projects;
+        logger.debug("Mockrepo: {}", projectRepo);
 	}
 	
 	@Override
@@ -62,7 +66,7 @@ public class MockProjectService extends ProjectService {
 
 	@Override
 	public Project create(Token token, Project newProject) throws TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
-		newProject.setId(nextProjectId++);
+		newProject.setId(MockRepository.nextProjectId++);
 		projectRepo.add(newProject);
 		return newProject;
 	}
@@ -73,7 +77,7 @@ public class MockProjectService extends ProjectService {
 			Project oldProject = projectRepo.stream().filter(p -> p.getId() == updatedProject.getId()).findFirst().get();
 			oldProject.setName(updatedProject.getName());
 			oldProject.setFtePercentage(updatedProject.getFtePercentage());
-			oldProject.setProjectManagerId(updatedProject.getProjectManagerId());
+			oldProject.setProjectManager(updatedProject.getProjectManager());
 			oldProject.setStartDate(updatedProject.getStartDate());
 			oldProject.setEndDate(updatedProject.getEndDate());
 			return oldProject;
@@ -89,39 +93,6 @@ public class MockProjectService extends ProjectService {
 		} else {
 			throw new TimecastNotFoundException("Project not found");
 		}
-	}
-	
-	private List<Project> generateProjects() {
-		Project project1 = new Project();
-		project1.setId(nextProjectId++);
-		project1.setName("Project1");
-		project1.setFtePercentage(100);
-		project1.setStartDate("2019-03-16");
-		project1.setEndDate("2019-10-10");
-		project1.setProjectManagerId(0);
-		
-		Project project2 = new Project();
-		project2.setId(nextProjectId++);
-		project2.setName("Project2");
-		project2.setFtePercentage(200);
-		project2.setStartDate("2018-03-16");
-		project2.setEndDate("2018-10-10");
-		project2.setProjectManagerId(0);
-		
-		Project project3 = new Project();
-		project3.setId(nextProjectId++);
-		project3.setName("Project3");
-		project3.setFtePercentage(300);
-		project3.setStartDate("2020-03-16");
-		project3.setEndDate("2020-10-10");
-		project3.setProjectManagerId(0);
-		
-		List<Project> projects = new ArrayList();
-		projects.add(project1);
-		projects.add(project2);
-		projects.add(project3);
-		
-		return projects;
 	}
 
 }

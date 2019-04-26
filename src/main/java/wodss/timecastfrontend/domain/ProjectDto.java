@@ -6,10 +6,10 @@ import javax.validation.constraints.Size;
 public class ProjectDto implements TimecastDto {
 	private long id;
 	private String name;
-	private int ftePercentage;
+	private long ftePercentage;
 	private String startDate;
 	private String endDate;
-	private int projectManagerId;
+	private long projectManagerId;
 
 	public long getId() {
 		return id;
@@ -27,11 +27,11 @@ public class ProjectDto implements TimecastDto {
 		this.name = name;
 	}
 
-	public int getFtePercentage() {
+	public long getFtePercentage() {
 		return ftePercentage;
 	}
 
-	public void setFtePercentage(int ftePercentage) {
+	public void setFtePercentage(long ftePercentage) {
 		this.ftePercentage = ftePercentage;
 	}
 
@@ -51,11 +51,11 @@ public class ProjectDto implements TimecastDto {
 		this.endDate = endDate;
 	}
 
-	public int getProjectManagerId() {
+	public long getProjectManagerId() {
 		return projectManagerId;
 	}
 
-	public void setProjectManagerId(int projectManagerId) {
+	public void setProjectManagerId(long projectManagerId) {
 		this.projectManagerId = projectManagerId;
 	}
 
