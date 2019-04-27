@@ -1,61 +1,60 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='List of Projects', links=~{}, scripts=~{})">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='List of Projects', links=~{::link}, scripts=~{::header_script})">
+
+<head>
+	<!-- jQuery -->
+	<script th:fragment="header_script" src="https://code.jquery.com/jquery-3.4.0.slim.min.js" integrity="sha256-ZaXnYkHGqIhqTbJ6MB4l9Frs/r7U4jlx7ir8PJYBqbI=" crossorigin="anonymous"></script>
+	<!-- Bootstrap datatable -->
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css"/>
+	<script th:fragment="header_script" type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.js"></script>
+	<!-- FontAwesome -->
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" type="text/css" rel="stylesheet">
+</head>
 
 <body>
 	<section>
-		<a class="btn btn-success float-right" href="?form">
+		<div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
+		<a class="btn btn-primary float-right" href="?form">
 			Add Project
 		</a>
 		<h3>Projects</h3>
-		<div th:if="${projects.isEmpty()}">
+		<br>
+		<div th:if="${projects.isEmpty()}" class="app-content">
 			<h2 style="text-align: center">No Projects found</h2>
 		</div>
-		<div style="padding-top: 10px;">
-			<table class="table table-condensed table-hover">
+		<div th:unless="${projects.isEmpty()}" class="app-content" style="padding-top: 10px;">
+			<br>
+			<table id="project-table" class="table table-condensed table-hover">
+				<thead>
+					<tr>
+						<th style="vertical-align: middle;">Id</th>
+						<th style="vertical-align: middle;">Name</th>
+						<th style="vertical-align: middle;">Start Date</th>
+						<th style="vertical-align: middle;">End Date</th>
+					</tr>
+				</thead>
 				<tbody>
 					<tr th:each="project : ${projects}">
-						<td colspan="1" style="vertical-align: middle;" th:text="${project.id}" />
-						<td colspan="3" style="vertical-align: middle;" th:text="${project.name}" />
-
-						<td>
-							<div class="btn-group float-right" role="group">
-								<div>
-									<form action="#" th:action="@{/projects} + '/' + ${project.id}">
-										<button type="submit" class="btn btn-secondary">
-											Show
-										</button>
-									</form>
-								</div>
-								<div>
-									<form action="#" th:action="@{/projects/{id}(id=${project.id})}">
-										<!-- 
-											The action URL is mutated after submitting the form according to
-											https://www.w3.org/TR/2011/WD-html5-20110525/association-of-controls-and-forms.html#submit-mutate-action
-											The browser will trash the existing "?..." part of hte URI and replace it with a new one based on your form.
-										-->
-										<input type="hidden" name="form" />
-										<button class="btn btn-primary">
-											Edit
-										</button>
-									</form>
-								</div>
-
-								<div>
-									<form action="#" th:action="@{/projects} + '/' + ${project.id}" method="post">
-										<input type="hidden" name="_method" value="DELETE" />
-										<button type="submit" class="btn btn-danger">
-											Delete
-										</button>
-									</form>
-								</div>
-							</div>
+						<td style="vertical-align: middle;">
+							<a th:href="@{projects/} + ${project.id}" th:text="${project.id}"/>
 						</td>
+						<td style="vertical-align: middle;" th:text="${project.name}"></td>
+						<td style="vertical-align: middle;" th:text="${#dates.format(project.startDate, 'dd.MM.yyyy')}"></td>
+						<td style="vertical-align: middle;" th:text="${#dates.format(project.endDate, 'dd.MM.yyyy')}"></td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
+
+		<script>
+            // requires jQuery
+            // requires datatables
+            $(document).ready(function() {
+                $('#project-table').DataTable({
+                    scrollY: '55vh'
+                });
+            });
+		</script>
 	</section>
-
 </body>
-
 </html>

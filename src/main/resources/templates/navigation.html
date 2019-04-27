@@ -15,26 +15,26 @@
                         <a class="nav-link h6" th:href="@{/employees(form)}">Create new Employee</a>
                     </li>
                 </ul>
+                <hr align="left" width="92%">
             </div>
 
             <div>
-                <hr align="left" width="92%">
                 <h6 class="sidebar-heading px-0 mt-4">Projects</h6>
                 <ul class="navbar-nav flex-column px-2">
                     <li sec:authorize="hasAnyAuthority('ADMINISTRATOR', 'PROJECTMANAGER')" class="nav-item">
                         <a class="nav-link h6" th:href="@{/projects}">Show Projects</a>
                     </li>
-                    <li sec:authorize="hasAnyAuthority('ADMINISTRATOR', 'PROJECTMANAGER')" class="nav-item">
+                    <li sec:authorize="hasAuthority('ADMINISTRATOR')" class="nav-item">
                         <a class="nav-link h6" th:href="@{/projects(form)}">Create new Project</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link h6" th:href="@{/myprojects}">My Projects</a>
                     </li>
                 </ul>
+                <hr align="left" width="92%">
             </div>
             
             <div>
-                <hr align="left" width="92%">
                 <h6 class="sidebar-heading px-0 mt-4">Allocations</h6>
                 <ul class="navbar-nav flex-column px-2">
                     <li sec:authorize="hasAnyAuthority('ADMINISTRATOR', 'PROJECTMANAGER')" class="nav-item">

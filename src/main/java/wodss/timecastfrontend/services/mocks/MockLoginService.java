@@ -44,7 +44,7 @@ public class MockLoginService extends LoginService {
         Employee employee = new Employee();
         employee.setId(0);
         employee.setEmailAddress(email);
-        employee.setRole(Role.ADMINISTRATOR);
+        employee.setRole(Role.PROJECTMANAGER);
 
 
         Date now = new Date();

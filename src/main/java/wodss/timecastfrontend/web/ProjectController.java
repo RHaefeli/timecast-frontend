@@ -8,9 +8,12 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import io.jsonwebtoken.Jwt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,14 +33,12 @@ import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Project;
 import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.domain.Token;
-import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
-import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
-import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
-import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
+import wodss.timecastfrontend.exceptions.*;
 import wodss.timecastfrontend.services.AllocationService;
 import wodss.timecastfrontend.services.ContractService;
 import wodss.timecastfrontend.services.EmployeeService;
 import wodss.timecastfrontend.services.ProjectService;
+import wodss.timecastfrontend.services.auth.JwtUtil;
 import wodss.timecastfrontend.services.mocks.MockAllocationService;
 import wodss.timecastfrontend.services.mocks.MockContractService;
 import wodss.timecastfrontend.services.mocks.MockEmployeeService;
@@ -52,17 +53,21 @@ public class ProjectController {
     private final AllocationService allocationService;
     private final EmployeeService employeeService;
     private final ContractService contractService;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public ProjectController(ProjectService projectService, AllocationService allocationService, EmployeeService employeeService, ContractService contractService) {
+    public ProjectController(ProjectService projectService, AllocationService allocationService,
+							 EmployeeService employeeService, ContractService contractService, JwtUtil jwtUtil) {
         this.projectService = projectService;
         this.allocationService = allocationService;
         this.employeeService = employeeService;
         this.contractService = contractService;
+        this.jwtUtil = jwtUtil;
     }
 
     @GetMapping()
-    public String getAll(@RequestParam(value = "fromDate", required = false) String fromDateString, @RequestParam(value = "toDate", required = false) String toDateString, Model model) {
+    public String getAll(@RequestParam(value = "fromDate", required = false) String fromDateString,
+						 @RequestParam(value = "toDate", required = false) String toDateString, Model model) {
         logger.debug("Get all projects");
     	List<Project> projects;
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -77,24 +82,16 @@ public class ProjectController {
         return "projects/list";
     }
     
-    @GetMapping(value = "/{id}")
-	public String getProjectById(@PathVariable long id, Model model) {
-    	logger.debug("Get project by id: " + id);
-    	Project project;
-		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		project = projectService.getById(new Token(token), id);
-		List<Allocation> allocations = allocationService.getAllocations(new Token(token), -1, project.getId(), null, null);
-		model.addAttribute("project", project);
-		model.addAttribute("allocations", allocations);
-
-    	return "projects/show";
-    }
-    
     @GetMapping(params = "form")
 	public String createProjectForm(Model model) {
 		model.addAttribute("project", new Project());
-		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		List<Employee> projectManagers = employeeService.getAll(new Token(token))
+		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		Employee me = jwtUtil.getEmployeeFromToken(token);
+		if (me.getRole() != Role.ADMINISTRATOR) {
+			throw new TimecastForbiddenException("Not enough permissions to create new projects");
+		}
+
+		List<Employee> projectManagers = employeeService.getAll(token)
 				.stream()
 				.filter(e -> e.getRole() == Role.PROJECTMANAGER)
 				.collect(Collectors.toList());
@@ -104,7 +101,7 @@ public class ProjectController {
 		return "projects/create";
 	}
     @PostMapping()
-    public String createProject(@Valid @ModelAttribute("project") Project project, BindingResult bindingResult, Model model) {
+    public String createProject(@Valid @ModelAttribute("project") Project project, BindingResult bindingResult,Model model) {
     	if (bindingResult.hasErrors()) {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "projects/create";
@@ -117,13 +114,26 @@ public class ProjectController {
     	
     	return "redirect:/projects";
     }
-    
-    @GetMapping(value = "/{id}", params = "form")
-	public String updateProjectForm(@PathVariable long id, Model model) {
-		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Project project = projectService.getById(new Token(token), id);
+
+	@GetMapping(value = "/{id}")
+	public String getProjectById(@PathVariable long id, Model model) {
+		logger.debug("Get project by id: " + id);
+		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		Project project = projectService.getById(token, id);
+		Employee me = jwtUtil.getEmployeeFromToken(token);
+
+		if (me.getRole() == Role.PROJECTMANAGER && me.getId() != project.getProjectManager().getId()
+				|| me.getRole() == Role.DEVELOPER) {
+			// do only show information without edit possibility
+			model.addAttribute("project", project);
+			return "projects/show";
+		}
+
+		List<Employee> projectManagers = employeeService.getAll(token)
+				.stream()
+				.filter(e -> e.getRole() == Role.PROJECTMANAGER)
+				.collect(Collectors.toList());
 		model.addAttribute("project", project);
-		List<Employee> projectManagers = employeeService.getAll(new Token(token)).stream().filter(e -> e.getRole() == Role.PROJECTMANAGER).collect(Collectors.toList());
 		model.addAttribute("managers", projectManagers);
 		return "projects/update";
 	}
@@ -132,7 +142,7 @@ public class ProjectController {
 	public String update(@PathVariable long id, @Valid Project project, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
-			return "project/update";
+			return "projects/update";
 		}
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		Employee projectManager = employeeService.getById(new Token(token), project.getProjectManager().getId());
