@@ -1,8 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Create new Project', links=~{})">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Create new Project', links=~{::link}, scripts=~{::header_script})">
 
 <head>
     <!-- Put additional style links here -->
+    <script th:fragment="header_script" src="https://code.jquery.com/jquery-3.4.0.slim.min.js" integrity="sha256-ZaXnYkHGqIhqTbJ6MB4l9Frs/r7U4jlx7ir8PJYBqbI=" crossorigin="anonymous"></script>
+    <!-- Bootstrap Datepicker -->
+    <script th:fragment="header_script" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
 </head>
 
 <body>
@@ -13,24 +17,26 @@
     <form th:action="@{/allocations}" th:object="${allocation}" method="post">
         <div class="form-row">
             <div class="form-group col-md-5">
-                <label for="contractId">Contract Id</label>
-                <input type="text" class="form-control" id="contractId" th:field="*{contractId}" th:errorclas="fieldError" autofocus/>
-                <span th:if="${#fields.hasErrors('contractId')}" th:errors="*{contractId}" class="fieldErrorText"></span>
+                <label for="employee">Developer</label>
+                <select id="employee" name="employeeId" th:value="${employeeId}">
+            	<option th:each="developer: ${developers}"
+                	th:value="${developer.id}" th:text="${developer}"
+               	</option>
+				</select>
             </div>
 
             <div class="form-group col-md-1"><!-- spacing --></div>
 
             <div class="form-group col-md-5">
-                <label for="projectId">Project Id</label>
-                <input type="text" class="form-control" id="projectId" th:field="*{projectId}" th:errorclas="fieldError"/>
-                <span th:if="${#fields.hasErrors('projectId')}" th:errors="*{projectId}" class="fieldErrorText"></span>
+                <label for="projectId">Project</label>
+                <input type="text" class="form-control" id="projectId" th:field="*{project.id}" th:errorclas="fieldError" readonly/>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group col-md-5">
                 <label for="startDate">Start Date</label>
-                <input type="text" class="form-control" id="startDate" th:field="*{startDate}" th:errorclas="fieldError"/>
+                <input type="text" class="form-control" id="startDate" name="startDate" th:field="*{startDate}" th:errorclas="fieldError"/>
                 <span th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" class="fieldErrorText"></span>
             </div>
         </div>
@@ -38,7 +44,7 @@
         <div class="form-row">
             <div class="form-group col-md-5">
                 <label for="endDate">End Date</label>
-                <input type="text" class="form-control" id="endDate" th:field="*{endDate}" th:errorclas="fieldError"/>
+                <input type="text" class="form-control" id="endDate" name="endDate" th:field="*{endDate}" th:errorclas="fieldError"/>
                 <span th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}" class="fieldErrorText"></span>
             </div>
         </div>
@@ -56,6 +62,29 @@
             <button type="submit" class="btn btn-primary">Save</button>
         </div>
     </form>
+    
+     <script>
+        // datepicker
+        // requires jQuery
+        // requires datepicker
+        $(document).ready(function(){
+            var startDateInput=$('input[name="startDate"]');
+            var startDateOptions={
+                format: 'dd.mm.yyyy',
+                todayHighlight: true,
+                autoclose: true
+            };
+            startDateInput.datepicker(startDateOptions);
+
+            var endDateInput=$('input[name="endDate"]');
+            var endDateOptions={
+                format: 'dd.mm.yyyy',
+                todayHighlight: true,
+                autoclose: true
+            };
+            endDateInput.datepicker(endDateOptions);
+        });
+    </script>
 </section>
 </body>
 

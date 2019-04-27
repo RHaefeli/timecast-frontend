@@ -1,6 +1,12 @@
 package wodss.timecastfrontend.web;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -21,96 +27,143 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import wodss.timecastfrontend.domain.Allocation;
+import wodss.timecastfrontend.domain.Contract;
+import wodss.timecastfrontend.domain.Employee;
+import wodss.timecastfrontend.domain.Project;
+import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 import wodss.timecastfrontend.services.AllocationService;
+import wodss.timecastfrontend.services.ContractService;
+import wodss.timecastfrontend.services.EmployeeService;
 import wodss.timecastfrontend.services.ProjectService;
 import wodss.timecastfrontend.services.mocks.MockAllocationService;
+import wodss.timecastfrontend.services.mocks.MockContractService;
+import wodss.timecastfrontend.services.mocks.MockEmployeeService;
 import wodss.timecastfrontend.services.mocks.MockProjectService;
 
 @Controller
-@RequestMapping(value="/allocations")
+@RequestMapping(value = "/allocations")
 public class AllocationController {
-	
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final AllocationService allocationService;
-    private final ProjectService projectService;
-    private String filterStartDate;
-    private String filterEndDate;
 
-    //TODO activate when backend is ready
-    @Autowired
-    public AllocationController(MockAllocationService allocationService, MockProjectService projectService) {
-        this.allocationService = allocationService;
-        this.projectService = projectService;
-    }
-    
-    @GetMapping()
-    public String getAll(@RequestParam(value = "employeeId", required = false) Long employeeId, @RequestParam(value = "projectId", required = false) Long projectId, @RequestParam(value = "fromDate", required = false) String fromDateString, @RequestParam(value = "toDate", required = false) String toDateString, Model model) {
-    	logger.debug("Get allocations with params {} {} {} {}", employeeId, projectId, fromDateString, toDateString);
-		model.addAttribute("projectIdFilter", projectId);
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final AllocationService allocationService;
+	private final ProjectService projectService;
+	private final EmployeeService employeeService;
+	private final ContractService contractService;
+	private String filterStartDate;
+	private String filterEndDate;
+
+	// TODO activate when backend is ready
+	@Autowired
+	public AllocationController(MockAllocationService allocationService, MockProjectService projectService,
+			MockEmployeeService employeeService, MockContractService contractService) {
+		this.allocationService = allocationService;
+		this.projectService = projectService;
+		this.employeeService = employeeService;
+		this.contractService = contractService;
+	}
+
+	@GetMapping()
+	public String getAll(@RequestParam(value = "employeeId", required = false) Long employeeId,
+			@RequestParam(value = "projectId", required = false) Long projectId,
+			@RequestParam(value = "fromDate", required = false) String fromDateString,
+			@RequestParam(value = "toDate", required = false) String toDateString, Model model) {
+		logger.debug("Get allocations with params {} {} {} {}", employeeId, projectId, fromDateString, toDateString);
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		List<Project> projects = projectService.getAll(new Token(token));
+		model.addAttribute("projects", projects);
+		model.addAttribute("projectIdFilter", projects.get(0).getId());
 		model.addAttribute("fromDateFilter", fromDateString);
 		model.addAttribute("employeeIdFilter", employeeId);
 		model.addAttribute("toDateFilter", toDateString);
-    	List<Allocation> allocations;
-    	try {
-    		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			//TODO check
-			if ("".equals(fromDateString) && "".equals(toDateString) && null == employeeId && null == projectId) {
+		List<Allocation> allocations;
+		Date fromDate = null;
+		Date toDate = null;
+		try {
+			DateFormat domainFormat = new SimpleDateFormat("dd.MM.yyyy");
+			// TODO fix ugliness
+			try {
+				if (null != fromDateString && !"".equals(fromDateString)) {
+					fromDate = domainFormat.parse(fromDateString);
+				}
+				if (null != toDateString && !"".equals(toDateString)) {
+					toDate = domainFormat.parse(toDateString);
+				}
+			} catch (ParseException ex) {
+				logger.debug("wrong date format");
+				throw new IllegalStateException();
+			}
+			if (fromDate == null && toDate == null && null == employeeId && null == projectId) {
+				logger.debug("get all");
 				allocations = allocationService.getAll(new Token(token));
 			} else {
-				//TODO fix
+				// TODO fix
 				if (employeeId == null) {
 					employeeId = (long) -1;
 				}
 				if (projectId == null) {
 					projectId = (long) -1;
 				}
- 				allocations = allocationService.getAllocations(new Token(token), Long.valueOf(employeeId), Long.valueOf(projectId), fromDateString, toDateString);
+				allocations = allocationService.getAllocations(new Token(token), Long.valueOf(employeeId),
+						Long.valueOf(projectId), fromDate, toDate);
 			}
-			
+
 			model.addAttribute("allocations", allocations);
 		} catch (TimecastNotFoundException | TimecastInternalServerErrorException e) {
 			// TODO Handle error
 			e.printStackTrace();
 		}
 		return "allocations/list";
-    }
-    
-    @GetMapping(params = "form")
-	public String createAllocationForm(@RequestParam(value = "projectId", required = false) Long projectId, Model model) {
-    	Allocation allocation = new Allocation();
-    	if (projectId != null) {
-    		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    		allocation.setProject(projectService.getById(new Token(token), projectId));
-    	}
+	}
+
+	@GetMapping(params = "form")
+	public String createAllocationForm(@RequestParam(value = "projectId", required = true) Long projectId,
+			Model model) {
+		Allocation allocation = new Allocation();
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		if (projectId != null) {
+			allocation.setProject(projectService.getById(new Token(token), projectId));
+		}
+		List<Employee> employees = employeeService.getAll(new Token(token));
+		List<Employee> developers = employees.stream().filter(e -> e.getRole() == Role.DEVELOPER)
+				.collect(Collectors.toList());
+		model.addAttribute("developers", developers);
 		model.addAttribute("allocation", allocation);
 		return "allocations/create";
 	}
-    
-    @PostMapping()
-    public String createAllocation(@Valid @ModelAttribute("allocation") Allocation allocation, BindingResult bindingResult, Model model) {
-    	if (bindingResult.hasErrors()) {
-    		//TODO
+
+	@PostMapping()
+	public String createAllocation(@Valid @ModelAttribute("allocation") Allocation allocation,
+			@ModelAttribute("employeeId") Long employeeId, BindingResult bindingResult, Model model) {
+		if (bindingResult.hasErrors()) {
+			// TODO
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "allocations/create";
 		}
-    	try {
-    		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		try {
+			String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			Project p = projectService.getById(new Token(token), allocation.getProject().getId());
+			Employee e = employeeService.getById(new Token(token), employeeId);
+			List<Contract> contracts = contractService.getByEmployee(new Token(token), e);
+			// TODO get fitting contract
+			Contract c = contracts.get(0);
+			allocation.setContract(c);
+			allocation.setProject(p);
 			allocationService.create(new Token(token), allocation);
 		} catch (TimecastPreconditionFailedException | TimecastForbiddenException
 				| TimecastInternalServerErrorException e) {
 			// TODO handle error
 			e.printStackTrace();
 		}
-    	
-    	return "redirect:/allocations";
-    }
-    
-    @GetMapping(value = "/{id}", params = "form")
+
+		return "redirect:/allocations";
+	}
+
+	@GetMapping(value = "/{id}", params = "form")
 	public String updateAllocationForm(@PathVariable long id, Model model) {
 		try {
 			String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -121,9 +174,9 @@ public class AllocationController {
 			// TODO handle error
 			e.printStackTrace();
 		}
-		//TODO
+		// TODO
 		return "404";
-		
+
 	}
 
 	@PutMapping(value = "/{id}")
@@ -132,17 +185,17 @@ public class AllocationController {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "allocations/update";
 		}
-			try {
-				String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-				allocationService.update(new Token(token), allocation);
-			} catch (TimecastNotFoundException | TimecastPreconditionFailedException | TimecastForbiddenException
-					| TimecastInternalServerErrorException e) {
-				// TODO handle error
-				e.printStackTrace();
-			}
+		try {
+			String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			allocationService.update(new Token(token), allocation);
+		} catch (TimecastNotFoundException | TimecastPreconditionFailedException | TimecastForbiddenException
+				| TimecastInternalServerErrorException e) {
+			// TODO handle error
+			e.printStackTrace();
+		}
 		return "redirect:/allocations";
 	}
-	
+
 	@DeleteMapping(value = "/{id}")
 	public String delete(@PathVariable long id) {
 		try {
@@ -152,7 +205,7 @@ public class AllocationController {
 			// TODO handle error
 			e.printStackTrace();
 		}
-		
+
 		return "redirect:/allocations";
 	}
 

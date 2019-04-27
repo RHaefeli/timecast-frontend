@@ -3,6 +3,7 @@ package wodss.timecastfrontend.services.mocks;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,7 @@ public class MockAllocationService extends AllocationService {
 	}
 	
 	@Override
-	public List<Allocation> getAllocations(Token token, long employeeId, long projectId, String fromDateString, String toDateString) {
+	public List<Allocation> getAllocations(Token token, long employeeId, long projectId, Date fromDateString, Date toDateString) {
 		Stream<Allocation> stream = MockRepository.allocations.stream();
 		if (projectId >= 0 ) {
 			stream = stream.filter(a -> a.getProject().getId() == projectId);
@@ -59,25 +60,10 @@ public class MockAllocationService extends AllocationService {
 		}
 		if (fromDateString != null && !fromDateString.equals("")) {
 			logger.debug("Filter allocations");
-			stream = stream.filter(a -> {
-				try {
-					return sdf.parse(a.getStartDate()).after(sdf.parse(fromDateString));
-				} catch (ParseException e) {
-					logger.debug("Exception");
-					throw new IllegalStateException();
-				}
-			});
+			stream = stream.filter(a -> a.getStartDate().after(fromDateString));
 		}
-		
 		if (toDateString != null && !toDateString.equals("")) {
-			stream = stream.filter(a -> {
-				try {
-					return sdf.parse(a.getEndDate()).before(sdf.parse(toDateString));
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					throw new IllegalStateException();
-				}
-			});
+			stream = stream.filter(a -> a.getEndDate().before(toDateString));
 		}
 		logger.debug("Returning allocations");
 		return stream.collect(Collectors.toList());

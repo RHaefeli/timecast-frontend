@@ -1,18 +1,28 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='List of Allocations', links=~{})">
-
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='List of Allocations', links=~{::link}, scripts=~{::header_script})">
+<head>
+<!-- jQuery -->
+    <script th:fragment="header_script" src="https://code.jquery.com/jquery-3.4.0.slim.min.js" integrity="sha256-ZaXnYkHGqIhqTbJ6MB4l9Frs/r7U4jlx7ir8PJYBqbI=" crossorigin="anonymous"></script>
+    <!-- Bootstrap Datepicker -->
+    <script th:fragment="header_script" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+</head>
 <body>
 	<section>
-		<a class="btn btn-success float-right" href="?form">
+		<a class="btn btn-success float-right" th:href="@{/allocations?form&projectId={id}(id=${projectIdFilter})}">
 			Add Allocation
 		</a>
 		<h3>Allocations</h3>
 		<div>
 			<form action="#" th:action="@{/allocations}" method="get">
-				<label for="employeeId">Employee ID</label>
-            	<input name="employeeId" type="text" class="form-control" id="employeeId" th:value="${employeeIdFilter}" th:errorclas="fieldError" autofocus/>
-            	<label for="projectId">Project ID</label>
-                <input name="projectId" type="text" class="form-control" id="projectId" th:value="${projectIdFilter}" th:errorclas="fieldError" autofocus/>
+                
+                <label for="projectManager">Project</label>
+                <select id="projectManager" name="projectId" th:value="${projectIdFilter}">
+            	<option th:each="project: ${projects}"
+                	th:value="${project.id}" th:text="${project.name}"
+                	th:selected="${project.id} == ${projectIdFilter} ? true : false"></option>
+				</select>
+                
 				<label for="filterStartDate">Start Date</label>
                 <input name="fromDate" type="text" class="form-control" id="filterStartDate" th:value="${fromDateFilter}" th:errorclas="fieldError" autofocus/>
                 <label for="filterEndDate">End Date</label>
@@ -31,20 +41,20 @@
 			<thead>
 			<tr>
 			<th>ID</th>
-			<th>Contract ID</th>
+			<th>Employee</th>
 			<th>Start Date</th>
 			<th>End Date</th>
 			<th>Pensum</th>
-			<th>Project ID</th>
+			<th>Project</th>
 			</thead>
 				<tbody>
 					<tr th:each="allocation : ${allocations}">
 						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.id}" />
-						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.contractId}" />
+						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.contract.employee}" />
 						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.startDate}" />
 						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.endDate}" />
 						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.pensumPercentage}" />
-						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.projectId}" />
+						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.project.name}" />
 						<td>
 								<div>
 									<form action="#" th:action="@{/allocations/{id}(id=${allocation.id})}">
@@ -75,6 +85,30 @@
 			</table>
 		</div>
 		</div>
+		
+		<script>
+        // datepicker
+        // requires jQuery
+        // requires datepicker
+        $(document).ready(function(){
+            var startDateInput=$('input[name="fromDate"]');
+            var startDateOptions={
+                format: 'dd.mm.yyyy',
+                todayHighlight: true,
+                autoclose: true
+            };
+            startDateInput.datepicker(startDateOptions);
+
+            var endDateInput=$('input[name="toDate"]');
+            var endDateOptions={
+                format: 'dd.mm.yyyy',
+                todayHighlight: true,
+                autoclose: true
+            };
+            endDateInput.datepicker(endDateOptions);
+        });
+    </script>
+    
 	</section>
 
 </body>

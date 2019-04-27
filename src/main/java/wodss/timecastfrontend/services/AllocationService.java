@@ -1,5 +1,9 @@
 package wodss.timecastfrontend.services;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +41,8 @@ public class AllocationService extends AbstractService<Allocation, AllocationDto
         this.projectService = projectService;
     }
     
-    public List<Allocation> getAllocations(Token token, long employeeId, long projectId, String fromDate, String toDate) {
+    public List<Allocation> getAllocations(Token token, long employeeId, long projectId, Date fromDate, Date toDate) {
+    	DateFormat domainFormat = new SimpleDateFormat("yyyy-MM-dd");
     	Map<String, String> uriVar = new HashMap<>();
 		if (employeeId >= 0) {
 			uriVar.put("employeeId", String.valueOf(employeeId));
@@ -45,11 +50,11 @@ public class AllocationService extends AbstractService<Allocation, AllocationDto
 		if (projectId >= 0) {
 			uriVar.put("projectId", String.valueOf(projectId));
 		}
-		if (fromDate != null && !fromDate.equals("")) {
-			uriVar.put("fromDate", fromDate);
+		if (fromDate != null) {
+			uriVar.put("fromDate", domainFormat.format(fromDate));
 		}
-		if (toDate != null && !toDate.equals("")) {
-			uriVar.put("toDate", toDate);
+		if (toDate != null) {
+			uriVar.put("toDate", domainFormat.format(toDate));
 		}
 		logger.debug("Get Allocations with params: {} {} {} {}",  employeeId, projectId, fromDate, toDate );
 		ResponseEntity<List<AllocationDto>> response = restTemplate.exchange(apiURL, HttpMethod.GET, null,
@@ -72,8 +77,9 @@ public class AllocationService extends AbstractService<Allocation, AllocationDto
 		AllocationDto allocationDto = new AllocationDto();
 		allocationDto.setId(entity.getId());
 		allocationDto.setContractId(entity.getContract().getId());
-		allocationDto.setStartDate(entity.getStartDate());
-		allocationDto.setEndDate(entity.getEndDate());
+		DateFormat domainFormat = new SimpleDateFormat("yyyy-MM-dd");
+		allocationDto.setStartDate(domainFormat.format(entity.getStartDate()));
+		allocationDto.setEndDate(domainFormat.format(entity.getEndDate()));
 		allocationDto.setProjectId(entity.getProject().getId());
 		allocationDto.setPensumPercentage(entity.getPensumPercentage());
 		return allocationDto;
@@ -82,11 +88,18 @@ public class AllocationService extends AbstractService<Allocation, AllocationDto
 	@Override
 	protected Allocation mapDtoToEntity(Token token, AllocationDto dto) {
 		if (dto == null) return null;
-		Allocation allocation = new Allocation(dto.getStartDate(), dto.getEndDate(), dto.getPensumPercentage());
+		DateFormat dtoFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Allocation allocation;
+		try {
+			allocation = new Allocation(dtoFormat.parse(dto.getStartDate()), dtoFormat.parse(dto.getEndDate()), dto.getPensumPercentage());
 		allocation.setContract(contractService.getById(token, dto.getContractId()));
 		allocation.setId(dto.getId());
 		allocation.setProject(projectService.getById(token, dto.getProjectId()));
 		return allocation;
+		} catch (ParseException e) {
+			logger.debug("Could not parse dates: {} or {}", dto.getStartDate(), dto.getEndDate());
+			throw new IllegalStateException();
+		}
 	}
 
 	

@@ -1,5 +1,6 @@
 package wodss.timecastfrontend.services.mocks;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -124,18 +125,33 @@ public final class MockRepository {
 	}
 	
 	private static void generateAllocations() {
-		Allocation alloc1 = new Allocation("2019-03-16", "2019-10-10", 50);
+		Allocation alloc1 = new Allocation();
+		Date startDate = new Date();
+		Date endDate = new Date(startDate.getTime() + 30 * 24 * 60 * 60 *1000);
+		alloc1.setStartDate(startDate);
+		alloc1.setEndDate(endDate);
+		alloc1.setPensumPercentage(25);
 		alloc1.setId(nextAllocationId++);
 		alloc1.setProject(projects.get(0));
 		alloc1.setContract(contracts.get(0));
 		
-		Allocation alloc2 = new Allocation("2019-03-16", "2019-05-20", 100);
+		Allocation alloc2 = new Allocation();
+		startDate = new Date();
+		endDate = new Date(startDate.getTime() + 60 * 24 * 60 * 60 * 1000);
+		alloc2.setStartDate(startDate);
+		alloc2.setEndDate(endDate);
+		alloc2.setPensumPercentage(100);
 		alloc2.setId(nextAllocationId++);
 		alloc2.setPensumPercentage(100);
 		alloc2.setProject(projects.get(0));
 		alloc2.setContract(contracts.get(0));
 		
-		Allocation alloc3 = new Allocation("2019-06-01", "2019-10-10", 50);
+		Allocation alloc3 = new Allocation();
+		startDate = new Date();
+		endDate = new Date(startDate.getTime() + 120 * 24 * 60 * 60 * 1000);
+		alloc3.setStartDate(startDate);
+		alloc3.setEndDate(endDate);
+		alloc3.setPensumPercentage(50);
 		alloc3.setId(nextAllocationId++);
 		alloc3.setPensumPercentage(50);
 		alloc3.setProject(projects.get(0));

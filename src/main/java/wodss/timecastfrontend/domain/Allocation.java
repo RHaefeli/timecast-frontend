@@ -1,9 +1,13 @@
 package wodss.timecastfrontend.domain;
 
+import java.util.Date;
+
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 
 public class Allocation implements TimecastEntity {
@@ -12,12 +16,12 @@ public class Allocation implements TimecastEntity {
 	Long id;
 	
 	@NotNull
-	@Size(min=10, max=10)
-	String startDate;
-	
+    @DateTimeFormat(pattern = "dd.MM.yyyy")
+    private Date startDate;
+    
 	@NotNull
-	@Size(min=10, max=10)
-	String endDate;
+    @DateTimeFormat(pattern = "dd.MM.yyyy")
+    private Date endDate;
 	
 	@NotNull
 	@Min(0)
@@ -32,25 +36,25 @@ public class Allocation implements TimecastEntity {
 		
 	}
 	
-	public Allocation(String startDate, String endDate, int pensumPercentage) {
+	public Allocation(Date startDate, Date endDate, int pensumPercentage) {
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.pensumPercentage = pensumPercentage;
 	}
 
-	public String getStartDate() {
+	public Date getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(String startDate) {
+	public void setStartDate(Date startDate) {
 		this.startDate = startDate;
 	}
 
-	public String getEndDate() {
+	public Date getEndDate() {
 		return endDate;
 	}
 
-	public void setEndDate(String endDate) {
+	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
 	}
 
