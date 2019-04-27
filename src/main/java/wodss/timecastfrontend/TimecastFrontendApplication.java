@@ -1,27 +1,47 @@
 package wodss.timecastfrontend;
 
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.Resource;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastUnauthorizedException;
 
+import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @SpringBootApplication
 public class TimecastFrontendApplication {
+	@Value("${trust.store}")
+	private Resource trustStore;
+	@Value("${trust.store.password}")
+	private String trustStorePassword;
 
 	public static void main(String[] args) {
 		SpringApplication.run(TimecastFrontendApplication.class, args);
 	}
 
 	@Bean
-	RestTemplate restTemplate() {
-		return new RestTemplate();
+	RestTemplate restTemplate() throws Exception {
+		SSLContext sslContext = new SSLContextBuilder()
+				.loadTrustMaterial(trustStore.getURL(), trustStorePassword.toCharArray())
+				.build();
+		SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext);
+		HttpClient httpClient = HttpClients.custom()
+				.setSSLSocketFactory(socketFactory)
+				.build();
+		HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
+		return new RestTemplate(factory);
 	}
 
 	@Bean

@@ -36,6 +36,15 @@ Press **Ctrl + Shift + A** and search **Registry** Select **Registry...** and en
 
 <br>
 
+#### SSL Certificate
+Command to generate: ``` keytool -genkeypair -alias timecast -keyalg RSA -keysize 2048 -storetype PKCS12 -key
+store timecast.p12 -validity 3650 ```<br>
+(If you've been asked for Firstname and Lastname just enter your domain name, e.g. localhost)
+
+Put the generated SSL Certificate into to the truststore. Just put the generated Certificate
+Files in ```/src/main/resources/keystore/``` and adjust the ```application.properties``` if necessary.
+
+
 
 ## References
 * [Spring MVC Doc](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-spring-mvc)
