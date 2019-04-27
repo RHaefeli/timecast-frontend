@@ -23,7 +23,7 @@
         <div th:if="${employees.isEmpty()}" class="app-content">
             <h2 style="text-align: center">No Employees found</h2>
         </div>
-        <div th:unless="${employees.isEmpty()}" class="app-content" style="padding-top: 10px;">
+        <div th:unless="${employees.isEmpty()}" class="app-content">
             <br>
             <table id="employee-table" class="table table-condensed table-hover">
                 <thead>

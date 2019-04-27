@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='Create new Project', links=~{::link}, scripts=~{::header_script})">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout :: maincontent(content=~{::section}, title='Create new Project', links=~{::link}, scripts=~{::header_script})">
 
 <head>
-    <!-- Put additional style links here -->
+    <!-- jQuery -->
     <script th:fragment="header_script" src="https://code.jquery.com/jquery-3.4.0.slim.min.js" integrity="sha256-ZaXnYkHGqIhqTbJ6MB4l9Frs/r7U4jlx7ir8PJYBqbI=" crossorigin="anonymous"></script>
     <!-- Bootstrap Datepicker -->
     <script th:fragment="header_script" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
@@ -15,57 +16,59 @@
     <h2>Create new Allocation</h2>
     <br>
 
-    <form class="app-content" th:action="@{/allocations}" th:object="${allocation}" method="post">
-        <div class="form-row">
-            <div class="form-group col-md-5">
-                <label for="employee">Developer</label>
-                <select id="employee" name="employeeId" class="form-control" th:value="${employeeId}">
-                    <option th:each="developer: ${developers}"
-                            th:value="${developer.id}"
-                            th:text="${developer}">
-                    </option>
-				</select>
+    <div class="scrollable-app-container">
+        <form class="app-content" th:action="@{/allocations}" th:object="${allocation}" method="post">
+            <div class="form-row">
+                <div class="form-group col-md-5">
+                    <label for="employee">Developer</label>
+                    <select id="employee" name="employeeId" class="form-control" th:value="${employeeId}">
+                        <option th:each="developer: ${developers}"
+                                th:value="${developer.id}"
+                                th:text="${developer}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group col-md-1"><!-- spacing --></div>
+
+                <div class="form-group col-md-5">
+                    <label for="projectId">Project</label>
+                    <input type="text" class="form-control" id="projectId" th:field="*{project.id}" th:errorclas="fieldError" readonly/>
+                </div>
             </div>
 
-            <div class="form-group col-md-1"><!-- spacing --></div>
+            <div class="form-row">
+                <div class="form-group col-md-5">
+                    <label for="startDate">Start Date</label>
+                    <input type="text" class="form-control" id="startDate" name="startDate" th:field="*{startDate}" th:errorclas="fieldError"/>
+                    <span th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" class="fieldErrorText"></span>
+                </div>
+            </div>
 
-            <div class="form-group col-md-5">
-                <label for="projectId">Project</label>
-                <input type="text" class="form-control" id="projectId" th:field="*{project.id}" th:errorclas="fieldError" readonly/>
+            <div class="form-row">
+                <div class="form-group col-md-5">
+                    <label for="endDate">End Date</label>
+                    <input type="text" class="form-control" id="endDate" name="endDate" th:field="*{endDate}" th:errorclas="fieldError"/>
+                    <span th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}" class="fieldErrorText"></span>
+                </div>
             </div>
-        </div>
 
-        <div class="form-row">
-            <div class="form-group col-md-5">
-                <label for="startDate">Start Date</label>
-                <input type="text" class="form-control" id="startDate" name="startDate" th:field="*{startDate}" th:errorclas="fieldError"/>
-                <span th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" class="fieldErrorText"></span>
+            <div class="form-row">
+                <div class="form-group col-md-5">
+                    <label for="pensum">Pensum Percentage</label>
+                    <input type="text" class="form-control" id="pensum" th:field="*{pensumPercentage}" th:errorclas="fieldError"/>
+                    <span th:if="${#fields.hasErrors('pensumPercentage')}" th:errors="*{pensumPercentage}" class="fieldErrorText"></span>
+                </div>
             </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group col-md-5">
-                <label for="endDate">End Date</label>
-                <input type="text" class="form-control" id="endDate" name="endDate" th:field="*{endDate}" th:errorclas="fieldError"/>
-                <span th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}" class="fieldErrorText"></span>
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group col-md-5">
-                <label for="pensum">Pensum Percentage</label>
-                <input type="text" class="form-control" id="pensum" th:field="*{pensumPercentage}" th:errorclas="fieldError"/>
-                <span th:if="${#fields.hasErrors('pensumPercentage')}" th:errors="*{pensumPercentage}" class="fieldErrorText"></span>
-            </div>
-        </div>
 
-        <div class="form-row button-row">
-            <a class="btn btn-default" th:href="@{/allocations}">Cancel</a>
-            <button type="submit" class="btn btn-primary">Save</button>
-        </div>
-    </form>
-    
-     <script>
+            <div class="form-row button-row">
+                <a class="btn btn-default" th:href="@{/allocations}">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
         // datepicker
         // requires jQuery
         // requires datepicker
@@ -89,5 +92,4 @@
     </script>
 </section>
 </body>
-
 </html>
