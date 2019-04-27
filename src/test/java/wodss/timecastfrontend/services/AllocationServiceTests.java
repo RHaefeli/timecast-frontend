@@ -22,7 +22,7 @@ import org.springframework.web.client.RestTemplate;
 
 import org.junit.Assert;
 
-import wodss.timecastfrontend.domain.AllocationDto;
+import wodss.timecastfrontend.dto.AllocationDto;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;

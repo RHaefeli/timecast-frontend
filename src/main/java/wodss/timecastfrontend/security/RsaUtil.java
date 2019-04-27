@@ -1,4 +1,4 @@
-package wodss.timecastfrontend.services.auth;
+package wodss.timecastfrontend.security;
 
 import org.apache.tomcat.util.codec.binary.Base64;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;

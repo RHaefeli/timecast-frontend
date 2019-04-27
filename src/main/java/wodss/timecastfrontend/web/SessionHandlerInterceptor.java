@@ -16,8 +16,7 @@ import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.*;
 import wodss.timecastfrontend.services.LoginService;
-import wodss.timecastfrontend.services.auth.JwtUtil;
-import wodss.timecastfrontend.services.mocks.MockLoginService;
+import wodss.timecastfrontend.security.JwtUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +31,7 @@ public class SessionHandlerInterceptor implements HandlerInterceptor {
     private final LoginService loginService;
 
     @Autowired
-    public SessionHandlerInterceptor(JwtUtil jwtUtil, MockLoginService loginService) {
+    public SessionHandlerInterceptor(JwtUtil jwtUtil, LoginService loginService) {
         this.jwtUtil = jwtUtil;
         this.loginService = loginService;
     }

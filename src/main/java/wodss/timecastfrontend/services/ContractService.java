@@ -8,10 +8,8 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 import wodss.timecastfrontend.domain.*;
-import wodss.timecastfrontend.exceptions.*;
-import wodss.timecastfrontend.services.mocks.MockEmployeeService;
+import wodss.timecastfrontend.dto.ContractDto;
 
 import java.text.DateFormat;
 import java.text.ParseException;

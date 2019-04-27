@@ -21,10 +21,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import wodss.timecastfrontend.domain.Allocation;
-import wodss.timecastfrontend.domain.AllocationDto;
+import wodss.timecastfrontend.dto.AllocationDto;
 import wodss.timecastfrontend.domain.Token;
-import wodss.timecastfrontend.services.mocks.MockContractService;
-import wodss.timecastfrontend.services.mocks.MockProjectService;
 
 @Component
 public class AllocationService extends AbstractService<Allocation, AllocationDto>{

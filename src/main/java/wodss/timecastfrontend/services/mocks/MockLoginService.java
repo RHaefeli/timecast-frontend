@@ -12,8 +12,8 @@ import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.services.LoginService;
-import wodss.timecastfrontend.services.auth.JwtUtil;
-import wodss.timecastfrontend.services.auth.RsaUtil;
+import wodss.timecastfrontend.security.JwtUtil;
+import wodss.timecastfrontend.security.RsaUtil;
 
 import java.security.PrivateKey;
 import java.util.Date;
@@ -44,7 +44,7 @@ public class MockLoginService extends LoginService {
         Employee employee = new Employee();
         employee.setId(0);
         employee.setEmailAddress(email);
-        employee.setRole(Role.PROJECTMANAGER);
+        employee.setRole(Role.ADMINISTRATOR);
 
 
         Date now = new Date();

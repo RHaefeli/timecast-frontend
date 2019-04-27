@@ -10,13 +10,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import wodss.timecastfrontend.domain.Employee;
-import wodss.timecastfrontend.domain.EmployeeDto;
+import wodss.timecastfrontend.dto.EmployeeDto;
 import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class EmployeeService extends AbstractService<Employee, EmployeeDto> {

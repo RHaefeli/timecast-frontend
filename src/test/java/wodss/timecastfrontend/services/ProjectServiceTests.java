@@ -1,14 +1,10 @@
 package wodss.timecastfrontend.services;
 
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +13,6 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.core.ParameterizedTypeReference;
@@ -30,7 +25,7 @@ import org.springframework.web.client.RestTemplate;
 
 import org.junit.Assert;
 import wodss.timecastfrontend.domain.Project;
-import wodss.timecastfrontend.domain.ProjectDto;
+import wodss.timecastfrontend.dto.ProjectDto;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;

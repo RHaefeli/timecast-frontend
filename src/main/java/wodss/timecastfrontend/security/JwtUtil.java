@@ -1,4 +1,4 @@
-package wodss.timecastfrontend.services.auth;
+package wodss.timecastfrontend.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

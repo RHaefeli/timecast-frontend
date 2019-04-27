@@ -1,7 +1,6 @@
-package wodss.timecastfrontend.domain;
+package wodss.timecastfrontend.dto;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import wodss.timecastfrontend.dto.TimecastDto;
 
 public class ProjectDto implements TimecastDto {
 	private long id;

@@ -1,19 +1,13 @@
 package wodss.timecastfrontend.web;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
-import io.jsonwebtoken.Jwt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,8 +21,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import wodss.timecastfrontend.domain.Allocation;
-import wodss.timecastfrontend.domain.Contract;
 import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Project;
 import wodss.timecastfrontend.domain.Role;
@@ -38,11 +30,7 @@ import wodss.timecastfrontend.services.AllocationService;
 import wodss.timecastfrontend.services.ContractService;
 import wodss.timecastfrontend.services.EmployeeService;
 import wodss.timecastfrontend.services.ProjectService;
-import wodss.timecastfrontend.services.auth.JwtUtil;
-import wodss.timecastfrontend.services.mocks.MockAllocationService;
-import wodss.timecastfrontend.services.mocks.MockContractService;
-import wodss.timecastfrontend.services.mocks.MockEmployeeService;
-import wodss.timecastfrontend.services.mocks.MockProjectService;
+import wodss.timecastfrontend.security.JwtUtil;
 
 @Controller
 @RequestMapping(value="/projects")

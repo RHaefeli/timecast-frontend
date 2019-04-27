@@ -13,12 +13,8 @@ import wodss.timecastfrontend.services.AllocationService;
 import wodss.timecastfrontend.services.ContractService;
 import wodss.timecastfrontend.services.EmployeeService;
 import wodss.timecastfrontend.services.ProjectService;
-import wodss.timecastfrontend.services.auth.JwtUtil;
-import wodss.timecastfrontend.services.mocks.MockContractService;
-import wodss.timecastfrontend.services.mocks.MockEmployeeService;
-import wodss.timecastfrontend.services.mocks.MockProjectService;
+import wodss.timecastfrontend.security.JwtUtil;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 

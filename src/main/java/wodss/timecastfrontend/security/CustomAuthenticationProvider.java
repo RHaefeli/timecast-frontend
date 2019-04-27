@@ -1,6 +1,5 @@
-package wodss.timecastfrontend.services.auth;
+package wodss.timecastfrontend.security;
 
-import io.jsonwebtoken.Jwt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component;
 import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.services.LoginService;
-import wodss.timecastfrontend.services.mocks.MockLoginService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +21,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public CustomAuthenticationProvider(MockLoginService loginService, JwtUtil jwtUtil) {
+    public CustomAuthenticationProvider(LoginService loginService, JwtUtil jwtUtil) {
         this.loginService = loginService;
         this.jwtUtil = jwtUtil;
     }

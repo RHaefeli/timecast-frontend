@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import wodss.timecastfrontend.domain.Role;
-import wodss.timecastfrontend.services.auth.CustomAuthenticationProvider;
+import wodss.timecastfrontend.security.CustomAuthenticationProvider;
 import wodss.timecastfrontend.web.SessionHandlerInterceptor;
 
 import java.util.Locale;
@@ -50,7 +50,6 @@ public class WebMvcConfig extends WebSecurityConfigurerAdapter implements WebMvc
                 .antMatchers("/projects/{id}").hasAnyAuthority(Role.ADMINISTRATOR.getValue(), Role.PROJECTMANAGER.getValue())
                 .antMatchers("/contracts").hasAuthority(Role.ADMINISTRATOR.getValue())
                 .antMatchers("/contracts/{id}").hasAuthority(Role.ADMINISTRATOR.getValue())
-                // TODO: matchers for path params (/employees?form)
                 .anyRequest().authenticated()
                 .and()
             .formLogin()

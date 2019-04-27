@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
-import wodss.timecastfrontend.domain.TimecastDto;
+import wodss.timecastfrontend.dto.TimecastDto;
 import wodss.timecastfrontend.domain.TimecastEntity;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.*;

@@ -1,4 +1,6 @@
-package wodss.timecastfrontend.domain;
+package wodss.timecastfrontend.dto;
+
+import wodss.timecastfrontend.dto.TimecastDto;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;

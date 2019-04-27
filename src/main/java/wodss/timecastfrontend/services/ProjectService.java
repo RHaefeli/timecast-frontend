@@ -16,15 +16,14 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import wodss.timecastfrontend.domain.*;
+import wodss.timecastfrontend.dto.ProjectDto;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
-import wodss.timecastfrontend.services.mocks.MockEmployeeService;
 
 @Component
 public class ProjectService extends AbstractService<Project, ProjectDto>{

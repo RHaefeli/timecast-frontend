@@ -1,12 +1,8 @@
 package wodss.timecastfrontend.services.mocks;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -14,22 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import wodss.timecastfrontend.domain.Allocation;
-import wodss.timecastfrontend.domain.AllocationDto;
 import wodss.timecastfrontend.domain.Token;
-import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
-import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
-import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 import wodss.timecastfrontend.services.AllocationService;
-import wodss.timecastfrontend.services.ProjectService;
 
 @Component
 public class MockAllocationService extends AllocationService {

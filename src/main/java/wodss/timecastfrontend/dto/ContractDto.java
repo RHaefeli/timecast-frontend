@@ -1,5 +1,7 @@
-package wodss.timecastfrontend.domain;
+package wodss.timecastfrontend.dto;
 
+
+import wodss.timecastfrontend.dto.TimecastDto;
 
 public class ContractDto implements TimecastDto {
     private long id;
