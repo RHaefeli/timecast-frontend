@@ -11,17 +11,19 @@
 
 <body>
 <section>
+    <div th:if="${exception != null}" class="alert alert-danger" th:text="${exception}"></div>
     <h2>Create new Allocation</h2>
     <br>
 
-    <form th:action="@{/allocations}" th:object="${allocation}" method="post">
+    <form class="app-content" th:action="@{/allocations}" th:object="${allocation}" method="post">
         <div class="form-row">
             <div class="form-group col-md-5">
                 <label for="employee">Developer</label>
-                <select id="employee" name="employeeId" th:value="${employeeId}">
-            	<option th:each="developer: ${developers}"
-                	th:value="${developer.id}" th:text="${developer}"
-               	</option>
+                <select id="employee" name="employeeId" class="form-control" th:value="${employeeId}">
+                    <option th:each="developer: ${developers}"
+                            th:value="${developer.id}"
+                            th:text="${developer}">
+                    </option>
 				</select>
             </div>
 
@@ -57,7 +59,7 @@
             </div>
         </div>
 
-        <div class="form-row">
+        <div class="form-row button-row">
             <a class="btn btn-default" th:href="@{/allocations}">Cancel</a>
             <button type="submit" class="btn btn-primary">Save</button>
         </div>

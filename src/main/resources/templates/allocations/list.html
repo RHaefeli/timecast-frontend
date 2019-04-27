@@ -1,64 +1,101 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='List of Allocations', links=~{::link}, scripts=~{::header_script})">
+<html xmlns:th="http://www.thymeleaf.org"
+	th:replace="layout :: maincontent(content=~{::section}, title='List of Allocations', links=~{::link}, scripts=~{::header_script})">
 <head>
-<!-- jQuery -->
+	<!-- jQuery -->
     <script th:fragment="header_script" src="https://code.jquery.com/jquery-3.4.0.slim.min.js" integrity="sha256-ZaXnYkHGqIhqTbJ6MB4l9Frs/r7U4jlx7ir8PJYBqbI=" crossorigin="anonymous"></script>
     <!-- Bootstrap Datepicker -->
     <script th:fragment="header_script" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+	<!-- Datatable -->
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css"/>
+	<script th:fragment="header_script" type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.js"></script>
 </head>
 <body>
-	<section>
-		<a class="btn btn-success float-right" th:href="@{/allocations?form&projectId={id}(id=${projectIdFilter})}">
-			Add Allocation
-		</a>
-		<h3>Allocations</h3>
-		<div>
-			<form action="#" th:action="@{/allocations}" method="get">
-                
-                <label for="projectManager">Project</label>
-                <select id="projectManager" name="projectId" th:value="${projectIdFilter}">
-            	<option th:each="project: ${projects}"
-                	th:value="${project.id}" th:text="${project.name}"
-                	th:selected="${project.id} == ${projectIdFilter} ? true : false"></option>
-				</select>
-                
-				<label for="filterStartDate">Start Date</label>
-                <input name="fromDate" type="text" class="form-control" id="filterStartDate" th:value="${fromDateFilter}" th:errorclas="fieldError" autofocus/>
-                <label for="filterEndDate">End Date</label>
-                <input name="toDate" type="text" class="form-control" id="filterEndDate" th:value="${toDateFilter}" th:errorclas="fieldError" autofocus/>
-				<button type="submit" class="btn btn-secondary">
-					Filter
-				</button>
+<section>
+	<div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
+	<a class="btn btn-primary float-right" th:href="@{/allocations?form&projectId={id}(id=${projectIdFilter})}">
+		Add Allocation
+	</a>
+	<h3>Allocations</h3>
+	<br>
+
+	<div class="app-content">
+		<div class="form-row">
+			<!-- Left side: Filter form -->
+			<form action="#" th:action="@{/allocations}" class="col-md-6" method="get">
+				<h5>Allocation Filter</h5>
+				<div class="form-row">
+					<div class="form-group row col-md-12">
+						<label for="projectManager" class="col-md-3" style="margin: auto;">Project</label>
+						<div class="col-md-9">
+							<select id="projectManager" class="form-control" name="projectId" th:value="${projectIdFilter}">
+								<option th:each="project: ${projects}"
+										th:value="${project.id}" th:text="${project.name}"
+										th:selected="${project.id} == ${projectIdFilter} ? true : false">
+								</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group row col-md-12">
+						<div class="col-md-6">
+							<label for="filterStartDate" class="sr-only">Start Date</label>
+							<input name="fromDate" type="text" class="form-control" placeholder="Start Date" id="filterStartDate" th:value="${fromDateFilter}" th:errorclas="fieldError" autofocus/>
+						</div>
+
+						<div class="col-md-6">
+							<label for="filterEndDate" class="sr-only">End Date</label>
+							<input name="toDate" type="text" class="form-control" placeholder="End Date" id="filterEndDate" th:value="${toDateFilter}" th:errorclas="fieldError" autofocus/>
+						</div>
+					</div>
+				</div>
+				<div class="form-row button-row" style="margin-top: 0">
+					<button type="submit" class="btn btn-secondary">
+						Filter
+					</button>
+				</div>
 			</form>
+
+			<!-- Right side: Project information -->
+			<div class="form-row col-md-6">
+				<h5>Project Information</h5>
+			</div>
 		</div>
+
+
+		<!-- Allocation List -->
 		<div th:fragment="allocations">
-		<div th:if="${allocations.isEmpty()}">
-			<h2 style="text-align: center">No Allocations found</h2>
-		</div>
-		<div style="padding-top: 10px;">
-			<table class="table table-condensed table-hover">
-			<thead>
-			<tr>
-			<th>ID</th>
-			<th>Employee</th>
-			<th>Start Date</th>
-			<th>End Date</th>
-			<th>Pensum</th>
-			<th>Project</th>
-			</thead>
-				<tbody>
-					<tr th:each="allocation : ${allocations}">
-						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.id}" />
-						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.contract.employee}" />
-						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.startDate}" />
-						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.endDate}" />
-						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.pensumPercentage}" />
-						<td colspan="1" style="vertical-align: middle;" th:text="${allocation.project.name}" />
-						<td>
+			<div th:if="${allocations.isEmpty()}">
+				<br>
+				<h2 style="text-align: center">No Allocations found</h2>
+			</div>
+
+			<div th:unless="${allocations.isEmpty()}" style="padding-top: 10px;">
+				<table id="allocation-table" class="table table-condensed table-hover">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Employee</th>
+							<th>Start Date</th>
+							<th>End Date</th>
+							<th>Pensum</th>
+							<th>Project</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="allocation : ${allocations}">
+							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.id}"></td>
+							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.contract.employee}"></td>
+							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.startDate}" ></td>
+							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.endDate}" ></td>
+							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.pensumPercentage} + '%'" ></td>
+							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.project.name}" ></td>
+							<td>
 								<div>
 									<form action="#" th:action="@{/allocations/{id}(id=${allocation.id})}">
-										<!-- 
+										<!--
 											The action URL is mutated after submitting the form according to
 											https://www.w3.org/TR/2011/WD-html5-20110525/association-of-controls-and-forms.html#submit-mutate-action
 											The browser will trash the existing "?..." part of hte URI and replace it with a new one based on your form.
@@ -78,39 +115,44 @@
 										</button>
 									</form>
 								</div>
-							</div>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 		</div>
-		</div>
-		
-		<script>
-        // datepicker
-        // requires jQuery
-        // requires datepicker
-        $(document).ready(function(){
-            var startDateInput=$('input[name="fromDate"]');
-            var startDateOptions={
-                format: 'dd.mm.yyyy',
-                todayHighlight: true,
-                autoclose: true
-            };
-            startDateInput.datepicker(startDateOptions);
+	</div>
 
-            var endDateInput=$('input[name="toDate"]');
-            var endDateOptions={
-                format: 'dd.mm.yyyy',
-                todayHighlight: true,
-                autoclose: true
-            };
-            endDateInput.datepicker(endDateOptions);
-        });
-    </script>
-    
-	</section>
+	<script>
+		// datepicker
+		// requires jQuery
+		// requires datepicker
+		$(document).ready(function(){
+			var startDateInput=$('input[name="fromDate"]');
+			var startDateOptions={
+				format: 'dd.mm.yyyy',
+				todayHighlight: true,
+				autoclose: true
+			};
+			startDateInput.datepicker(startDateOptions);
 
+			var endDateInput=$('input[name="toDate"]');
+			var endDateOptions={
+				format: 'dd.mm.yyyy',
+				todayHighlight: true,
+				autoclose: true
+			};
+			endDateInput.datepicker(endDateOptions);
+		});
+
+		// requires jQuery
+		// requires datatables
+		$(document).ready(function() {
+			$('#allocation-table').DataTable({
+				scrollY: '55vh'
+			});
+		});
+	</script>
+</section>
 </body>
-
 </html>
