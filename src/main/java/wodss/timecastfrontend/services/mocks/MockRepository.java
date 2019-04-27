@@ -40,7 +40,7 @@ public final class MockRepository {
 		generateEmployees();
 		generateContracts();
 		generateProjects();
-		generateAllocations();
+//		generateAllocations();
 	}
 	
 	private static void generateProjects() {
@@ -48,24 +48,24 @@ public final class MockRepository {
 		project1.setId(nextProjectId++);
 		project1.setName("Project1");
 		project1.setFtePercentage(100);
-		project1.setStartDate(new Date());
-		project1.setEndDate(new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000));
+		project1.setStartDate(normalizeDate(new Date()));
+		project1.setEndDate(normalizeDate(new Date(new Date().getTime() + 5L * 24 * 60 * 60 * 1000)));
 		project1.setProjectManager(employees.get(1));
 		
 		Project project2 = new Project();
 		project2.setId(nextProjectId++);
 		project2.setName("Project2");
 		project2.setFtePercentage(200);
-		project2.setStartDate(new Date());
-		project2.setEndDate(new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000));
+		project2.setStartDate(normalizeDate(new Date()));
+		project2.setEndDate(normalizeDate(new Date(new Date().getTime() + 30L * 24 * 60 * 60 * 1000)));
 		project2.setProjectManager(employees.get(1));
 		
 		Project project3 = new Project();
 		project3.setId(nextProjectId++);
 		project3.setName("Project3");
 		project3.setFtePercentage(300);
-		project3.setStartDate(new Date());
-		project3.setEndDate(new Date(new Date().getTime() + 50 * 24 * 60 * 60 * 1000));
+		project3.setStartDate(normalizeDate(new Date()));
+		project3.setEndDate(normalizeDate(new Date(new Date().getTime() + 50 * 24 * 60 * 60 * 1000)));
 		project3.setProjectManager(employees.get(1));
 		
 		projects.add(project1);
@@ -108,15 +108,15 @@ public final class MockRepository {
 		Date date = new Date();
 		Contract con1 = new Contract();
 		con1.setId(nextContractId++);
-		con1.setStartDate(date);
-        con1.setEndDate(new Date(date.getTime() + 24 * 60 * 60 * 1000));
+		con1.setStartDate(normalizeDate(date));
+        con1.setEndDate(normalizeDate(new Date(date.getTime() + 24L * 60 * 60 * 1000)));
 		con1.setPensumPercentage(100);
 		con1.setEmployee(employees.get(1));
 		
 		Contract con2 = new Contract();
 		con2.setId(nextContractId++);
-		con1.setStartDate(date);
-        con1.setEndDate(new Date(date.getTime() + 10 + 24 * 60 * 60 * 1000));
+		con2.setStartDate(normalizeDate(new Date(date.getTime() + 25L * 24 * 60 * 60 * 1000)));
+        con2.setEndDate(normalizeDate(new Date(date.getTime() + 40L * 24 * 60 * 60 * 1000)));
 		con2.setPensumPercentage(100);
 		con2.setEmployee(employees.get(1));
 		
@@ -127,7 +127,7 @@ public final class MockRepository {
 	private static void generateAllocations() {
 		Allocation alloc1 = new Allocation();
 		Date startDate = new Date();
-		Date endDate = new Date(startDate.getTime() + 30 * 24 * 60 * 60 *1000);
+		Date endDate = new Date(startDate.getTime() + 30L * 24 * 60 * 60 *1000);
 		alloc1.setStartDate(startDate);
 		alloc1.setEndDate(endDate);
 		alloc1.setPensumPercentage(25);
@@ -137,7 +137,7 @@ public final class MockRepository {
 		
 		Allocation alloc2 = new Allocation();
 		startDate = new Date();
-		endDate = new Date(startDate.getTime() + 60 * 24 * 60 * 60 * 1000);
+		endDate = new Date(startDate.getTime() + 60L * 24 * 60 * 60 * 1000);
 		alloc2.setStartDate(startDate);
 		alloc2.setEndDate(endDate);
 		alloc2.setPensumPercentage(100);
@@ -148,7 +148,7 @@ public final class MockRepository {
 		
 		Allocation alloc3 = new Allocation();
 		startDate = new Date();
-		endDate = new Date(startDate.getTime() + 120 * 24 * 60 * 60 * 1000);
+		endDate = new Date(startDate.getTime() + 120L * 24 * 60 * 60 * 1000);
 		alloc3.setStartDate(startDate);
 		alloc3.setEndDate(endDate);
 		alloc3.setPensumPercentage(50);
@@ -160,6 +160,14 @@ public final class MockRepository {
 		allocations.add(alloc1);
 		allocations.add(alloc2);
 		allocations.add(alloc3);
+	}
+	
+	private static Date normalizeDate(Date date) {
+		Date newDate = date;
+		newDate.setHours(0);
+		newDate.setMinutes(0);
+		newDate.setSeconds(0);
+		return newDate;
 	}
 
 }
