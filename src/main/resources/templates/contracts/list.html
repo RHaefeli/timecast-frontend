@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='List of Contracts', links=~{::link}, scripts=~{::header_script})">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout :: maincontent(content=~{::section}, title='List of Contracts', links=~{::link}, scripts=~{::header_script})">
 
 <head>
     <!-- jQuery -->
@@ -16,41 +17,43 @@
     <h2>Contracts</h2>
     <br>
 
-    <div th:if="${contracts.isEmpty()}" class="app-content">
-        <h2 style="text-align: center">No Contracts found</h2>
-    </div>
-    <div th:unless="${contracts.isEmpty()}" class="app-content" style="padding-top: 10px;">
-        <br>
+    <div class="scrollable-app-container">
+        <div th:if="${contracts.isEmpty()}" class="app-content">
+            <h2 style="text-align: center">No Contracts found</h2>
+        </div>
+        <div th:unless="${contracts.isEmpty()}" class="app-content" style="padding-top: 10px;">
+            <br>
 
-        <table id="contracts-table" class="table table-condensed table-hover">
-            <thead>
-            <tr>
-                <th style="vertical-align: middle;">Id</th>
-                <th style="vertical-align: middle;">Employee</th>
-                <th style="vertical-align: middle;">Pensum</th>
-                <th style="vertical-align: middle;">Start Date</th>
-                <th style="vertical-align: middle;">End Date</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="contract : ${contracts}">
-                <td style="vertical-align: middle;">
-                    <a th:href="@{/contracts/} + ${contract.id}" th:text="${contract.id}"/>
-                </td>
-                <td style="vertical-align: middle;">
-                    <div class="input-group">
-                        <div th:text="${contract.employee}"></div>
-                        <span style="margin-right: -26px; margin-top: -5px; padding-left: 15px; font-size: 20px;">
+            <table id="contracts-table" class="table table-condensed table-hover">
+                <thead>
+                <tr>
+                    <th style="vertical-align: middle;">Id</th>
+                    <th style="vertical-align: middle;">Employee</th>
+                    <th style="vertical-align: middle;">Pensum</th>
+                    <th style="vertical-align: middle;">Start Date</th>
+                    <th style="vertical-align: middle;">End Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="contract : ${contracts}">
+                    <td style="vertical-align: middle;">
+                        <a th:href="@{/contracts/} + ${contract.id}" th:text="${contract.id}"/>
+                    </td>
+                    <td style="vertical-align: middle;">
+                        <div class="input-group">
+                            <div th:text="${contract.employee}"></div>
+                            <span style="margin-right: -26px; margin-top: -5px; padding-left: 15px; font-size: 20px;">
                             <a th:href="@{/employees/} + ${contract.employee.id}"><i class="fa fa-eye"></i></a>
                         </span>
-                    </div>
-                </td>
-                <td style="vertical-align: middle;" th:text="${contract.pensumPercentage} + '%'"></td>
-                <td style="vertical-align: middle;" th:text="${#dates.format(contract.startDate, 'dd.MM.yyyy')}"></td>
-                <td style="vertical-align: middle;" th:text="${#dates.format(contract.endDate, 'dd.MM.yyyy')}"></td>
-            </tr>
-            </tbody>
-        </table>
+                        </div>
+                    </td>
+                    <td style="vertical-align: middle;" th:text="${contract.pensumPercentage} + '%'"></td>
+                    <td style="vertical-align: middle;" th:text="${#dates.format(contract.startDate, 'dd.MM.yyyy')}"></td>
+                    <td style="vertical-align: middle;" th:text="${#dates.format(contract.endDate, 'dd.MM.yyyy')}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -63,7 +66,5 @@
         });
     </script>
 </section>
-
 </body>
-
 </html>

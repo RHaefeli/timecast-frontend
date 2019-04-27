@@ -14,7 +14,7 @@ public class Project implements TimecastEntity {
 	private long id;
 
 	@NotNull
-	@Size(min=1, max=50)
+	@Size(max=50)
 	private String name;
 	
 	@NotNull

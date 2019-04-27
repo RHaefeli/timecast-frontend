@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='List of Projects', links=~{::link}, scripts=~{::header_script})">
+<html xmlns:th="http://www.thymeleaf.org"
+	  th:replace="layout :: maincontent(content=~{::section}, title='List of Projects', links=~{::link}, scripts=~{::header_script})">
 
 <head>
 	<!-- jQuery -->
@@ -12,13 +13,15 @@
 </head>
 
 <body>
-	<section>
-		<div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
-		<a class="btn btn-primary float-right" href="?form">
-			Add Project
-		</a>
-		<h3>Projects</h3>
-		<br>
+<section>
+	<div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
+	<a class="btn btn-primary float-right" href="?form">
+		Add Project
+	</a>
+	<h3>Projects</h3>
+	<br>
+
+	<div class="scrollable-app-container">
 		<div th:if="${projects.isEmpty()}" class="app-content">
 			<h2 style="text-align: center">No Projects found</h2>
 		</div>
@@ -26,35 +29,36 @@
 			<br>
 			<table id="project-table" class="table table-condensed table-hover">
 				<thead>
-					<tr>
-						<th style="vertical-align: middle;">Id</th>
-						<th style="vertical-align: middle;">Name</th>
-						<th style="vertical-align: middle;">Start Date</th>
-						<th style="vertical-align: middle;">End Date</th>
-					</tr>
+				<tr>
+					<th style="vertical-align: middle;">Id</th>
+					<th style="vertical-align: middle;">Name</th>
+					<th style="vertical-align: middle;">Start Date</th>
+					<th style="vertical-align: middle;">End Date</th>
+				</tr>
 				</thead>
 				<tbody>
-					<tr th:each="project : ${projects}">
-						<td style="vertical-align: middle;">
-							<a th:href="@{projects/} + ${project.id}" th:text="${project.id}"/>
-						</td>
-						<td style="vertical-align: middle;" th:text="${project.name}"></td>
-						<td style="vertical-align: middle;" th:text="${#dates.format(project.startDate, 'dd.MM.yyyy')}"></td>
-						<td style="vertical-align: middle;" th:text="${#dates.format(project.endDate, 'dd.MM.yyyy')}"></td>
-					</tr>
+				<tr th:each="project : ${projects}">
+					<td style="vertical-align: middle;">
+						<a th:href="@{projects/} + ${project.id}" th:text="${project.id}"/>
+					</td>
+					<td style="vertical-align: middle;" th:text="${project.name}"></td>
+					<td style="vertical-align: middle;" th:text="${#dates.format(project.startDate, 'dd.MM.yyyy')}"></td>
+					<td style="vertical-align: middle;" th:text="${#dates.format(project.endDate, 'dd.MM.yyyy')}"></td>
+				</tr>
 				</tbody>
 			</table>
 		</div>
+	</div>
 
-		<script>
-            // requires jQuery
-            // requires datatables
-            $(document).ready(function() {
-                $('#project-table').DataTable({
-                    scrollY: '55vh'
-                });
-            });
-		</script>
-	</section>
+	<script>
+		// requires jQuery
+		// requires datatables
+		$(document).ready(function() {
+			$('#project-table').DataTable({
+				scrollY: '55vh'
+			});
+		});
+	</script>
+</section>
 </body>
 </html>

@@ -2,12 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="layout :: maincontent(content=~{::section}, title='Update Project', links=~{}, scripts=~{})">
 <head>
+    <!-- Put additional style links here -->
 </head>
-<body>
-    <section>
-        <h2>Show Project</h2>
-        <br>
 
+<body>
+<section>
+    <h2>Show Project</h2>
+    <br>
+
+    <div class="scrollable-app-container">
         <form class="app-content" th:action="@{/projects} + '/' + ${project.id}" th:object="${project}" th:method="put">
             <div class="form-row">
                 <div class="form-group col-md-5">
@@ -48,6 +51,7 @@
                 <a class="btn btn-default" th:href="@{/projects}">Back</a>
             </div>
         </form>
-    </section>
+    </div>
+</section>
 </body>
 </html>

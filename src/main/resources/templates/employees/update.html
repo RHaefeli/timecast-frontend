@@ -17,77 +17,80 @@
     <div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
     <h2>Edit Employee</h2>
     <br>
-    <div class="row app-content">
-        <!-- Left side -->
-        <div class="col-md-3">
-            <form th:action="@{/employees} + '/' + ${employee.id}" th:object="${employee}" th:method="put">
-                <div class="form-row">
-                    <div class="form-group col-md-12">
-                        <label for="lastName">Last Name</label>
-                        <input type="text" class="form-control" id="lastName" th:field="*{lastName}" th:errorclass="fieldError" autofocus/>
-                        <span th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="fieldErrorText"></span>
+
+    <div class="scrollable-app-container">
+        <div class="row app-content">
+            <!-- Left side -->
+            <div class="col-md-3">
+                <form th:action="@{/employees} + '/' + ${employee.id}" th:object="${employee}" th:method="put">
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" class="form-control" id="lastName" th:field="*{lastName}" th:errorclass="fieldError" autofocus/>
+                            <span th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="fieldErrorText"></span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-row">
-                    <div class="form-group col-md-12">
-                        <label for="firstName">First Name</label>
-                        <input type="text" class="form-control" id="firstName" th:field="*{firstName}" th:errorclass="fieldError"/>
-                        <span th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="fieldErrorText"></span>
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label for="firstName">First Name</label>
+                            <input type="text" class="form-control" id="firstName" th:field="*{firstName}" th:errorclass="fieldError"/>
+                            <span th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="fieldErrorText"></span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-row">
-                    <div class="form-group col-md-12">
-                        <label for="emailAddress">Email Address</label>
-                        <input type="text" class="form-control" id="emailAddress" th:field="*{emailAddress}" th:errorclass="fieldError"/>
-                        <span th:if="${#fields.hasErrors('emailAddress')}" th:errors="*{emailAddress}" class="fieldErrorText"></span>
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label for="emailAddress">Email Address</label>
+                            <input type="text" class="form-control" id="emailAddress" th:field="*{emailAddress}" th:errorclass="fieldError"/>
+                            <span th:if="${#fields.hasErrors('emailAddress')}" th:errors="*{emailAddress}" class="fieldErrorText"></span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-row">
-                    <div class="form-group col-md-12">
-                        <label for="role">Role</label>
-                        <input type="text" class="form-control" id="role" th:field="*{role}" th:readonly="true"/>
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label for="role">Role</label>
+                            <input type="text" class="form-control" id="role" th:field="*{role}" th:readonly="true"/>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Buttons -->
-                <div class="form-row button-row">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                    <button id="delete-btn" type="button" class="btn btn-danger" onclick="deleteRequest()">Delete</button>
-                </div>
-            </form>
-            <form id="delete-form" action="#" th:action="@{/employees/} + ${employee.id}" th:method="delete"></form>
-        </div>
+                    <!-- Buttons -->
+                    <div class="form-row button-row">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button id="delete-btn" type="button" class="btn btn-danger" onclick="deleteRequest()">Delete</button>
+                    </div>
+                </form>
+                <form id="delete-form" action="#" th:action="@{/employees/} + ${employee.id}" th:method="delete"></form>
+            </div>
 
-        <!-- Right side -->
-        <div class="col-md-8 vertical-line">
-            <a sec:authorize="hasAuthority('ADMINISTRATOR')" class="btn btn-primary float-right" th:href="@{/employees/} + ${employee.id} + '/contracts?form'">
-                Create new Contract
-            </a>
-            <h5>Contracts</h5>
-            <br>
-            <table id="contracts-table" class="table table-condensed table-hover">
-                <thead>
-                <tr>
-                    <th style="vertical-align: middle;">Id</th>
-                    <th style="vertical-align: middle;">Pensum</th>
-                    <th style="vertical-align: middle;">Start Date</th>
-                    <th style="vertical-align: middle;">End Date</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="contract : ${contracts}">
-                    <td style="vertical-align: middle;">
-                        <a th:href="@{/contracts/} + ${contract.id}" th:text="${contract.id}"/>
-                    </td>
-                    <td style="vertical-align: middle;" th:text="${contract.pensumPercentage} + '%'"></td>
-                    <td style="vertical-align: middle;" th:text="${#dates.format(contract.startDate, 'dd.MM.yyyy')}"></td>
-                    <td style="vertical-align: middle;" th:text="${#dates.format(contract.endDate, 'dd.MM.yyyy')}"></td>
-                </tr>
-                </tbody>
-            </table>
+            <!-- Right side -->
+            <div class="col-md-8 vertical-line">
+                <a sec:authorize="hasAuthority('ADMINISTRATOR')" class="btn btn-primary float-right" th:href="@{/employees/} + ${employee.id} + '/contracts?form'">
+                    Create new Contract
+                </a>
+                <h5>Contracts</h5>
+                <br>
+                <table id="contracts-table" class="table table-condensed table-hover">
+                    <thead>
+                    <tr>
+                        <th style="vertical-align: middle;">Id</th>
+                        <th style="vertical-align: middle;">Pensum</th>
+                        <th style="vertical-align: middle;">Start Date</th>
+                        <th style="vertical-align: middle;">End Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="contract : ${contracts}">
+                        <td style="vertical-align: middle;">
+                            <a th:href="@{/contracts/} + ${contract.id}" th:text="${contract.id}"/>
+                        </td>
+                        <td style="vertical-align: middle;" th:text="${contract.pensumPercentage} + '%'"></td>
+                        <td style="vertical-align: middle;" th:text="${#dates.format(contract.startDate, 'dd.MM.yyyy')}"></td>
+                        <td style="vertical-align: middle;" th:text="${#dates.format(contract.endDate, 'dd.MM.yyyy')}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -108,5 +111,4 @@
     </script>
 </section>
 </body>
-
 </html>
