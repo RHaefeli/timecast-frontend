@@ -10,15 +10,15 @@ public class Employee implements TimecastEntity {
     private boolean active;
 
     @NotNull
-    @Size(max=50)
+    @Size(min=1, max=50)
     private String lastName;
 
     @NotNull
-    @Size(max=50)
+    @Size(min=1, max=50)
     private String firstName;
 
     @NotNull
-    @Size(max=50)
+    @Size(min=1, max=50)
     @Email
     private String emailAddress;
 
