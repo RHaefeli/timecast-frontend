@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: maincontent(content=~{::section}, title='List of Employees', links=~{::link}, scripts=~{::header_script})">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout :: maincontent(content=~{::section}, title='List of Employees', links=~{::link}, scripts=~{::header_script})">
 
 <head>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css"/>
+    <!-- jQuery -->
     <script th:fragment="header_script" src="https://code.jquery.com/jquery-3.4.0.slim.min.js" integrity="sha256-ZaXnYkHGqIhqTbJ6MB4l9Frs/r7U4jlx7ir8PJYBqbI=" crossorigin="anonymous"></script>
+    <!-- Bootstrap Datatable -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css"/>
     <script th:fragment="header_script" type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.js"></script>
 </head>
 
@@ -16,21 +19,22 @@
     <h2>Employees</h2>
     <br>
 
-    <div th:if="${employees.isEmpty()}" class="app-content">
-        <h2 style="text-align: center">No Employees found</h2>
-    </div>
-    <div th:unless="${employees.isEmpty()}" class="app-content" style="padding-top: 10px;">
-        <br>
-        <table id="employee-table" class="table table-condensed table-hover">
-            <thead>
+    <div class="scrollable-app-container">
+        <div th:if="${employees.isEmpty()}" class="app-content">
+            <h2 style="text-align: center">No Employees found</h2>
+        </div>
+        <div th:unless="${employees.isEmpty()}" class="app-content">
+            <br>
+            <table id="employee-table" class="table table-condensed table-hover">
+                <thead>
                 <tr>
                     <th style="vertical-align: middle;">Id</th>
                     <th style="vertical-align: middle;">Last Name</th>
                     <th style="vertical-align: middle;">First Name</th>
                     <th style="vertical-align: middle;">Role</th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 <tr th:each="employee : ${employees}">
                     <td style="vertical-align: middle;">
                         <a th:href="@{employees/} + ${employee.id}" th:text="${employee.id}"/>
@@ -39,9 +43,11 @@
                     <td style="vertical-align: middle;" th:text="${employee.firstName}"></td>
                     <td style="vertical-align: middle;" th:text="${employee.role}"></td>
                 </tr>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
+
 
     <script>
         // requires jQuery
@@ -53,7 +59,5 @@
         });
     </script>
 </section>
-
 </body>
-
 </html>

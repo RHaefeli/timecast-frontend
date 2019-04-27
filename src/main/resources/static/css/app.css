@@ -50,7 +50,7 @@ Sidebar
     left: 0;
     width: 300px;
     z-index: 100; /* Behind the header */
-    padding-top: 70px; /* Height of header */
+    padding-top: 72px; /* Height of header */
     padding-left: 20px;
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
@@ -58,7 +58,7 @@ Sidebar
 .sidebar-sticky {
     position: relative;
     padding-top: 20px;
-    height: calc(100vh - 70px); /* Subtract height of header */
+    height: calc(100vh - 72px); /* Subtract height of header */
     overflow-x: hidden;
     overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
 }
@@ -101,23 +101,34 @@ Content
 .main-container {
     margin-right: -17px; /* bootstrap container-fluid has a padding */
     width: calc(100vw - 300px); /* Subtract width of Sidebar */
-    padding-top: 70px; /* Space for fixed Header */
+    padding-top: 72px; /* Space for fixed Header */
     background-color: #f4f4f4;
 }
 
 .app-content-container {
-    padding-top: 50px;
-    padding-left: 50px;
-    width: calc(100vw - 300px - 50px);
+    padding: 30px 50px 50px 50px;
+    width: calc(100vw - 300px); /* Subtract width of Sidebar */
     min-width: 700px;
+    height: 100%;
+}
+
+.scrollable-app-container {
+    overflow: auto;
+    margin-right: -50px;
+    height: calc(100vh - 200px);
+}
+
+.scrollable-app-container .app-content {
+    margin-right: 50px; /* Undo the margin offset from the scrollable container */
 }
 
 .app-content {
     background-color: white;
     border-radius: 5px;
-    padding: 25px;
+    padding: 25px 25px 25px 25px;
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-    height: 75vh;
+    min-height: 700px;
+    height: 100%;
 }
 
 .app-content .form {
