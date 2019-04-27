@@ -39,7 +39,8 @@ public class ContractService extends AbstractService<Contract, ContractDto> {
 
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.OK) {
-            throwStatusCodeException(statusCode);
+            // Other status codes are mapped by the RestTemplate Error Handler
+            throw new IllegalStateException(statusCode.toString());
         }
 
         List<ContractDto> dtos = response.getBody();
@@ -76,7 +77,7 @@ public class ContractService extends AbstractService<Contract, ContractDto> {
             entity.setStartDate(dtoFormat.parse(dto.getStartDate()));
             entity.setEndDate(dtoFormat.parse(dto.getEndDate()));
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
+            // Auto-generated catch block
             e.printStackTrace();
         }
 

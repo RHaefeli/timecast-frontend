@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import wodss.timecastfrontend.domain.Contract;
 import wodss.timecastfrontend.domain.Employee;
@@ -70,7 +71,7 @@ public class EmployeeController {
             redirectAttributes.addFlashAttribute("success", "Successfully created Employee.");
             return "redirect:/employees/" + newEmployee.getId();
         } catch (TimecastPreconditionFailedException ex) {
-            model.addAttribute("exception", ex.getMessage());
+            model.addAttribute("exception", "Invalid Input. Please Check all fields (The Email Address must be unique)");
             return "employees/create";
         }
     }

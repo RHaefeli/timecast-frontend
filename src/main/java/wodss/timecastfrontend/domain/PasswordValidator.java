@@ -21,7 +21,7 @@ public class PasswordValidator implements Validator {
 
         Employee employee = (Employee) target;
 
-        if (employee.getPassword().length() < 12) {
+        if (employee.getPassword().length() > 0 && employee.getPassword().length() < 12) {
             errors.rejectValue("password", "tooshort.password");
         }
         if(!(employee.getPassword().equals(employee.getConfirmPassword()))){

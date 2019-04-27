@@ -32,8 +32,7 @@ public class MockProjectService extends ProjectService {
 		super(restTemplate, apiURL, employeeService);
         logger.debug("Using Mock Project Service!");
         logger.debug("API URL " + apiURL + " will not be used in the mock service!");
-        
-        //TODO fix workaround
+
         logger.debug("Generating mock projects");
         MockRepository.generateRepository();
         projectRepo = MockRepository.projects;

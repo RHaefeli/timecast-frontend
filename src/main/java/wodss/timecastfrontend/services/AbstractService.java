@@ -38,7 +38,8 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
 
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.OK) {
-            throwStatusCodeException(statusCode);
+            // Other status codes are mapped by the RestTemplate Error Handler
+            throw new IllegalStateException(statusCode.toString());
         }
 
         List<DTO> dtos = response.getBody();
@@ -59,7 +60,8 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
 
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.OK) {
-            throwStatusCodeException(statusCode);
+            // Other status codes are mapped by the RestTemplate Error Handler
+            throw new IllegalStateException(statusCode.toString());
         }
 
         DTO dto = response.getBody();
@@ -73,11 +75,14 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
         HttpEntity<DTO> request = new HttpEntity<>(mapEntityToDto(token, entity), headers);
+        System.out.println("perform req");
         ResponseEntity<DTO> response = restTemplate.exchange(apiURL, HttpMethod.POST, request, serviceEntityClass);
-
+        System.out.println("end req");
+        System.out.println(response);
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.CREATED) {
-            throwStatusCodeException(statusCode);
+            // Other status codes are mapped by the RestTemplate Error Handler
+            throw new IllegalStateException(statusCode.toString());
         }
 
         DTO dto = response.getBody();
@@ -95,7 +100,8 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
 
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.OK) {
-            throwStatusCodeException(statusCode);
+            // Other status codes are mapped by the RestTemplate Error Handler
+            throw new IllegalStateException(statusCode.toString());
         }
 
         DTO dto = response.getBody();
@@ -113,23 +119,11 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
 
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.NO_CONTENT) {
-            throwStatusCodeException(statusCode);
+            // Other status codes are mapped by the RestTemplate Error Handler
+            throw new IllegalStateException(statusCode.toString());
         }
 
         logger.debug("Deleted " + serviceEntityClass + " entity with id: " + id);
-    }
-
-    public static void throwStatusCodeException(HttpStatus statusCode) throws TimecastUnauthorizedException,
-            TimecastForbiddenException, TimecastNotFoundException, TimecastPreconditionFailedException,
-            TimecastInternalServerErrorException, IllegalStateException {
-        switch (statusCode) {
-            case UNAUTHORIZED: throw new TimecastUnauthorizedException(statusCode.getReasonPhrase());
-            case FORBIDDEN: throw new TimecastForbiddenException(statusCode.getReasonPhrase());
-            case NOT_FOUND: throw new TimecastNotFoundException(statusCode.getReasonPhrase());
-            case PRECONDITION_FAILED: throw new TimecastPreconditionFailedException(statusCode.getReasonPhrase());
-            case INTERNAL_SERVER_ERROR: throw new TimecastInternalServerErrorException(statusCode.getReasonPhrase());
-            default: throw new IllegalStateException();
-        }
     }
 
     protected abstract DTO mapEntityToDto(Token token, E entity);

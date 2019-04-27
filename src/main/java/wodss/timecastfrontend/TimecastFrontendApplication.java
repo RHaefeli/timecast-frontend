@@ -13,6 +13,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
+import wodss.timecastfrontend.exceptions.RestTemplateResponseErrorHandler;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastUnauthorizedException;
 
@@ -41,7 +42,9 @@ public class TimecastFrontendApplication {
 				.setSSLSocketFactory(socketFactory)
 				.build();
 		HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(httpClient);
-		return new RestTemplate(factory);
+		RestTemplate restTemplate = new RestTemplate(factory);
+		restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+		return restTemplate;
 	}
 
 	@Bean

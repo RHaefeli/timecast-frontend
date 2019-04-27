@@ -71,7 +71,6 @@ public class HomeController {
         Employee employee = jwtUtil.getEmployeeFromToken(token);
         Employee me = employeeService.getById(token, employee.getId());
         List<Contract> contracts = contractService.getByEmployee(token, me);
-        // TODO: show projects
 
         model.addAttribute("employee", me);
         model.addAttribute("contracts", contracts);

@@ -13,10 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -55,20 +52,17 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 				new ParameterizedTypeReference<List<ProjectDto>>() {
 				}, uriVar);
 
-		switch (response.getStatusCode()) {
-		case NOT_FOUND:
-			throw new TimecastNotFoundException(response.getStatusCode().getReasonPhrase());
-		case INTERNAL_SERVER_ERROR:
-			throw new TimecastInternalServerErrorException(response.getStatusCode().getReasonPhrase());
-		case OK:
-			List<ProjectDto> dtos = response.getBody();
-			if (dtos == null) {
-				return null;
-			}
-			return dtos.stream().map(dto -> mapDtoToEntity(token, dto)).collect(Collectors.toList());
+		HttpStatus statusCode = response.getStatusCode();
+		if (statusCode != HttpStatus.OK) {
+			// Other status codes are mapped by the RestTemplate Error Handler
+			throw new IllegalStateException(statusCode.toString());
 		}
-		
-		throw new IllegalStateException();
+
+		List<ProjectDto> dtos = response.getBody();
+		if (dtos == null) {
+			return null;
+		}
+		return dtos.stream().map(dto -> mapDtoToEntity(token, dto)).collect(Collectors.toList());
 	}
 
 	@Override
@@ -93,11 +87,11 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 		entity.setName(dto.getName());
 		entity.setFtePercentage(dto.getFtePercentage());
 		try {
-    	DateFormat dtoFormat = new SimpleDateFormat("yyyy-MM-dd");
-		entity.setStartDate(dtoFormat.parse(dto.getStartDate()));
+			DateFormat dtoFormat = new SimpleDateFormat("yyyy-MM-dd");
+			entity.setStartDate(dtoFormat.parse(dto.getStartDate()));
 			entity.setEndDate(dtoFormat.parse(dto.getEndDate()));
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
+			// Auto-generated catch block
 			e.printStackTrace();
 		}
 		entity.setProjectManager(employeeService.getById(token, dto.getProjectManagerId()));

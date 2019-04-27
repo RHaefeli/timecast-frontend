@@ -27,10 +27,12 @@ public class LoginService {
     public Token createToken(String email, String password) {
         logger.debug("Create Token for " + email + " on api: " + apiURL);
         HttpEntity<String> request = new HttpEntity<>("{\"emailAddress\":\"" + email + "\",\"rawPassword\":\"" + password + "\"}");
+        System.out.println(request);
         ResponseEntity<Token> response = restTemplate.exchange(apiURL, HttpMethod.POST, request, Token.class);
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.CREATED) {
-            AbstractService.throwStatusCodeException(statusCode);
+            // Other status codes are mapped by the RestTemplate Error Handler
+            throw new IllegalStateException(statusCode.toString());
         }
         logger.debug("Received Token");
         return response.getBody();
@@ -42,7 +44,8 @@ public class LoginService {
         ResponseEntity<Token> response = restTemplate.exchange(apiURL, HttpMethod.PUT, request, Token.class);
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.OK) {
-            AbstractService.throwStatusCodeException(statusCode);
+            // Other status codes are mapped by the RestTemplate Error Handler
+            throw new IllegalStateException(statusCode.toString());
         }
         logger.debug("Received new Token");
         return response.getBody();

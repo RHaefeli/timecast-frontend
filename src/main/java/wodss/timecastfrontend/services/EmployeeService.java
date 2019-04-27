@@ -43,7 +43,8 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
 
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.OK) {
-            throwStatusCodeException(statusCode);
+            // Other status codes are mapped by the RestTemplate Error Handler
+            throw new IllegalStateException(statusCode.toString());
         }
 
         EmployeeDto newEntity = response.getBody();

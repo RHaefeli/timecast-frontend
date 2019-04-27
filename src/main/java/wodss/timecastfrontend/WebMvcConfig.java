@@ -36,7 +36,7 @@ public class WebMvcConfig extends WebSecurityConfigurerAdapter implements WebMvc
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(sessionHandlerInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/login/**", "/css/app.css", "/css/login.css", "/logout/**");
+                .excludePathPatterns("/", "/login/**", "/css/app.css", "/css/login.css", "/logout/**");
     }
 
     @Override
@@ -54,6 +54,7 @@ public class WebMvcConfig extends WebSecurityConfigurerAdapter implements WebMvc
                 .and()
             .formLogin()
                 .loginPage("/login")
+                .failureUrl("/login?error")
                 .permitAll()
                 .and()
             .logout()

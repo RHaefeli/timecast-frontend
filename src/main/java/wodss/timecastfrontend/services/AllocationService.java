@@ -60,7 +60,8 @@ public class AllocationService extends AbstractService<Allocation, AllocationDto
 				}, uriVar);
 		
 		if (response.getStatusCode() != HttpStatus.OK) {
-			AbstractService.throwStatusCodeException(response.getStatusCode());
+			// Other status codes are mapped by the RestTemplate Error Handler
+			throw new IllegalStateException(response.getStatusCode().toString());
 		}
 		
 		List<AllocationDto> allocationDtos = response.getBody();
@@ -72,14 +73,23 @@ public class AllocationService extends AbstractService<Allocation, AllocationDto
 	@Override
 	protected AllocationDto mapEntityToDto(Token token, Allocation entity) {
 		if (entity == null) return null;
+		System.out.println(1);
 		AllocationDto allocationDto = new AllocationDto();
+		System.out.println(allocationDto);
 		allocationDto.setId(entity.getId());
+		System.out.println(3);
 		allocationDto.setContractId(entity.getContract().getId());
+		System.out.println(4);
 		DateFormat domainFormat = new SimpleDateFormat("yyyy-MM-dd");
+		System.out.println(5);
 		allocationDto.setStartDate(domainFormat.format(entity.getStartDate()));
+		System.out.println(6);
 		allocationDto.setEndDate(domainFormat.format(entity.getEndDate()));
+		System.out.println(7);
 		allocationDto.setProjectId(entity.getProject().getId());
+		System.out.println(8);
 		allocationDto.setPensumPercentage(entity.getPensumPercentage());
+		System.out.println(9);
 		return allocationDto;
 	}
 
