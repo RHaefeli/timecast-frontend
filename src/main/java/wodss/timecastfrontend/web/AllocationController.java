@@ -3,8 +3,10 @@ package wodss.timecastfrontend.web;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -147,13 +149,22 @@ public class AllocationController {
 		try {
 			String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 			Project p = projectService.getById(new Token(token), allocation.getProject().getId());
+			allocation.setStartDate(normalizeDate(allocation.getStartDate()));
+			allocation.setEndDate(normalizeDate(allocation.getEndDate()));
+			if (allocation.getStartDate().getTime()<(p.getStartDate().getTime()) || allocation.getEndDate().getTime()>(p.getEndDate().getTime())
+					|| allocation.getStartDate().getTime()>(p.getEndDate().getTime()) || allocation.getEndDate().getTime()<(p.getStartDate().getTime())) {
+				logger.debug("Allocation not in project time span");
+				//TODO error handling
+				throw new IllegalStateException();
+			}
 			Employee e = employeeService.getById(new Token(token), employeeId);
+			List<Allocation> allocations = allocationService.getAllocations(new Token(token), e.getId(), p.getId()	, null, null);
 			List<Contract> contracts = contractService.getByEmployee(new Token(token), e);
-			// TODO get fitting contract
-			Contract c = contracts.get(0);
-			allocation.setContract(c);
 			allocation.setProject(p);
-			allocationService.create(new Token(token), allocation);
+			// TODO get fitting contract
+			createAllocations(new Token(token), allocation, contracts, allocations);
+			//allocation.setContract(c);
+//			allocationService.create(new Token(token), allocation);
 		} catch (TimecastPreconditionFailedException | TimecastForbiddenException
 				| TimecastInternalServerErrorException e) {
 			// TODO handle error
@@ -207,6 +218,30 @@ public class AllocationController {
 		}
 
 		return "redirect:/allocations";
+	}
+	
+	private void createAllocations(Token token, Allocation newAllocation, List<Contract> contracts, List<Allocation> existingAllocations) {
+		DateChegga dC = new DateChegga();
+		List<Contract> relevantContracts = dC.filterRelevantContracts(newAllocation, contracts);
+		if (relevantContracts.isEmpty()) {
+			logger.debug("no relevant contracts, allocation invalid");
+			throw new IllegalStateException();
+		}
+		
+		List<Allocation> newAllocations = dC.computeAllocations(newAllocation, relevantContracts, existingAllocations);
+		
+		for (Allocation alloc : newAllocations) {
+			allocationService.create(token, alloc);
+		}
+	}
+	
+	
+	private Date normalizeDate(Date date) {
+		Date newDate = date;
+		newDate.setHours(0);
+		newDate.setMinutes(0);
+		newDate.setSeconds(0);
+		return newDate;
 	}
 
 }
