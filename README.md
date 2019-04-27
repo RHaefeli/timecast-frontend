@@ -41,8 +41,10 @@ Command to generate: ``` keytool -genkeypair -alias timecast -keyalg RSA -keysiz
 store timecast.p12 -validity 3650 ```<br>
 (If you've been asked for Firstname and Lastname just enter your domain name, e.g. localhost)
 
-Put the generated SSL Certificate into to the truststore. Just put the generated Certificate
+Put the generated SSL certificate into to the truststore. Just put the generated certificate
 Files in ```/src/main/resources/keystore/``` and adjust the ```application.properties``` if necessary.
+
+To run the application without certificates just comment the ssl properties in ```application.properties```.
 
 
 

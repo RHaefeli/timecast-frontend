@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
@@ -26,7 +27,7 @@ public class GlobalExceptionHandler {
         return "redirect:/error";
     }
 
-    @ExceptionHandler(TimecastUnauthorizedException.class)
+    @ExceptionHandler({TimecastUnauthorizedException.class, HttpClientErrorException.Unauthorized.class})
     public String handleUnauthorizedException(HttpServletRequest request, RedirectAttributes redirectAttributes) {
         logger.info("Attempt to get access without being authorized");
         StringBuilder requestURL = new StringBuilder(request.getRequestURL().toString());
@@ -40,18 +41,18 @@ public class GlobalExceptionHandler {
         return "redirect:/login";
     }
 
-    @ExceptionHandler(TimecastForbiddenException.class)
+    @ExceptionHandler({TimecastForbiddenException.class, HttpClientErrorException.Forbidden.class})
     public String handleForbiddenException() {
         logger.warn("Attempt to get access without having the required permissions");
         return "errors/403";
     }
 
-    @ExceptionHandler(TimecastNotFoundException.class)
+    @ExceptionHandler({TimecastNotFoundException.class, HttpClientErrorException.NotFound.class})
     public String handleNotFoundException() {
-        return "redirect:/errors/404";
+        return "errors/404";
     }
 
-    @ExceptionHandler(TimecastInternalServerErrorException.class)
+    @ExceptionHandler({TimecastInternalServerErrorException.class})
     public String handleInternalServerErrorException(TimecastInternalServerErrorException ex) {
         logger.error("Internal Server Error: " + ex.getMessage());
         return "errors/500";
