@@ -13,6 +13,9 @@ import wodss.timecastfrontend.domain.*;
 import wodss.timecastfrontend.exceptions.*;
 import wodss.timecastfrontend.services.mocks.MockEmployeeService;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,8 +26,8 @@ public class ContractService extends AbstractService<Contract, ContractDto> {
 
     @Autowired
     public ContractService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.contract}") String apiURL,
-                           MockEmployeeService employeeService) {
-        super(restTemplate, apiURL, ContractDto.class);
+                           EmployeeService employeeService) {
+        super(restTemplate, apiURL, ContractDto.class, new ParameterizedTypeReference<List<ContractDto>>() {});
         this.employeeService = employeeService;
     }
 
@@ -57,8 +60,9 @@ public class ContractService extends AbstractService<Contract, ContractDto> {
         ContractDto dto = new ContractDto();
         dto.setId(entity.getId());
         dto.setEmployeeId(entity.getEmployee().getId());
-        dto.setStartDate(entity.getStartDate());
-        dto.setEndDate(entity.getEndDate());
+        DateFormat domainFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dto.setStartDate(domainFormat.format(entity.getStartDate()));
+        dto.setEndDate(domainFormat.format(entity.getEndDate()));
         dto.setPensumPercentage(entity.getPensumPercentage());
         return dto;
     }
@@ -68,8 +72,16 @@ public class ContractService extends AbstractService<Contract, ContractDto> {
         Contract entity = new Contract();
         entity.setId(dto.getId());
         entity.setEmployee(employeeService.getById(token, dto.getEmployeeId()));
-        entity.setStartDate(dto.getStartDate());
-        entity.setEndDate(dto.getEndDate());
+
+        try {
+            DateFormat dtoFormat = new SimpleDateFormat("yyyy-MM-dd");
+            entity.setStartDate(dtoFormat.parse(dto.getStartDate()));
+            entity.setEndDate(dtoFormat.parse(dto.getEndDate()));
+        } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
         entity.setPensumPercentage(dto.getPensumPercentage());
         return entity;
     }

@@ -34,8 +34,8 @@ public class HomeController {
     private final ProjectService projectService;
 
     @Autowired
-    public HomeController(JwtUtil jwtUtil, MockEmployeeService employeeService, MockContractService contractService,
-                          MockProjectService projectService) {
+    public HomeController(JwtUtil jwtUtil, EmployeeService employeeService, ContractService contractService,
+                          ProjectService projectService) {
         this.jwtUtil = jwtUtil;
         this.employeeService = employeeService;
         this.contractService = contractService;

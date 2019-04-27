@@ -34,8 +34,8 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 	private EmployeeService employeeService;
 
     @Autowired
-    public ProjectService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.project}") String apiURL, MockEmployeeService employeeService) {
-        super(restTemplate, apiURL, ProjectDto.class);
+    public ProjectService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.project}") String apiURL, EmployeeService employeeService) {
+        super(restTemplate, apiURL, ProjectDto.class, new ParameterizedTypeReference<List<ProjectDto>>() {});
         this.employeeService = employeeService;
     }
 

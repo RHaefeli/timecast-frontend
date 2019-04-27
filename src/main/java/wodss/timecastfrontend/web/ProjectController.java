@@ -53,9 +53,8 @@ public class ProjectController {
     private final EmployeeService employeeService;
     private final ContractService contractService;
 
-    //TODO activate when backend is ready
     @Autowired
-    public ProjectController(MockProjectService projectService, MockAllocationService allocationService, MockEmployeeService employeeService, MockContractService contractService) {
+    public ProjectController(ProjectService projectService, AllocationService allocationService, EmployeeService employeeService, ContractService contractService) {
         this.projectService = projectService;
         this.allocationService = allocationService;
         this.employeeService = employeeService;
@@ -67,19 +66,13 @@ public class ProjectController {
         logger.debug("Get all projects");
     	List<Project> projects;
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		try {
-			//TODO check
-			if ("".equals(fromDateString) && "".equals(toDateString)) {
-				projects = projectService.getAll(new Token(token));
-			} else {
-				projects = projectService.getProjects(new Token(token), fromDateString, toDateString);
-			}
-			logger.debug("Projects: " + projects);
-			model.addAttribute("projects", projects);
-		} catch (TimecastNotFoundException | TimecastInternalServerErrorException e) {
-			// TODO Handle error
-			e.printStackTrace();
+		if ("".equals(fromDateString) && "".equals(toDateString)) {
+			projects = projectService.getAll(new Token(token));
+		} else {
+			projects = projectService.getProjects(new Token(token), fromDateString, toDateString);
 		}
+		logger.debug("Projects: " + projects);
+		model.addAttribute("projects", projects);
 		
         return "projects/list";
     }
@@ -89,17 +82,11 @@ public class ProjectController {
     	logger.debug("Get project by id: " + id);
     	Project project;
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    	try {
-			project = projectService.getById(new Token(token), id);
-			List<Allocation> allocations = allocationService.getAllocations(new Token(token), -1, project.getId(), null, null);
-			model.addAttribute("project", project);
-			model.addAttribute("allocations", allocations);
-		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
-			// TODO handle error
-			e.printStackTrace();
-		}
-    	
-    	//TODO check
+		project = projectService.getById(new Token(token), id);
+		List<Allocation> allocations = allocationService.getAllocations(new Token(token), -1, project.getId(), null, null);
+		model.addAttribute("project", project);
+		model.addAttribute("allocations", allocations);
+
     	return "projects/show";
     }
     
@@ -107,30 +94,26 @@ public class ProjectController {
 	public String createProjectForm(Model model) {
 		model.addAttribute("project", new Project());
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		List<Employee> projectManagers = employeeService.getAll(new Token(token)).stream().filter(e -> e.getRole() == Role.PROJECTMANAGER).collect(Collectors.toList());
+		List<Employee> projectManagers = employeeService.getAll(new Token(token))
+				.stream()
+				.filter(e -> e.getRole() == Role.PROJECTMANAGER)
+				.collect(Collectors.toList());
 		logger.debug("managers: {}", projectManagers);
 		model.addAttribute("managers", projectManagers);
-		logger.debug("Init manager: " + projectManagers.get(0).getId());
+		logger.debug("Init manager: " + (projectManagers.size() == 0 ? "None" : projectManagers.get(0).getId()));
 		return "projects/create";
 	}
     @PostMapping()
     public String createProject(@Valid @ModelAttribute("project") Project project, BindingResult bindingResult, Model model) {
     	if (bindingResult.hasErrors()) {
-    		//TODO
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "projects/create";
 		}
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    	try {
-    		logger.debug("Manager selected: " + project.getId());
-    		Employee em = employeeService.getById(new Token(token), project.getId());
-    		project.setProjectManager(em);
-			projectService.create(new Token(token), project);
-		} catch (TimecastPreconditionFailedException | TimecastForbiddenException
-				| TimecastInternalServerErrorException e) {
-			// TODO handle error
-			e.printStackTrace();
-		}
+		logger.debug("Manager selected: " + project.getProjectManager().getId());
+		Employee em = employeeService.getById(new Token(token), project.getProjectManager().getId());
+		project.setProjectManager(em);
+		projectService.create(new Token(token), project);
     	
     	return "redirect:/projects";
     }
@@ -138,19 +121,11 @@ public class ProjectController {
     @GetMapping(value = "/{id}", params = "form")
 	public String updateProjectForm(@PathVariable long id, Model model) {
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		try {
-			Project project = projectService.getById(new Token(token), id);
-			model.addAttribute("project", project);
-			List<Employee> projectManagers = employeeService.getAll(new Token(token)).stream().filter(e -> e.getRole() == Role.PROJECTMANAGER).collect(Collectors.toList());
-			model.addAttribute("managers", projectManagers);
-			return "projects/update";
-		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
-			// TODO handle error
-			e.printStackTrace();
-		}
-		//TODO
-		return "404";
-		
+		Project project = projectService.getById(new Token(token), id);
+		model.addAttribute("project", project);
+		List<Employee> projectManagers = employeeService.getAll(new Token(token)).stream().filter(e -> e.getRole() == Role.PROJECTMANAGER).collect(Collectors.toList());
+		model.addAttribute("managers", projectManagers);
+		return "projects/update";
 	}
 
 	@PutMapping(value = "/{id}")
@@ -160,28 +135,16 @@ public class ProjectController {
 			return "project/update";
 		}
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		try {
-			Employee projectManager = employeeService.getById(new Token(token), project.getProjectManager().getId());
-			project.setProjectManager(projectManager);
-			projectService.update(new Token(token), project);
-		} catch (TimecastNotFoundException | TimecastPreconditionFailedException | TimecastForbiddenException
-				| TimecastInternalServerErrorException e) {
-			// TODO handle error
-			e.printStackTrace();
-		}
+		Employee projectManager = employeeService.getById(new Token(token), project.getProjectManager().getId());
+		project.setProjectManager(projectManager);
+		projectService.update(new Token(token), project);
 		return "redirect:/projects";
 	}
 	
 	@DeleteMapping(value = "/{id}")
 	public String delete(@PathVariable long id) {
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		try {
-			projectService.deleteById(new Token(token), id);
-		} catch (TimecastInternalServerErrorException | TimecastForbiddenException | TimecastNotFoundException e) {
-			// TODO handle error
-			e.printStackTrace();
-		}
-		
+		projectService.deleteById(new Token(token), id);
 		return "redirect:/projects";
 	}
 }

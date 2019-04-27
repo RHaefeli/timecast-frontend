@@ -27,7 +27,7 @@ public class ContractController {
     private final ContractService contractService;
 
     @Autowired
-    public ContractController(MockContractService contractService) {
+    public ContractController(ContractService contractService) {
         this.contractService = contractService;
     }
 

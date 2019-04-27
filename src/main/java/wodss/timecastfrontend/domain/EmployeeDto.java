@@ -6,7 +6,7 @@ public class EmployeeDto implements TimecastDto {
     private String lastName;
     private String firstName;
     private String emailAddress;
-    private Role role;
+    private String role;
 
     public long getId() {
         return id;
@@ -48,11 +48,11 @@ public class EmployeeDto implements TimecastDto {
         this.emailAddress = emailAddress;
     }
 
-    public Role getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(String role) {
         this.role = role;
     }
 }

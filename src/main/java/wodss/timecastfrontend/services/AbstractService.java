@@ -18,11 +18,14 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
     protected final String apiURL;
     protected final RestTemplate restTemplate;
     private final Class<DTO> serviceEntityClass;
+    private final ParameterizedTypeReference<List<DTO>> listParameterizedTypeReference;
 
-    protected AbstractService(RestTemplate restTemplate, String apiURL, Class<DTO> serviceEntityClass) {
+    protected AbstractService(RestTemplate restTemplate, String apiURL, Class<DTO> serviceEntityClass,
+                              ParameterizedTypeReference<List<DTO>> listParameterizedTypeReference) {
         this.restTemplate = restTemplate;
         this.apiURL = apiURL;
         this.serviceEntityClass = serviceEntityClass;
+        this.listParameterizedTypeReference = listParameterizedTypeReference;
     }
 
     public List<E> getAll(Token token) throws TimecastUnauthorizedException, TimecastForbiddenException,
@@ -31,8 +34,7 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
         HttpEntity<?> request = new HttpEntity<>(headers);
-        ResponseEntity<List<DTO>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request,
-                new ParameterizedTypeReference<List<DTO>>() {});
+        ResponseEntity<List<DTO>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request, listParameterizedTypeReference);
 
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.OK) {

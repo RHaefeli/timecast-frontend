@@ -4,14 +4,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.EmployeeDto;
+import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
@@ -19,7 +24,7 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
 
     @Autowired
     public EmployeeService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.employee}") String apiURL) {
-        super(restTemplate, apiURL, EmployeeDto.class);
+        super(restTemplate, apiURL, EmployeeDto.class, new ParameterizedTypeReference<List<EmployeeDto>>() {});
     }
 
     @Override
@@ -54,7 +59,8 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
         employeeDto.setEmailAddress(employee.getEmailAddress());
         employeeDto.setLastName(employee.getLastName());
         employeeDto.setFirstName(employee.getFirstName());
-        employeeDto.setActive(employee.isActive());
+        //employeeDto.setActive(employee.isActive());
+        employeeDto.setRole(employee.getRole().getValue());
         return employeeDto;
     }
 
@@ -65,7 +71,8 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
         employee.setEmailAddress(employeeDto.getEmailAddress());
         employee.setLastName(employeeDto.getLastName());
         employee.setFirstName(employeeDto.getFirstName());
-        employee.setActive(employeeDto.isActive());
+        //employee.setActive(employeeDto.isActive());
+        employee.setRole(Role.valueOf(employeeDto.getRole()));
         return employee;
     }
 }

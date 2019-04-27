@@ -35,8 +35,8 @@ public class AllocationService extends AbstractService<Allocation, AllocationDto
     private ProjectService projectService;
 
     @Autowired
-    public AllocationService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.allocation}") String apiURL, MockContractService contractService, MockProjectService projectService) {
-        super(restTemplate, apiURL, AllocationDto.class);
+    public AllocationService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.allocation}") String apiURL, ContractService contractService, ProjectService projectService) {
+        super(restTemplate, apiURL, AllocationDto.class, new ParameterizedTypeReference<List<AllocationDto>>() {});
         this.contractService = contractService;
         this.projectService = projectService;
     }

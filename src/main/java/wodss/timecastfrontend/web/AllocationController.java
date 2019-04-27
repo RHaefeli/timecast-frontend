@@ -59,8 +59,8 @@ public class AllocationController {
 
 	// TODO activate when backend is ready
 	@Autowired
-	public AllocationController(MockAllocationService allocationService, MockProjectService projectService,
-			MockEmployeeService employeeService, MockContractService contractService) {
+	public AllocationController(AllocationService allocationService, ProjectService projectService,
+			EmployeeService employeeService, ContractService contractService) {
 		this.allocationService = allocationService;
 		this.projectService = projectService;
 		this.employeeService = employeeService;

@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TimecastForbiddenException.class)
     public String handleForbiddenException() {
         logger.warn("Attempt to get access without having the required permissions");
-        return "redirect:/errors/403";
+        return "errors/403";
     }
 
     @ExceptionHandler(TimecastNotFoundException.class)
@@ -54,12 +54,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(TimecastInternalServerErrorException.class)
     public String handleInternalServerErrorException(TimecastInternalServerErrorException ex) {
         logger.error("Internal Server Error: " + ex.getMessage());
-        return "redirect:/errors/500";
+        return "errors/500";
     }
 
     @ExceptionHandler(Exception.class)
     public String handleExceptions(Exception ex) {
         logger.error("Unexpected Error occurred: " + ex.getMessage());
-        return "redirect:/errors/500";
+        return "errors/500";
     }
 }

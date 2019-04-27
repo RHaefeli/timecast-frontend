@@ -30,7 +30,7 @@ public class EmployeeController {
     private final ContractService contractService;
 
     @Autowired
-    public EmployeeController(MockEmployeeService employeeService, MockContractService contractService) {
+    public EmployeeController(EmployeeService employeeService, ContractService contractService) {
         this.employeeService = employeeService;
         this.contractService = contractService;
     }

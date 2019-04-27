@@ -1,12 +1,11 @@
 package wodss.timecastfrontend.domain;
 
-import java.util.Date;
 
 public class ContractDto implements TimecastDto {
     private long id;
     private long employeeId;
-    private Date startDate;
-    private Date endDate;
+    private String startDate;
+    private String endDate;
     private int pensumPercentage;
 
     public long getId() {
@@ -25,19 +24,19 @@ public class ContractDto implements TimecastDto {
         this.employeeId = employeeId;
     }
 
-    public Date getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(String endDate) {
         this.endDate = endDate;
     }
 
