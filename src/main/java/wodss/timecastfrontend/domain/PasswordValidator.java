@@ -8,7 +8,7 @@ public class PasswordValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return Employee.class.isAssignableFrom(clazz);
+        return EmployeeLogin.class.isAssignableFrom(clazz);
     }
 
     @Override
@@ -19,7 +19,7 @@ public class PasswordValidator implements Validator {
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "confirmPassword",
                 "required.confirmPassword", "Field name is required.");
 
-        Employee employee = (Employee) target;
+        EmployeeLogin employee = (EmployeeLogin) target;
 
         if (employee.getPassword().length() > 0 && employee.getPassword().length() < 12) {
             errors.rejectValue("password", "tooshort.password");

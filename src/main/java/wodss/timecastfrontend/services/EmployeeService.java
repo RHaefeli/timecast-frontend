@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import wodss.timecastfrontend.domain.Employee;
+import wodss.timecastfrontend.domain.EmployeeLogin;
 import wodss.timecastfrontend.dto.EmployeeDto;
 import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.domain.Token;
@@ -28,6 +29,11 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
 
     @Override
     public Employee create(Token token, Employee entity) throws TimecastUnauthorizedException, TimecastForbiddenException,
+            TimecastNotFoundException, TimecastPreconditionFailedException, TimecastInternalServerErrorException {
+        throw new UnsupportedOperationException("Use create method with EmployeeLogin");
+    }
+
+    public Employee create(Token token, EmployeeLogin entity) throws TimecastUnauthorizedException, TimecastForbiddenException,
             TimecastNotFoundException, TimecastPreconditionFailedException, TimecastInternalServerErrorException {
         logger.debug("Create Employee entity " + entity + " to api: " + apiURL);
         EmployeeDto employeeDto = mapEntityToDto(token, entity);

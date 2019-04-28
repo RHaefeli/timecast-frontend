@@ -66,25 +66,26 @@ public class EmployeeController {
     @GetMapping(params = "form")
     public String createForm(Model model) {
         logger.debug("Get create employee form");
-        model.addAttribute("employee", new Employee());
+        model.addAttribute("employee", new EmployeeLogin());
         return "employees/create";
     }
 
     @PostMapping
-    public String create(@Valid @ModelAttribute("employee") Employee employee, BindingResult bindingResult, Model model,
+    public String create(@Valid @ModelAttribute("employee") EmployeeLogin employeeLogin, BindingResult bindingResult, Model model,
                          RedirectAttributes redirectAttributes) {
         PasswordValidator passwordValidator = new PasswordValidator();
-        passwordValidator.validate(employee, bindingResult);
+        passwordValidator.validate(employeeLogin, bindingResult);
 
-        logger.debug("Create employee: " + employee);
+        logger.debug("Create employee: " + employeeLogin);
         if (bindingResult.hasErrors()) {
             logger.debug("Binding error: " + bindingResult.getAllErrors());
             return "employees/create";
         }
+
         String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
-            employee.setActive(true);
-            Employee newEmployee = employeeService.create(new Token(token), employee);
+            employeeLogin.setActive(true);
+            Employee newEmployee = employeeService.create(new Token(token), employeeLogin);
             redirectAttributes.addFlashAttribute("success", "Successfully created Employee.");
             return "redirect:/employees/" + newEmployee.getId();
         } catch (TimecastPreconditionFailedException ex) {
