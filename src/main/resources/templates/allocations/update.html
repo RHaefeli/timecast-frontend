@@ -81,7 +81,7 @@
                     <label for="projectStartDate" class="col-md-3">Start Date</label>
                     <input name="projectStartDate" type="text" class="col-md-3 form-control" id="projectStartDate" th:value="${#dates.format(allocation.project.startDate, 'dd.MM.yyyy')}" th:readonly="true"/>
                     <label for="projectEndDate" class="col-md-3">End Date</label>
-                    <input name="projectEndDate" type="text" class="col-md-3 form-control" id="projectEndDate" th:value="${#dates.format(allocation.project.startDate, 'dd.MM.yyyy')}" th:readonly="true"/>
+                    <input name="projectEndDate" type="text" class="col-md-3 form-control" id="projectEndDate" th:value="${#dates.format(allocation.project.endDate, 'dd.MM.yyyy')}" th:readonly="true"/>
                 </div>
             </div>
 

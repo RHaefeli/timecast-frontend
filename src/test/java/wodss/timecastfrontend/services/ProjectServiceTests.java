@@ -3,7 +3,9 @@ package wodss.timecastfrontend.services;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,182 +26,194 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
 import org.junit.Assert;
+import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Project;
 import wodss.timecastfrontend.dto.ProjectDto;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
-import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 
 @RunWith(SpringRunner.class)
 public class ProjectServiceTests {
-	/*
+
 	@Mock
 	private RestTemplate restTemplateMock;
+	@Mock
+    private EmployeeService employeeServiceMock;
 	
 	private ProjectService projectService;
-	
-	//TODO replace by dynamic url
+
 	private String url = "url";
 	private Token token = new Token("any String");
 	
-	private List<ProjectDto> projects;
+	private List<ProjectDto> projectsDtos;
 
 	
 	@Before
 	public void setUp() {
 		Mockito.reset(restTemplateMock);
-		projects = generateProjects();
-		
-		projectService = new ProjectService(restTemplateMock, url);
+		projectsDtos = generateProjects();
+
+		// Always return the same projectManager
+		Employee projectManager = new Employee();
+		projectManager.setId(0);
+        Mockito.when(employeeServiceMock.getById(token, 0)).thenReturn(projectManager);
+
+		projectService = new ProjectService(restTemplateMock, url, employeeServiceMock);
 	}
 	
 	@Test
-	public void getAllProjectsTest() throws TimecastNotFoundException, TimecastInternalServerErrorException {
-		List<ProjectDto> projectDtos = mapProjectToDtos(projects);
-		System.out.println(projectDtos);
+	public void getAllProjectsTest() {
 		Mockito.when(restTemplateMock.exchange(Mockito.eq(url), Mockito.eq(HttpMethod.GET), Mockito.any(HttpEntity.class),
                 Mockito.any(ParameterizedTypeReference.class)))
-		.thenReturn(new ResponseEntity(projectDtos, HttpStatus.OK));
+		.thenReturn(new ResponseEntity(projectsDtos, HttpStatus.OK));
 		
 		List<Project> fetchedProjects = projectService.getAll(token);
 		
 		verify(restTemplateMock, times(1)).exchange(Mockito.eq(url), Mockito.eq(HttpMethod.GET), Mockito.any(HttpEntity.class),
                 Mockito.any(ParameterizedTypeReference.class));
 		
-		Assert.assertEquals(projects, fetchedProjects);
+		Assert.assertEquals(projectsDtos, mapProjectsToDtos(fetchedProjects));
 	}
 	
 	@Test
 	public void getAllProjectsByFromDateTest() {
-		Map<String, String> uriVar = new HashMap<>();
-		uriVar.put("fromDate", "2019-03-16");
-		
+		String paramUrl = url + "?fromDate=2019-03-16&";
 		List<ProjectDto> returnProjects = new ArrayList<>();
-		returnProjects.add(projects.get(0));
-		returnProjects.add(projects.get(2));
-		List<ProjectDto> returnProjectDtos = mapProjectToDtos(returnProjects);
+		returnProjects.add(projectsDtos.get(0));
+		returnProjects.add(projectsDtos.get(2));
 		
-		Mockito.when(restTemplateMock.exchange(Mockito.eq(url), Mockito.eq(HttpMethod.GET), Mockito.any(HttpEntity.class),
-				Mockito.any(ParameterizedTypeReference.class), Mockito.eq(uriVar)))
-		.thenReturn(new ResponseEntity(returnProjectDtos, HttpStatus.OK));
+		Mockito.when(restTemplateMock.exchange(Mockito.eq(paramUrl), Mockito.eq(HttpMethod.GET), Mockito.any(HttpEntity.class),
+				Mockito.any(ParameterizedTypeReference.class)))
+		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
 		List<Project> fetchedProjects = projectService.getProjects(token,"2019-03-16", null);
 		
-		verify(restTemplateMock, times(1)).exchange(Mockito.eq(url), Mockito.eq(HttpMethod.GET),
-				Mockito.any(HttpEntity.class), Mockito.any(ParameterizedTypeReference.class), Mockito.eq(uriVar));
+		verify(restTemplateMock, times(1)).exchange(Mockito.eq(paramUrl), Mockito.eq(HttpMethod.GET),
+				Mockito.any(HttpEntity.class), Mockito.any(ParameterizedTypeReference.class));
 		
-		Assert.assertEquals(returnProjects, fetchedProjects);
+		Assert.assertEquals(returnProjects, mapProjectsToDtos(fetchedProjects));
 		
 	}
 	
 	@Test
-	public void getAllProjectsByToDateTest() throws ParseException, TimecastNotFoundException, TimecastInternalServerErrorException {
-		Map<String, String> uriVar = new HashMap<>();
-		uriVar.put("toDate", "2020-01-01");
-		
+	public void getAllProjectsByToDateTest() {
+		String paramUrl = url + "?toDate=2020-01-01";
 		List<ProjectDto> returnProjects = new ArrayList<>();
-		returnProjects.add(projects.get(0));
-		returnProjects.add(projects.get(1));
-		List<ProjectDto> returnProjectDtos = mapProjectToDtos(returnProjects);
+		returnProjects.add(projectsDtos.get(0));
+		returnProjects.add(projectsDtos.get(1));
 		
-		Mockito.when(restTemplateMock.exchange(Mockito.eq(url), Mockito.eq(HttpMethod.GET),
-				Mockito.any(HttpEntity.class), Mockito.any(ParameterizedTypeReference.class), Mockito.eq(uriVar)))
-		.thenReturn(new ResponseEntity(returnProjectDtos, HttpStatus.OK));
+		Mockito.when(restTemplateMock.exchange(Mockito.eq(paramUrl), Mockito.eq(HttpMethod.GET),
+				Mockito.any(HttpEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
 		List<Project> fetchedProjects = projectService.getProjects(token,null, "2020-01-01");
 		
-		verify(restTemplateMock, times(1)).exchange(Mockito.eq(url), Mockito.eq(HttpMethod.GET),
-				Mockito.any(HttpEntity.class), Mockito.any(ParameterizedTypeReference.class), Mockito.eq(uriVar));
+		verify(restTemplateMock, times(1)).exchange(Mockito.eq(paramUrl), Mockito.eq(HttpMethod.GET),
+				Mockito.any(HttpEntity.class), Mockito.any(ParameterizedTypeReference.class));
 		
-		Assert.assertEquals(returnProjects, fetchedProjects);
+		Assert.assertEquals(returnProjects, mapProjectsToDtos(fetchedProjects));
 	}
 	
 	@Test
-	public void getAllProjectsByFromAndToDateTest() throws ParseException, TimecastNotFoundException, TimecastInternalServerErrorException {
-		Map<String, String> uriVar = new HashMap<>();
-		uriVar.put("fromDate", "2019-01-01");
-		uriVar.put("toDate", "2020-01-01");
-		
+	public void getAllProjectsByFromAndToDateTest() {
+		String paramUrl = url + "?fromDate=2019-01-01&toDate=2020-01-01";
 		List<ProjectDto> returnProjects = new ArrayList<>();
-		returnProjects.add(projects.get(0));
-		List<ProjectDto> returnProjectDtos = mapProjectToDtos(returnProjects);
+		returnProjects.add(projectsDtos.get(0));
 		
-		Mockito.when(restTemplateMock.exchange(Mockito.eq(url), Mockito.eq(HttpMethod.GET),
-				Mockito.any(HttpEntity.class), Mockito.any(ParameterizedTypeReference.class), Mockito.eq(uriVar)))
-		.thenReturn(new ResponseEntity(returnProjectDtos, HttpStatus.OK));
+		Mockito.when(restTemplateMock.exchange(Mockito.eq(paramUrl), Mockito.eq(HttpMethod.GET),
+				Mockito.any(HttpEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+		.thenReturn(new ResponseEntity(returnProjects, HttpStatus.OK));
 		
 		List<Project> fetchedProjects = projectService.getProjects(token,"2019-01-01", "2020-01-01");
 		
-		verify(restTemplateMock, times(1)).exchange(Mockito.eq(url), Mockito.eq(HttpMethod.GET),
-				Mockito.any(HttpEntity.class), Mockito.any(ParameterizedTypeReference.class), Mockito.eq(uriVar));
+		verify(restTemplateMock, times(1)).exchange(Mockito.eq(paramUrl), Mockito.eq(HttpMethod.GET),
+				Mockito.any(HttpEntity.class), Mockito.any(ParameterizedTypeReference.class));
 		
-		Assert.assertEquals(returnProjects, fetchedProjects);
+		Assert.assertEquals(returnProjects, mapProjectsToDtos(fetchedProjects));
 	}
 	
 	@Test
-	public void getProjectByIdTest() throws TimecastNotFoundException, TimecastInternalServerErrorException, TimecastForbiddenException {
-		List<Project> returnProjects = new ArrayList<>();
-		returnProjects.add(projects.get(0));
-		List<ProjectDto> returnProjectDtos = mapProjectToDtos(returnProjects);
+	public void getProjectByIdTest() {
+		List<ProjectDto> returnProjects = new ArrayList<>();
+		returnProjects.add(projectsDtos.get(0));
 
 		Mockito.when(restTemplateMock.exchange(Mockito.eq(url + "/1"), Mockito.eq(HttpMethod.GET),
 				Mockito.any(HttpEntity.class), Mockito.eq(ProjectDto.class)))
-				.thenReturn(new ResponseEntity(returnProjectDtos.get(0), HttpStatus.OK));
+				.thenReturn(new ResponseEntity(returnProjects.get(0), HttpStatus.OK));
 		
 		Project fetchedProject = projectService.getById(token, 1);
 		
 		verify(restTemplateMock, times(1)).exchange(Mockito.eq(url + "/1"), Mockito.eq(HttpMethod.GET),
 				Mockito.any(HttpEntity.class), Mockito.eq(ProjectDto.class));
 		
-		Assert.assertEquals(projects.get(0), fetchedProject);
+		Assert.assertEquals(projectsDtos.get(0), projectService.mapEntityToDto(token, fetchedProject));
 	}
 	
 	@Test
-	public void createProjectTest() throws TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
-		ProjectDto newProject = new ProjectDto();
+	public void createProjectTest() throws ParseException {
+        DateFormat dtoFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Employee projectManager = new Employee();
+        projectManager.setId(0);
+	    Project newProject = new Project();
 		newProject.setId(99);
 		newProject.setName("ProjectNew");
 		newProject.setFtePercentage(100);
-		newProject.setStartDate("2019-03-16");
-		newProject.setEndDate("2019-10-10");
-		newProject.setProjectManagerId(0);
-		HttpEntity<ProjectDto> request = new HttpEntity<>(newProject);
-		Mockito.when(restTemplateMock.exchange(url, HttpMethod.POST, request, ProjectDto.class)).thenReturn(new ResponseEntity<ProjectDto>(newProject, HttpStatus.CREATED));
-		
+        newProject.setStartDate(dtoFormat.parse("2019-03-16"));
+        newProject.setEndDate(dtoFormat.parse("2019-10-10"));
+        newProject.setProjectManager(projectManager);
+
+		ProjectDto returnProject = projectService.mapEntityToDto(token, newProject);
+		Mockito.when(restTemplateMock.exchange(Mockito.eq(url), Mockito.eq(HttpMethod.POST),
+				Mockito.any(HttpEntity.class), Mockito.eq(ProjectDto.class)))
+                .thenReturn(new ResponseEntity<>(returnProject, HttpStatus.CREATED));
+
 		Project createdProject = projectService.create(token, newProject);
 		
-		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.POST, request, ProjectDto.class);
+		verify(restTemplateMock, times(1)).exchange(Mockito.eq(url), Mockito.eq(HttpMethod.POST),
+				Mockito.any(HttpEntity.class), Mockito.eq(ProjectDto.class));
 		
 		Assert.assertEquals(newProject, createdProject);
 	}
 	
 	@Test
-	public void updateProjectTest() throws TimecastNotFoundException, TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
-		ProjectDto updatedProject = projects.get(0);
-		updatedProject.setName("ProjectnameNew");
-		HttpEntity<ProjectDto> requestEntity = new HttpEntity<ProjectDto>(updatedProject);
-		
-		Mockito.when(restTemplateMock.exchange(url + "/1", HttpMethod.PUT, requestEntity, ProjectDto.class)).thenReturn(new ResponseEntity<ProjectDto>(updatedProject, HttpStatus.OK));
+	public void updateProjectTest() throws ParseException {
+		ProjectDto updatedProjectDto = projectsDtos.get(0);
+		updatedProjectDto.setName("ProjectnameNew");
+        DateFormat dtoFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Employee projectManager = new Employee();
+        projectManager.setId(updatedProjectDto.getProjectManagerId());
+        Project updatedProject = new Project();
+        updatedProject.setId(updatedProjectDto.getId());
+        updatedProject.setName(updatedProjectDto.getName());
+        updatedProject.setFtePercentage(updatedProjectDto.getFtePercentage());
+        updatedProject.setStartDate(dtoFormat.parse(updatedProjectDto.getStartDate()));
+        updatedProject.setEndDate(dtoFormat.parse(updatedProjectDto.getEndDate()));
+        updatedProject.setProjectManager(projectManager);
+
+		Mockito.when(restTemplateMock.exchange(Mockito.eq(url + "/1"), Mockito.eq(HttpMethod.PUT),
+				Mockito.any(HttpEntity.class), Mockito.eq(ProjectDto.class))
+        ).thenReturn(new ResponseEntity<>(updatedProjectDto, HttpStatus.OK));
 		
 		Project responseProject = projectService.update(token, updatedProject);
 		
-		verify(restTemplateMock, times(1)).exchange(url+ "/1", HttpMethod.PUT, requestEntity, ProjectDto.class);
-		
+		verify(restTemplateMock, times(1)).exchange(Mockito.eq(url + "/1"), Mockito.eq(HttpMethod.PUT),
+				Mockito.any(HttpEntity.class), Mockito.eq(ProjectDto.class));
 		Assert.assertEquals(updatedProject, responseProject);
 	}
 	
 	@Test
 	public void deleteProjectTest() throws TimecastInternalServerErrorException, TimecastForbiddenException, TimecastNotFoundException {
 					
-		Mockito.when(restTemplateMock.exchange(url + "/1", HttpMethod.DELETE,
-		null, Void.class)).thenReturn(new ResponseEntity<Void>(HttpStatus.NO_CONTENT));
+		Mockito.when(restTemplateMock.exchange(Mockito.eq(url + "/1"), Mockito.eq(HttpMethod.DELETE),
+				Mockito.any(HttpEntity.class), Mockito.eq(Void.class)))
+                .thenReturn(new ResponseEntity<Void>(HttpStatus.NO_CONTENT));
 		
 		projectService.deleteById(token, 1);
 		
-		verify(restTemplateMock, times(1)).exchange(url + "/1", HttpMethod.DELETE, null, Void.class);
-		
+		verify(restTemplateMock, times(1)).exchange(Mockito.eq(url + "/1"), Mockito.eq(HttpMethod.DELETE),
+				Mockito.any(HttpEntity.class), Mockito.eq(Void.class));
 	}
 	
 	
@@ -236,10 +250,9 @@ public class ProjectServiceTests {
 		return projects;
 	}
 
-	private List<ProjectDto> mapProjectToDtos(List<Project> projects) {
+	private List<ProjectDto> mapProjectsToDtos(List<Project> projects) {
 		return projects.stream()
 				.map(project -> projectService.mapEntityToDto(token, project))
 				.collect(Collectors.toList());
 	}
-	*/
 }

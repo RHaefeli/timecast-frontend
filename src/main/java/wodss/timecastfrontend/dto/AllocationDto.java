@@ -6,6 +6,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Objects;
 
 
 public class AllocationDto implements TimecastDto {
@@ -80,6 +81,22 @@ public class AllocationDto implements TimecastDto {
 		this.id = id;
 		
 	}
-	
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		AllocationDto that = (AllocationDto) o;
+		return pensumPercentage == that.pensumPercentage &&
+				contractId == that.contractId &&
+				projectId == that.projectId &&
+				Objects.equals(id, that.id) &&
+				Objects.equals(startDate, that.startDate) &&
+				Objects.equals(endDate, that.endDate);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, startDate, endDate, pensumPercentage, contractId, projectId);
+	}
 }

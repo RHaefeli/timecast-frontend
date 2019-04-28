@@ -146,8 +146,8 @@ public class ProjectController {
 		Employee projectManager = employeeService.getById(token, projectManagerId);
 		project.setProjectManager(projectManager);
 		projectService.update(token, project);
-		redirectAttributes.addFlashAttribute("success", "Successfully deleted Project.");
-		return "redirect:/projects";
+		redirectAttributes.addFlashAttribute("success", "Successfully updated Project.");
+		return "projects/update";
 	}
 	
 	@DeleteMapping(value = "/{id}")

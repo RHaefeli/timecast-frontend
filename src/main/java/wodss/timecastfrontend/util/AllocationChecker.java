@@ -102,6 +102,7 @@ public class AllocationChecker {
 			}
 			
 			int sumFte = relevantAllocations.stream()
+					.filter(a -> a.getId() != newAllocation.getId()) // ignore the previous FTE value in this allocation
 					.map(a -> a.getPensumPercentage())
 					.collect(Collectors.summingInt(Integer::intValue));
 			if (currentContract.get().getPensumPercentage() < sumFte + newAllocation.getPensumPercentage()) {

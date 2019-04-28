@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,10 @@ import org.springframework.web.client.RestTemplate;
 
 import org.junit.Assert;
 
+import wodss.timecastfrontend.domain.Allocation;
+import wodss.timecastfrontend.domain.Contract;
+import wodss.timecastfrontend.domain.Project;
+import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.dto.AllocationDto;
 import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
@@ -29,15 +35,17 @@ import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 
 @RunWith(SpringRunner.class)
 public class AllocationServiceTests {
-	/*
-	
 	@Mock
 	private RestTemplate restTemplateMock;
+	@Mock
+    private ContractService contractServiceMock;
+	@Mock
+    private ProjectService projectServiceMock;
 	
 	private AllocationService allocationService;
-	
-	//TODO replace by dynamic url
+
 	private String url = null;
+    private Token token = new Token("any String");
 	
 	private List<AllocationDto> allocations;
 
@@ -46,115 +54,114 @@ public class AllocationServiceTests {
 	public void setUp() {
 		Mockito.reset(restTemplateMock);
 		allocations = generateAllocations();
-		
-		allocationService = new AllocationService(restTemplateMock, url);
+
+        Contract c1 = new Contract(); c1.setId(1);
+        Contract c2 = new Contract(); c1.setId(2);
+        Contract c3 = new Contract(); c1.setId(3);
+        Mockito.when(contractServiceMock.getById(token, 1)).thenReturn(c1);
+        Mockito.when(contractServiceMock.getById(token, 2)).thenReturn(c2);
+        Mockito.when(contractServiceMock.getById(token, 3)).thenReturn(c3);
+
+        Project p1 = new Project(); p1.setId(1);
+        Project p2 = new Project(); p1.setId(2);
+        Project p3 = new Project(); p1.setId(3);
+        Mockito.when(projectServiceMock.getById(token, 1)).thenReturn(p1);
+        Mockito.when(projectServiceMock.getById(token, 2)).thenReturn(p2);
+        Mockito.when(projectServiceMock.getById(token, 3)).thenReturn(p3);
+
+		allocationService = new AllocationService(restTemplateMock, url, contractServiceMock, projectServiceMock);
 	}
 	
 	@Test
 	public void getAllAllocationsByEmployeeId() {
-		Map<String, String> uriVar = new HashMap<>();
-		uriVar.put("employeeId", "2");
-		
+        String paramUrl = url + "?employeeId=2";
 		List<AllocationDto> returnAllocations = new ArrayList<>();
 		returnAllocations.add(allocations.get(2));
-		
-		
+
 		Mockito.when(restTemplateMock.exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<AllocationDto>>(){}, uriVar))
-		.thenReturn(new ResponseEntity(returnAllocations, HttpStatus.OK));
+				Mockito.any(HttpEntity.class), new ParameterizedTypeReference<List<AllocationDto>>(){}))
+                .thenReturn(new ResponseEntity(returnAllocations, HttpStatus.OK));
 		
-		List<AllocationDto> fetchedAllocations = allocationService.getAllocations(2, -1, null, null);
+		List<Allocation> fetchedAllocations = allocationService.getAllocations(token, 2, -1, null, null);
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<AllocationDto>>(){}, uriVar);
+                Mockito.any(HttpEntity.class), new ParameterizedTypeReference<List<AllocationDto>>(){});
 		
 		Assert.assertEquals(returnAllocations, fetchedAllocations);
-		
 	}
 	
 	@Test
 	public void getAllAllocationsByProjectId() {
-		Map<String, String> uriVar = new HashMap<>();
-		uriVar.put("projectId", "2");
-		
+        String paramUrl = url + "?projectId=2&";
 		List<AllocationDto> returnAllocations = new ArrayList<>();
 		returnAllocations.add(allocations.get(1));
 		returnAllocations.add(allocations.get(2));
+
+
+
+		Mockito.when(restTemplateMock.exchange(Mockito.eq(url), Mockito.eq(HttpMethod.GET),
+                Mockito.any(HttpEntity.class), Mockito.any(ParameterizedTypeReference.class)))
+                .thenReturn(new ResponseEntity(returnAllocations, HttpStatus.OK));
 		
-		Mockito.when(restTemplateMock.exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<AllocationDto>>(){}, uriVar))
-		.thenReturn(new ResponseEntity(returnAllocations, HttpStatus.OK));
-		
-		List<AllocationDto> fetchedAllocations = allocationService.getAllocations(-1, 2, null, null);
+		List<Allocation> fetchedAllocations = allocationService.getAllocations(token, -1, 2, null, null);
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<AllocationDto>>(){}, uriVar);
+                Mockito.any(HttpEntity.class), Mockito.eq(new ParameterizedTypeReference<List<AllocationDto>>(){}));
 		
-		Assert.assertEquals(returnAllocations, fetchedAllocations);
+		Assert.assertEquals(returnAllocations, mapAllocationsToDtos(fetchedAllocations));
 	}
 	
 	@Test
 	public void getAllAllocationsByEmployeeIdProjectId() {
-		Map<String, String> uriVar = new HashMap<>();
-		uriVar.put("employeeId", "2");
-		uriVar.put("projectId", "2");
-		
+        String paramUrl = url + "?employeeId=2&projectId=2";
 		List<AllocationDto> returnAllocations = new ArrayList<>();
 		returnAllocations.add(allocations.get(1));
 		
 		Mockito.when(restTemplateMock.exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<AllocationDto>>(){}, uriVar))
-		.thenReturn(new ResponseEntity(returnAllocations, HttpStatus.OK));
+                Mockito.any(HttpEntity.class), new ParameterizedTypeReference<List<AllocationDto>>(){}))
+                .thenReturn(new ResponseEntity(returnAllocations, HttpStatus.OK));
 		
-		List<AllocationDto> fetchedAllocations = allocationService.getAllocations(2, 2, null, null);
+		List<Allocation> fetchedAllocations = allocationService.getAllocations(token, 2, 2, null, null);
 		
 		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<AllocationDto>>(){}, uriVar);
+                Mockito.any(HttpEntity.class), new ParameterizedTypeReference<List<AllocationDto>>(){});
 		
 		Assert.assertEquals(returnAllocations, fetchedAllocations);
-		
 	}
 	
 	@Test(expected=TimecastNotFoundException.class)
 	public void getAllAllocationsNotFound() {
-		Map<String, String> uriVar = new HashMap<>();
-		uriVar.put("employeeId", "10");
-		
+        String paramUrl = url + "?employeeId=10";
 		List<AllocationDto> returnAllocations = new ArrayList<>();
 		
 		Mockito.when(restTemplateMock.exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<AllocationDto>>(){}, uriVar))
-		.thenReturn(new ResponseEntity(HttpStatus.NOT_FOUND));
-		
-		allocationService.getAllocations(10, -1, null, null);
+                Mockito.any(HttpEntity.class), new ParameterizedTypeReference<List<AllocationDto>>(){}))
+                .thenReturn(new ResponseEntity(HttpStatus.NOT_FOUND));
+		allocationService.getAllocations(token, 10, -1, null, null);
 	}
 	
 	@Test(expected=TimecastForbiddenException.class)
 	public void getAllAllocationsForbidden() {
-		Map<String, String> uriVar = new HashMap<>();
-		uriVar.put("employeeId", "1");
-		
+        String paramUrl = url + "?employeeId=1";
 		List<AllocationDto> returnAllocations = new ArrayList<>();
 		
 		Mockito.when(restTemplateMock.exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<AllocationDto>>(){}, uriVar))
-		.thenReturn(new ResponseEntity(HttpStatus.FORBIDDEN));
+                Mockito.any(HttpEntity.class), new ParameterizedTypeReference<List<AllocationDto>>(){}))
+                .thenReturn(new ResponseEntity(HttpStatus.FORBIDDEN));
 		
-		allocationService.getAllocations(1, -1, null, null);
+		allocationService.getAllocations(token, 1, -1, null, null);
 	}
 	
 	@Test(expected=TimecastInternalServerErrorException.class)
 	public void getAllAllocationsInternalServerError() {
-		Map<String, String> uriVar = new HashMap<>();
-		uriVar.put("employeeId", "1");
-		
+        String paramUrl = url + "?employeeId=1";
 		List<AllocationDto> returnAllocations = new ArrayList<>();
 		
 		Mockito.when(restTemplateMock.exchange(url, HttpMethod.GET,
-				null, new ParameterizedTypeReference<List<AllocationDto>>(){}, uriVar))
-		.thenReturn(new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR));
+                Mockito.any(HttpEntity.class), new ParameterizedTypeReference<List<AllocationDto>>(){}))
+                .thenReturn(new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR));
 		
-		allocationService.getAllocations(1, -1, null, null);
+		allocationService.getAllocations(token, 1, -1, null, null);
 	}
 	
 	
@@ -205,5 +212,9 @@ public class AllocationServiceTests {
 		return allocations;
 	}
 
-*/
+    private List<AllocationDto> mapAllocationsToDtos(List<Allocation> allocations) {
+        return allocations.stream()
+                .map(allocation -> allocationService.mapEntityToDto(token, allocation))
+                .collect(Collectors.toList());
+    }
 }

@@ -65,10 +65,11 @@
             </div>
 
             <div class="form-row button-row">
-                <a class="btn btn-default" th:href="@{/projects}">Cancel</a>
                 <button type="submit" class="btn btn-primary">Save</button>
+                <button id="delete-btn" type="button" class="btn btn-danger" onclick="deleteRequest()">Delete</button>
             </div>
         </form>
+        <form id="delete-form" action="#" th:action="@{/projects/} + ${project.id}" th:method="delete"></form>
     </div>
 
     <script>
@@ -92,6 +93,11 @@
             };
             endDateInput.datepicker(endDateOptions);
         });
+
+        // delete request
+        function deleteRequest() {
+            document.getElementById('delete-form').submit();
+        }
     </script>
 </section>
 </body>

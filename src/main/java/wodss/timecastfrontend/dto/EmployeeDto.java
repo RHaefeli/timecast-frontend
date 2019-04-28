@@ -1,6 +1,6 @@
 package wodss.timecastfrontend.dto;
 
-import wodss.timecastfrontend.dto.TimecastDto;
+import java.util.Objects;
 
 public class EmployeeDto implements TimecastDto {
     private long id;
@@ -56,5 +56,23 @@ public class EmployeeDto implements TimecastDto {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EmployeeDto that = (EmployeeDto) o;
+        return id == that.id &&
+                active == that.active &&
+                Objects.equals(lastName, that.lastName) &&
+                Objects.equals(firstName, that.firstName) &&
+                Objects.equals(emailAddress, that.emailAddress) &&
+                Objects.equals(role, that.role);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, active, lastName, firstName, emailAddress, role);
     }
 }

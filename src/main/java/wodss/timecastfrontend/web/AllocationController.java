@@ -33,6 +33,7 @@ import wodss.timecastfrontend.domain.Project;
 import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
+import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 import wodss.timecastfrontend.services.AllocationService;
 import wodss.timecastfrontend.services.ContractService;
@@ -198,9 +199,15 @@ public class AllocationController {
 						 @Valid Allocation allocation, BindingResult bindingResult, Model model,
 						 RedirectAttributes redirectAttributes) {
 		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		List<Allocation> projectAllocations = allocationService.getAllocations(token, -1, allocation.getProject().getId(), null, null);
+		long selectedProjectAssignedFtes = projectAllocations.stream()
+				.map(Allocation::getPensumPercentage)
+				.reduce(0, (p1, p2) -> p1 + p2);
+
 		if (bindingResult.hasErrors()) {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			this.setDevelopersIntoModel(model, token);
+			model.addAttribute("selectedProjectAssignedFtes", selectedProjectAssignedFtes);
 			return "allocations/update";
 		}
 
@@ -212,6 +219,7 @@ public class AllocationController {
 				// allocation startDate is after endDate
 				logger.debug("Allocation Start Date after End Date");
 				this.setDevelopersIntoModel(model, token);
+				model.addAttribute("selectedProjectAssignedFtes", selectedProjectAssignedFtes);
 				model.addAttribute("exception", "Invalid Input. Start Date must be before End Date.");
 				return "allocations/update";
 			}
@@ -219,6 +227,7 @@ public class AllocationController {
 					|| allocation.getEndDate().getTime() > p.getEndDate().getTime()) { // allocation ends after project
 				logger.debug("Allocation not in project time span");
 				this.setDevelopersIntoModel(model, token);
+				model.addAttribute("selectedProjectAssignedFtes", selectedProjectAssignedFtes);
 				model.addAttribute("exception", "Invalid Input. Allocation must be in between the project time span.");
 				return "allocations/update";
 			}
@@ -233,11 +242,13 @@ public class AllocationController {
 				this.updateAllocations(token, allocation, contracts, allocations, id);
 			} catch (IllegalStateException ex) {
 				this.setDevelopersIntoModel(model, token);
+				model.addAttribute("selectedProjectAssignedFtes", selectedProjectAssignedFtes);
 				model.addAttribute("exception", ex.getMessage());
 				return "allocations/update";
 			}
 		} catch (TimecastPreconditionFailedException e) {
 			this.setDevelopersIntoModel(model, token);
+			model.addAttribute("selectedProjectAssignedFtes", selectedProjectAssignedFtes);
 			model.addAttribute("exception", "Invalid Input. Please Check all fields.");
 			return "allocations/update";
 		}
@@ -256,14 +267,18 @@ public class AllocationController {
 	}
 	
 	private void createAllocations(Token token, Allocation newAllocation, List<Contract> contracts, List<Allocation> existingAllocations) {
-		AllocationChecker dC = new AllocationChecker();
-		List<Contract> relevantContracts = dC.filterRelevantContracts(newAllocation, contracts);
+		if (contracts.size() == 0) {
+			throw new IllegalStateException("Cannot create an allocation for an employee with no available contract");
+		}
+
+		AllocationChecker checker = new AllocationChecker();
+		List<Contract> relevantContracts = checker.filterRelevantContracts(newAllocation, contracts);
 		if (relevantContracts.isEmpty()) {
 			logger.debug("No relevant contracts or allocation is invalid");
 			throw new IllegalStateException("No relevant contracts or allocation is invalid");
 		}
 		
-		List<Allocation> newAllocations = dC.computeAllocations(newAllocation, relevantContracts, existingAllocations);
+		List<Allocation> newAllocations = checker.computeAllocations(newAllocation, relevantContracts, existingAllocations);
 		
 		for (Allocation alloc : newAllocations) {
 			allocationService.create(token, alloc);
@@ -272,14 +287,17 @@ public class AllocationController {
 
 	private void updateAllocations(Token token, Allocation newAllocation, List<Contract> contracts,
 								   List<Allocation> existingAllocations, long allocationId) {
-		AllocationChecker dC = new AllocationChecker();
-		List<Contract> relevantContracts = dC.filterRelevantContracts(newAllocation, contracts);
+		if (contracts.size() == 0) {
+			throw new IllegalStateException("Cannot create an allocation for an employee with no available contract");
+		}
+		AllocationChecker checker = new AllocationChecker();
+		List<Contract> relevantContracts = checker.filterRelevantContracts(newAllocation, contracts);
 		if (relevantContracts.isEmpty()) {
 			logger.debug("No relevant contracts or allocation is invalid");
 			throw new IllegalStateException("No relevant contracts or allocation is invalid");
 		}
 
-		List<Allocation> newAllocations = dC.computeAllocations(newAllocation, relevantContracts, existingAllocations);
+		List<Allocation> newAllocations = checker.computeAllocations(newAllocation, relevantContracts, existingAllocations);
 
 		if (newAllocations == null || newAllocations.size() == 0) {
 			throw new IllegalStateException("");

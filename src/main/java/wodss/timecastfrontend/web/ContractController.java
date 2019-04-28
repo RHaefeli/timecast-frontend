@@ -15,6 +15,7 @@ import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 import wodss.timecastfrontend.services.AllocationService;
 import wodss.timecastfrontend.services.ContractService;
+import wodss.timecastfrontend.services.mocks.MockLoginService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -91,7 +92,12 @@ public class ContractController {
     public String deleteById(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         logger.debug("Delete contract by id: " + id);
         Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        contractService.deleteById(token, id);
+        try {
+            contractService.deleteById(token, id);
+        } catch (TimecastPreconditionFailedException ex) {
+            redirectAttributes.addFlashAttribute("exception", "Cannot delete Contract when there are still allocations referencing to this contract.");
+            return "redirect:/contracts/" + id;
+        }
 
         redirectAttributes.addFlashAttribute("success", "Successfully deleted Contract.");
         return "redirect:/contracts";

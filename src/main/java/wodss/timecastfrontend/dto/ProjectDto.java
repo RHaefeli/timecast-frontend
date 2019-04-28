@@ -2,6 +2,8 @@ package wodss.timecastfrontend.dto;
 
 import wodss.timecastfrontend.dto.TimecastDto;
 
+import java.util.Objects;
+
 public class ProjectDto implements TimecastDto {
 	private long id;
 	private String name;
@@ -58,5 +60,21 @@ public class ProjectDto implements TimecastDto {
 		this.projectManagerId = projectManagerId;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ProjectDto that = (ProjectDto) o;
+		return id == that.id &&
+				ftePercentage == that.ftePercentage &&
+				projectManagerId == that.projectManagerId &&
+				Objects.equals(name, that.name) &&
+				Objects.equals(startDate, that.startDate) &&
+				Objects.equals(endDate, that.endDate);
+	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, name, ftePercentage, startDate, endDate, projectManagerId);
+	}
 }
