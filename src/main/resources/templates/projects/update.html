@@ -53,9 +53,9 @@
 
             <div class="form-row">
                 <div class="form-group col-md-5">
-                    <label for="projectManager">Project Manager</label>
-                    <input sec:authorize="hasAnyAuthority('PROJECTMANAGER')" type="text" class="form-control" id="projectManager" th:field="*{projectManager}" th:readonly="true"/>
-                    <select sec:authorize="hasAuthority('ADMINISTRATOR')" id="projectManager" class="form-control" th:field="*{projectManager.id}">
+                    <label for="projectManagerId">Project Manager</label>
+                    <input sec:authorize="hasAnyAuthority('PROJECTMANAGER')" type="text" id="projectManagerId" name="projectManagerId" class="form-control" th:value="${projectManagerId}" th:field="*{projectManager}" th:readonly="true"/>
+                    <select sec:authorize="hasAuthority('ADMINISTRATOR')" id="projectManagerId" name="projectManagerId" class="form-control" th:value="${projectManagerId}">
                         <option th:each="manager: ${managers}"
                                 th:value="${manager.id}" th:text="${manager}"
                                 th:selected="${manager.id} == *{projectManager.id} ? true : false">

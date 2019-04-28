@@ -52,8 +52,8 @@
 
             <div class="form-row">
                 <div class="form-group col-md-5">
-                    <label for="projectManager">Project Manager</label>
-                    <select id="projectManager" class="form-control" th:field="*{projectManager.id}">
+                    <label for="projectManagerId">Project Manager</label>
+                    <select id="projectManagerId" name="projectManagerId" class="form-control" th:value="${projectManagerId}">
                         <option th:each="manager: ${managers}"
                                 th:value="${manager.id}" th:text="${manager}"></option>
                     </select>

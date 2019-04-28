@@ -89,14 +89,15 @@ public class ProjectController {
 		return "projects/create";
 	}
     @PostMapping()
-    public String createProject(@Valid @ModelAttribute("project") Project project, BindingResult bindingResult,Model model) {
+    public String createProject(@Valid @ModelAttribute("project") Project project,
+								@ModelAttribute("projectManagerId") Long projectManagerId, BindingResult bindingResult) {
     	if (bindingResult.hasErrors()) {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "projects/create";
 		}
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		logger.debug("Manager selected: " + project.getProjectManager().getId());
-		Employee em = employeeService.getById(new Token(token), project.getProjectManager().getId());
+		logger.debug("Manager selected: " + projectManagerId);
+		Employee em = employeeService.getById(new Token(token), projectManagerId);
 		project.setProjectManager(em);
 		projectService.create(new Token(token), project);
     	
@@ -127,13 +128,15 @@ public class ProjectController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public String update(@PathVariable long id, @Valid Project project, BindingResult bindingResult) {
+	public String update(@PathVariable long id, @ModelAttribute("projectManagerId") Long projectManagerId,
+						 @Valid Project project, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "projects/update";
 		}
+		project.setId(id);
 		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Employee projectManager = employeeService.getById(new Token(token), project.getProjectManager().getId());
+		Employee projectManager = employeeService.getById(new Token(token), projectManagerId);
 		project.setProjectManager(projectManager);
 		projectService.update(new Token(token), project);
 		return "redirect:/projects";

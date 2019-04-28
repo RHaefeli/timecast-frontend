@@ -199,7 +199,8 @@ public class AllocationController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public String update(@PathVariable long id, @Valid Allocation allocation, BindingResult bindingResult, Model model,
+	public String update(@PathVariable long id, @ModelAttribute("employeeId") Long employeeId,
+						 @Valid Allocation allocation, BindingResult bindingResult, Model model,
 						 RedirectAttributes redirectAttributes) {
 		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 		if (bindingResult.hasErrors()) {
@@ -227,7 +228,7 @@ public class AllocationController {
 				return "allocations/update";
 			}
 
-			Employee e = employeeService.getById(token, allocation.getContract().getEmployee().getId());
+			Employee e = employeeService.getById(token, employeeId);
 
 			List<Allocation> allocations = allocationService.getAllocations(token, e.getId(), p.getId()	, null, null);
 			List<Contract> contracts = contractService.getByEmployee(token, e);
