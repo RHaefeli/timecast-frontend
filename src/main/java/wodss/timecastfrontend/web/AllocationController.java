@@ -59,7 +59,6 @@ public class AllocationController {
 	private String filterStartDate;
 	private String filterEndDate;
 
-	// TODO activate when backend is ready
 	@Autowired
 	public AllocationController(AllocationService allocationService, ProjectService projectService,
 			EmployeeService employeeService, ContractService contractService) {
@@ -75,50 +74,43 @@ public class AllocationController {
 			@RequestParam(value = "fromDate", required = false) String fromDateString,
 			@RequestParam(value = "toDate", required = false) String toDateString, Model model) {
 		logger.debug("Get allocations with params {} {} {} {}", employeeId, projectId, fromDateString, toDateString);
-		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		List<Project> projects = projectService.getAll(new Token(token));
+		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		List<Project> projects = projectService.getAll(token);
+		List<Allocation> allocations;
+		long projId = projectId == null ? projects.get(0).getId() : projectId;
+		long emplId = employeeId == null ? -1 : employeeId;
+		Date fromDate = null;
+		Date toDate = null;
+		DateFormat domainFormat = new SimpleDateFormat("dd.MM.yyyy");
+
+		try {
+			if (null != fromDateString && !"".equals(fromDateString)) {
+				fromDate = domainFormat.parse(fromDateString);
+			}
+			if (null != toDateString && !"".equals(toDateString)) {
+				toDate = domainFormat.parse(toDateString);
+			}
+		} catch (ParseException ex) {
+			logger.debug("wrong date format");
+			throw new IllegalStateException();
+		}
+
+		allocations = allocationService.getAllocations(token, emplId, projId, fromDate, toDate);
+		Project selectedProject = projectService.getById(token, projId);
+
+		long selectedProjectAssignedFtes = allocations.stream()
+				.map(Allocation::getPensumPercentage)
+				.reduce(0, (p1, p2) -> p1 + p2);
+
 		model.addAttribute("projects", projects);
-		model.addAttribute("projectIdFilter", projects.get(0).getId());
+		model.addAttribute("projectIdFilter", projId);
 		model.addAttribute("fromDateFilter", fromDateString);
 		model.addAttribute("employeeIdFilter", employeeId);
 		model.addAttribute("toDateFilter", toDateString);
-		List<Allocation> allocations;
-		Date fromDate = null;
-		Date toDate = null;
-		try {
-			DateFormat domainFormat = new SimpleDateFormat("dd.MM.yyyy");
-			// TODO fix ugliness
-			try {
-				if (null != fromDateString && !"".equals(fromDateString)) {
-					fromDate = domainFormat.parse(fromDateString);
-				}
-				if (null != toDateString && !"".equals(toDateString)) {
-					toDate = domainFormat.parse(toDateString);
-				}
-			} catch (ParseException ex) {
-				logger.debug("wrong date format");
-				throw new IllegalStateException();
-			}
-			if (fromDate == null && toDate == null && null == employeeId && null == projectId) {
-				logger.debug("get all");
-				allocations = allocationService.getAll(new Token(token));
-			} else {
-				// TODO fix
-				if (employeeId == null) {
-					employeeId = (long) -1;
-				}
-				if (projectId == null) {
-					projectId = (long) -1;
-				}
-				allocations = allocationService.getAllocations(new Token(token), Long.valueOf(employeeId),
-						Long.valueOf(projectId), fromDate, toDate);
-			}
+		model.addAttribute("selectedProject", selectedProject);
+		model.addAttribute("selectedProjectAssignedFtes", selectedProjectAssignedFtes);
+		model.addAttribute("allocations", allocations);
 
-			model.addAttribute("allocations", allocations);
-		} catch (TimecastNotFoundException | TimecastInternalServerErrorException e) {
-			// TODO Handle error
-			e.printStackTrace();
-		}
 		return "allocations/list";
 	}
 
@@ -209,13 +201,8 @@ public class AllocationController {
 
 	@DeleteMapping(value = "/{id}")
 	public String delete(@PathVariable long id) {
-		try {
-			String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			allocationService.deleteById(new Token(token), id);
-		} catch (TimecastInternalServerErrorException | TimecastForbiddenException | TimecastNotFoundException e) {
-			// TODO handle error
-			e.printStackTrace();
-		}
+		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		allocationService.deleteById(new Token(token), id);
 
 		return "redirect:/allocations";
 	}
@@ -235,13 +222,13 @@ public class AllocationController {
 		}
 	}
 	
-	
 	private Date normalizeDate(Date date) {
-		Date newDate = date;
-		newDate.setHours(0);
-		newDate.setMinutes(0);
-		newDate.setSeconds(0);
-		return newDate;
+		try {
+			SimpleDateFormat formatter = new SimpleDateFormat(
+					"yyyy-MM-dd");
+			return formatter.parse(formatter.format(date));
+		} catch (ParseException e) {
+			throw new TimecastInternalServerErrorException(e.getMessage());
+		}
 	}
-
 }

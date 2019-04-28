@@ -52,7 +52,7 @@
                     <div class="form-row">
                         <div class="form-group col-md-12">
                             <label for="startDate">Start Date</label>
-                            <input type="text" class="form-control" id="startDate" th:field="*{startDate}" th:errorclas="fieldError"/>
+                            <input type="text" class="form-control" id="startDate" th:field="*{startDate}" th:errorclas="fieldError" autocomplete="off"/>
                             <span th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" class="fieldErrorText"></span>
                         </div>
                     </div>
@@ -60,7 +60,7 @@
                     <div class="form-row">
                         <div class="form-group col-md-12">
                             <label for="endDate">End Date</label>
-                            <input type="text" class="form-control" id="endDate" th:field="*{endDate}" th:errorclas="fieldError"/>
+                            <input type="text" class="form-control" id="endDate" th:field="*{endDate}" th:errorclas="fieldError" autocomplete="off"/>
                             <span th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}" class="fieldErrorText"></span>
                         </div>
                     </div>

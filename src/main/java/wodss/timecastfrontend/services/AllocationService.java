@@ -14,9 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -40,24 +38,38 @@ public class AllocationService extends AbstractService<Allocation, AllocationDto
     }
     
     public List<Allocation> getAllocations(Token token, long employeeId, long projectId, Date fromDate, Date toDate) {
-    	DateFormat domainFormat = new SimpleDateFormat("yyyy-MM-dd");
-    	Map<String, String> uriVar = new HashMap<>();
+		logger.debug("Get Allocations with params: {} {} {} {}",  employeeId, projectId, fromDate, toDate );
+		StringBuilder paramUrl = new StringBuilder(apiURL);
+		if (employeeId >= 0 || projectId >= 0 || fromDate != null || toDate != null) {
+			paramUrl.append("?");
+		}
+
+		DateFormat domainFormat = new SimpleDateFormat("yyyy-MM-dd");
 		if (employeeId >= 0) {
-			uriVar.put("employeeId", String.valueOf(employeeId));
+			paramUrl.append("employeeId=");
+			paramUrl.append(String.valueOf(employeeId));
+			paramUrl.append("&");
 		}
 		if (projectId >= 0) {
-			uriVar.put("projectId", String.valueOf(projectId));
+			paramUrl.append("projectId=");
+			paramUrl.append(String.valueOf(projectId));
+			paramUrl.append("&");
 		}
 		if (fromDate != null) {
-			uriVar.put("fromDate", domainFormat.format(fromDate));
+			paramUrl.append("fromDate=");
+			paramUrl.append(domainFormat.format(fromDate));
+			paramUrl.append("&");
 		}
 		if (toDate != null) {
-			uriVar.put("toDate", domainFormat.format(toDate));
+			paramUrl.append("toDate=");
+			paramUrl.append(domainFormat.format(toDate));
 		}
-		logger.debug("Get Allocations with params: {} {} {} {}",  employeeId, projectId, fromDate, toDate );
-		ResponseEntity<List<AllocationDto>> response = restTemplate.exchange(apiURL, HttpMethod.GET, null,
-				new ParameterizedTypeReference<List<AllocationDto>>() {
-				}, uriVar);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBearerAuth(token.getToken());
+		HttpEntity<?> request = new HttpEntity<>(headers);
+
+		ResponseEntity<List<AllocationDto>> response = restTemplate.exchange(paramUrl.toString(), HttpMethod.GET, request,
+				new ParameterizedTypeReference<List<AllocationDto>>() {});
 		
 		if (response.getStatusCode() != HttpStatus.OK) {
 			// Other status codes are mapped by the RestTemplate Error Handler

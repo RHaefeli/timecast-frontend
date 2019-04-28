@@ -44,25 +44,37 @@
 						<div class="form-group row col-md-12">
 							<div class="col-md-6">
 								<label for="filterStartDate" class="sr-only">Start Date</label>
-								<input name="fromDate" type="text" class="form-control" placeholder="Start Date" id="filterStartDate" th:value="${fromDateFilter}" th:errorclas="fieldError" autofocus/>
+								<input name="fromDate" type="text" class="form-control" placeholder="Start Date" id="filterStartDate" th:value="${fromDateFilter}" th:errorclas="fieldError" autocomplete="off"/>
 							</div>
 
 							<div class="col-md-6">
 								<label for="filterEndDate" class="sr-only">End Date</label>
-								<input name="toDate" type="text" class="form-control" placeholder="End Date" id="filterEndDate" th:value="${toDateFilter}" th:errorclas="fieldError" autofocus/>
+								<input name="toDate" type="text" class="form-control" placeholder="End Date" id="filterEndDate" th:value="${toDateFilter}" th:errorclas="fieldError" autocomplete="off"/>
 							</div>
 						</div>
 					</div>
 					<div class="form-row button-row" style="margin-top: 0">
-						<button type="submit" class="btn btn-secondary">
-							Filter
-						</button>
+						<button type="submit" class="btn btn-secondary">Filter</button>
 					</div>
 				</form>
 
 				<!-- Right side: Project information -->
-				<div class="form-row col-md-6">
+				<div class="col-md-6">
 					<h5>Project Information</h5>
+					<div th:if="${selectedProject}" class="form-row">
+						<div class="form-group row col-md-12">
+							<label for="projectFte" class="col-md-3">Total FTEs</label>
+							<input name="projectFte" type="text" class="col-md-3 form-control" id="projectFte" th:value="${selectedProject.ftePercentage}" th:readonly="true"/>
+							<label for="projectAssignedFte" class="col-md-3">Assigned FTEs</label>
+							<input name="projectAssignedFte" type="text" class="col-md-3 form-control" id="projectAssignedFte" th:value="${selectedProjectAssignedFtes}" th:readonly="true"/>
+						</div>
+						<div class="form-group row col-md-12">
+							<label for="projectStartDate" class="col-md-3">Start Date</label>
+							<input name="projectStartDate" type="text" class="col-md-3 form-control" id="projectStartDate" th:value="${#dates.format(selectedProject.startDate, 'dd.MM.yyyy')}" th:readonly="true"/>
+							<label for="projectEndDate" class="col-md-3">End Date</label>
+							<input name="projectEndDate" type="text" class="col-md-3 form-control" id="projectEndDate" th:value="${#dates.format(selectedProject.startDate, 'dd.MM.yyyy')}" th:readonly="true"/>
+						</div>
+					</div>
 				</div>
 			</div>
 
@@ -90,8 +102,8 @@
 						<tr th:each="allocation : ${allocations}">
 							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.id}"></td>
 							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.contract.employee}"></td>
-							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.startDate}" ></td>
-							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.endDate}" ></td>
+							<td colspan="1" style="vertical-align: middle;" th:text="${#dates.format(allocation.startDate, 'dd.MM.yyyy')}" ></td>
+							<td colspan="1" style="vertical-align: middle;" th:text="${#dates.format(allocation.endDate, 'dd.MM.yyyy')}" ></td>
 							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.pensumPercentage} + '%'" ></td>
 							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.project.name}" ></td>
 							<td>

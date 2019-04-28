@@ -44,7 +44,7 @@ public class ProjectServiceTests {
 	private String url = "url";
 	private Token token = new Token("any String");
 	
-	private List<ProjectDTO> projects;
+	private List<ProjectDto> projects;
 
 	
 	@Before
@@ -76,7 +76,7 @@ public class ProjectServiceTests {
 		Map<String, String> uriVar = new HashMap<>();
 		uriVar.put("fromDate", "2019-03-16");
 		
-		List<ProjectDTO> returnProjects = new ArrayList<>();
+		List<ProjectDto> returnProjects = new ArrayList<>();
 		returnProjects.add(projects.get(0));
 		returnProjects.add(projects.get(2));
 		List<ProjectDto> returnProjectDtos = mapProjectToDtos(returnProjects);
@@ -99,7 +99,7 @@ public class ProjectServiceTests {
 		Map<String, String> uriVar = new HashMap<>();
 		uriVar.put("toDate", "2020-01-01");
 		
-		List<ProjectDTO> returnProjects = new ArrayList<>();
+		List<ProjectDto> returnProjects = new ArrayList<>();
 		returnProjects.add(projects.get(0));
 		returnProjects.add(projects.get(1));
 		List<ProjectDto> returnProjectDtos = mapProjectToDtos(returnProjects);
@@ -122,7 +122,7 @@ public class ProjectServiceTests {
 		uriVar.put("fromDate", "2019-01-01");
 		uriVar.put("toDate", "2020-01-01");
 		
-		List<ProjectDTO> returnProjects = new ArrayList<>();
+		List<ProjectDto> returnProjects = new ArrayList<>();
 		returnProjects.add(projects.get(0));
 		List<ProjectDto> returnProjectDtos = mapProjectToDtos(returnProjects);
 		
@@ -158,34 +158,34 @@ public class ProjectServiceTests {
 	
 	@Test
 	public void createProjectTest() throws TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
-		ProjectDTO newProject = new ProjectDTO();
+		ProjectDto newProject = new ProjectDto();
 		newProject.setId(99);
 		newProject.setName("ProjectNew");
 		newProject.setFtePercentage(100);
 		newProject.setStartDate("2019-03-16");
 		newProject.setEndDate("2019-10-10");
 		newProject.setProjectManagerId(0);
-		HttpEntity<ProjectDTO> request = new HttpEntity<>(newProject);
-		Mockito.when(restTemplateMock.exchange(url, HttpMethod.POST, request, ProjectDTO.class)).thenReturn(new ResponseEntity<ProjectDTO>(newProject, HttpStatus.CREATED));
+		HttpEntity<ProjectDto> request = new HttpEntity<>(newProject);
+		Mockito.when(restTemplateMock.exchange(url, HttpMethod.POST, request, ProjectDto.class)).thenReturn(new ResponseEntity<ProjectDto>(newProject, HttpStatus.CREATED));
 		
 		Project createdProject = projectService.create(token, newProject);
 		
-		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.POST, request, ProjectDTO.class);
+		verify(restTemplateMock, times(1)).exchange(url, HttpMethod.POST, request, ProjectDto.class);
 		
 		Assert.assertEquals(newProject, createdProject);
 	}
 	
 	@Test
 	public void updateProjectTest() throws TimecastNotFoundException, TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
-		ProjectDTO updatedProject = projects.get(0);
+		ProjectDto updatedProject = projects.get(0);
 		updatedProject.setName("ProjectnameNew");
-		HttpEntity<ProjectDTO> requestEntity = new HttpEntity<ProjectDTO>(updatedProject);
+		HttpEntity<ProjectDto> requestEntity = new HttpEntity<ProjectDto>(updatedProject);
 		
-		Mockito.when(restTemplateMock.exchange(url + "/1", HttpMethod.PUT, requestEntity, ProjectDTO.class)).thenReturn(new ResponseEntity<ProjectDTO>(updatedProject, HttpStatus.OK));
+		Mockito.when(restTemplateMock.exchange(url + "/1", HttpMethod.PUT, requestEntity, ProjectDto.class)).thenReturn(new ResponseEntity<ProjectDto>(updatedProject, HttpStatus.OK));
 		
 		Project responseProject = projectService.update(token, updatedProject);
 		
-		verify(restTemplateMock, times(1)).exchange(url+ "/1", HttpMethod.PUT, requestEntity, ProjectDTO.class);
+		verify(restTemplateMock, times(1)).exchange(url+ "/1", HttpMethod.PUT, requestEntity, ProjectDto.class);
 		
 		Assert.assertEquals(updatedProject, responseProject);
 	}
@@ -203,24 +203,24 @@ public class ProjectServiceTests {
 	}
 	
 	
-	private List<ProjectDTO> generateProjects() {
-		ProjectDTO project1 = new ProjectDTO();
+	private List<ProjectDto> generateProjects() {
+		ProjectDto project1 = new ProjectDto();
 		project1.setId(1);
 		project1.setName("Project1");
 		project1.setFtePercentage(100);
 		project1.setStartDate("2019-03-16");
 		project1.setEndDate("2019-10-10");
 		project1.setProjectManagerId(0);
-		
-		ProjectDTO project2 = new ProjectDTO();
+
+		ProjectDto project2 = new ProjectDto();
 		project2.setId(1);
 		project2.setName("Project2");
 		project2.setFtePercentage(200);
 		project2.setStartDate("2018-03-16");
 		project2.setEndDate("2018-10-10");
 		project2.setProjectManagerId(0);
-		
-		ProjectDTO project3 = new ProjectDTO();
+
+		ProjectDto project3 = new ProjectDto();
 		project3.setId(1);
 		project3.setName("Project3");
 		project3.setFtePercentage(300);
@@ -228,7 +228,7 @@ public class ProjectServiceTests {
 		project3.setEndDate("2020-10-10");
 		project3.setProjectManagerId(0);
 		
-		List<ProjectDTO> projects = new ArrayList();
+		List<ProjectDto> projects = new ArrayList();
 		projects.add(project1);
 		projects.add(project2);
 		projects.add(project3);

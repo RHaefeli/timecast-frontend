@@ -75,10 +75,7 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
         HttpEntity<DTO> request = new HttpEntity<>(mapEntityToDto(token, entity), headers);
-        System.out.println("perform req");
         ResponseEntity<DTO> response = restTemplate.exchange(apiURL, HttpMethod.POST, request, serviceEntityClass);
-        System.out.println("end req");
-        System.out.println(response);
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.CREATED) {
             // Other status codes are mapped by the RestTemplate Error Handler

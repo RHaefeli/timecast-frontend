@@ -33,14 +33,14 @@
 
                 <div class="form-group col-md-5">
                     <label for="projectId">Project</label>
-                    <input type="text" class="form-control" id="projectId" th:field="*{project.id}" th:errorclas="fieldError" readonly/>
+                    <input type="text" class="form-control" id="projectId" th:value="*{project}" th:errorclas="fieldError" readonly/>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group col-md-5">
                     <label for="startDate">Start Date</label>
-                    <input type="text" class="form-control" id="startDate" name="startDate" th:field="*{startDate}" th:errorclas="fieldError"/>
+                    <input type="text" class="form-control" id="startDate" name="startDate" th:field="*{startDate}" th:errorclas="fieldError" autocomplete="off"/>
                     <span th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" class="fieldErrorText"></span>
                 </div>
             </div>
@@ -48,7 +48,7 @@
             <div class="form-row">
                 <div class="form-group col-md-5">
                     <label for="endDate">End Date</label>
-                    <input type="text" class="form-control" id="endDate" name="endDate" th:field="*{endDate}" th:errorclas="fieldError"/>
+                    <input type="text" class="form-control" id="endDate" name="endDate" th:field="*{endDate}" th:errorclas="fieldError" autocomplete="off"/>
                     <span th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}" class="fieldErrorText"></span>
                 </div>
             </div>
@@ -61,6 +61,20 @@
                 </div>
             </div>
 
+            <!-- Hidden Fields to map nested objects -->
+            <input type="hidden" th:field="*{project.id}">
+            <input type="hidden" th:field="*{project.name}">
+            <input type="hidden" th:field="*{project.startDate}">
+            <input type="hidden" th:field="*{project.endDate}">
+            <input type="hidden" th:field="*{project.ftePercentage}">
+            <input type="hidden" th:value="*{project.projectManager}">
+            <input type="hidden" th:field="*{project.projectManager.id}">
+            <input type="hidden" th:field="*{project.projectManager.emailAddress}">
+            <input type="hidden" th:field="*{project.projectManager.firstName}">
+            <input type="hidden" th:field="*{project.projectManager.lastName}">
+            <input type="hidden" th:field="*{project.projectManager.role}">
+
+            <!-- Buttons -->
             <div class="form-row button-row">
                 <a class="btn btn-default" th:href="@{/allocations}">Cancel</a>
                 <button type="submit" class="btn btn-primary">Save</button>
