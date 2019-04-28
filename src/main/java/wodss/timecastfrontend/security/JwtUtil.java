@@ -3,6 +3,7 @@ package wodss.timecastfrontend.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Token;
@@ -17,8 +18,8 @@ public class JwtUtil {
     private ObjectMapper objectMapper = new ObjectMapper();
     private PublicKey publicKey;
 
-    public JwtUtil () {
-        String publicKeyPEM = RsaUtil.getKey("public_key.pem");
+    public JwtUtil (@Value("${wodss.timecastfrontend.jwt.key-store}") String publicKeyLocation) {
+        String publicKeyPEM = RsaUtil.getKey(publicKeyLocation);
         publicKey = RsaUtil.getPublicKeyFromString(publicKeyPEM);
     }
 

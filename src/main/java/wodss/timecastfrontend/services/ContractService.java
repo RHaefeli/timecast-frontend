@@ -14,7 +14,10 @@ import wodss.timecastfrontend.dto.ContractDto;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -52,6 +55,33 @@ public class ContractService extends AbstractService<Contract, ContractDto> {
                 .filter(dto -> dto.getEmployeeId() == employee.getId())
                 .map(dto -> mapDtoToEntity(token, dto))
                 .collect(Collectors.toList());
+    }
+
+    public List<Contract> getCurrentContracts(Token token) {
+        logger.debug("Request current ContractDtos from api: " + apiURL);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token.getToken());
+        Map<String, String> uriVar = new HashMap<>();
+        DateFormat dtoFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String fromDate = dtoFormat.format(new Date());
+        uriVar.put("fromDate", fromDate);
+
+        HttpEntity<?> request = new HttpEntity<>(headers);
+        ResponseEntity<List<ContractDto>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request,
+                new ParameterizedTypeReference<List<ContractDto>>() {}, uriVar);
+
+        HttpStatus statusCode = response.getStatusCode();
+        if (statusCode != HttpStatus.OK) {
+            // Other status codes are mapped by the RestTemplate Error Handler
+            throw new IllegalStateException(statusCode.toString());
+        }
+
+        List<ContractDto> dtos = response.getBody();
+        if (dtos != null && dtos.size() > 0) {
+            return dtos.stream().map(dto -> mapDtoToEntity(token, dto)).collect(Collectors.toList());
+        } else {
+            return null;
+        }
     }
 
     protected ContractDto mapEntityToDto(Token token, Contract entity) {

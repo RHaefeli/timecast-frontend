@@ -25,7 +25,7 @@ public class MockLoginService extends LoginService {
     private final JwtUtil jwtUtil;
 
     /*
-    @Value("${wodss.timecastfrontend.mock.api.privkey}")
+    @Value("${wodss.timecastfrontend.mock.jwt.privkey}")
     private String SECRET_KEY;
     */
     private SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.RS512;
@@ -34,12 +34,11 @@ public class MockLoginService extends LoginService {
     public MockLoginService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.token}") String apiURL, JwtUtil jwtUtil) {
         super(restTemplate, apiURL);
         this.jwtUtil = jwtUtil;
-        logger.debug("Using Mock Login Service!");
-        logger.debug("API URL " + apiURL + " will not be used in the mock service!");
     }
 
     @Override
     public Token createToken(String email, String password) {
+        logger.debug("Using Mock Login Service!");
         logger.debug("Create Token for " + email);
         Employee employee = new Employee();
         employee.setId(0);
@@ -51,7 +50,7 @@ public class MockLoginService extends LoginService {
         Date expirationDate = new Date(now.getTime() + VALIDATION_DURATION_IN_MS);
 
         // Using RSA512 Algorithm
-        String privateKeyPEM = RsaUtil.getKey("private_key.pem");
+        String privateKeyPEM = RsaUtil.getKey("classpath:keystore/jwt_privkey.pem");
         PrivateKey key = RsaUtil.getPrivateKeyFromString(privateKeyPEM);
 
         // Using HS512 Algorithm
@@ -71,6 +70,7 @@ public class MockLoginService extends LoginService {
 
     @Override
     public Token updateToken(Token oldToken) {
+        logger.debug("Using Mock Login Service!");
         logger.debug("Update Token: " + oldToken.getToken());
 
         Employee employee = jwtUtil.getEmployeeFromToken(oldToken);
