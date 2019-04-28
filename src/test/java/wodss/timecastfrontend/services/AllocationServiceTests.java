@@ -29,6 +29,7 @@ import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 
 @RunWith(SpringRunner.class)
 public class AllocationServiceTests {
+	/*
 	
 	@Mock
 	private RestTemplate restTemplateMock;
@@ -204,4 +205,5 @@ public class AllocationServiceTests {
 		return allocations;
 	}
 
+*/
 }

@@ -3,13 +3,11 @@ package wodss.timecastfrontend.web;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import javax.sound.midi.SysexMessage;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -28,6 +26,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import wodss.timecastfrontend.domain.Allocation;
 import wodss.timecastfrontend.domain.Contract;
 import wodss.timecastfrontend.domain.Employee;
@@ -42,10 +41,7 @@ import wodss.timecastfrontend.services.AllocationService;
 import wodss.timecastfrontend.services.ContractService;
 import wodss.timecastfrontend.services.EmployeeService;
 import wodss.timecastfrontend.services.ProjectService;
-import wodss.timecastfrontend.services.mocks.MockAllocationService;
-import wodss.timecastfrontend.services.mocks.MockContractService;
-import wodss.timecastfrontend.services.mocks.MockEmployeeService;
-import wodss.timecastfrontend.services.mocks.MockProjectService;
+import wodss.timecastfrontend.util.AllocationChecker;
 
 @Controller
 @RequestMapping(value = "/allocations")
@@ -118,85 +114,140 @@ public class AllocationController {
 	public String createAllocationForm(@RequestParam(value = "projectId", required = true) Long projectId,
 			Model model) {
 		Allocation allocation = new Allocation();
-		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		long selectedProjectAssignedFtes = 0;
+		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 		if (projectId != null) {
-			allocation.setProject(projectService.getById(new Token(token), projectId));
+			allocation.setProject(projectService.getById(token, projectId));
+			List<Allocation> allocations = allocationService.getAllocations(token, -1, projectId, null, null);
+			selectedProjectAssignedFtes = allocations.stream()
+					.map(Allocation::getPensumPercentage)
+					.reduce(0, (p1, p2) -> p1 + p2);
 		}
-		List<Employee> employees = employeeService.getAll(new Token(token));
-		List<Employee> developers = employees.stream().filter(e -> e.getRole() == Role.DEVELOPER)
-				.collect(Collectors.toList());
-		model.addAttribute("developers", developers);
+
+		this.setDevelopersIntoModel(model, token);
 		model.addAttribute("allocation", allocation);
+		model.addAttribute("selectedProjectAssignedFtes", selectedProjectAssignedFtes);
 		return "allocations/create";
 	}
 
 	@PostMapping()
 	public String createAllocation(@Valid @ModelAttribute("allocation") Allocation allocation,
-			@ModelAttribute("employeeId") Long employeeId, BindingResult bindingResult, Model model) {
+								   @ModelAttribute("employeeId") Long employeeId, BindingResult bindingResult,
+								   Model model, RedirectAttributes redirectAttributes) {
+		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 		if (bindingResult.hasErrors()) {
-			// TODO
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
+			this.setDevelopersIntoModel(model, token);
 			return "allocations/create";
 		}
+
 		try {
-			String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			Project p = projectService.getById(new Token(token), allocation.getProject().getId());
+			Project p = projectService.getById(token, allocation.getProject().getId());
 			allocation.setStartDate(normalizeDate(allocation.getStartDate()));
 			allocation.setEndDate(normalizeDate(allocation.getEndDate()));
-			if (allocation.getStartDate().getTime()<(p.getStartDate().getTime()) || allocation.getEndDate().getTime()>(p.getEndDate().getTime())
-					|| allocation.getStartDate().getTime()>(p.getEndDate().getTime()) || allocation.getEndDate().getTime()<(p.getStartDate().getTime())) {
-				logger.debug("Allocation not in project time span");
-				//TODO error handling
-				throw new IllegalStateException();
+			if (allocation.getStartDate().getTime() > allocation.getEndDate().getTime()) {
+				// allocation startDate is after endDate
+				logger.debug("Allocation Start Date after End Date");
+				this.setDevelopersIntoModel(model, token);
+				model.addAttribute("exception", "Invalid Input. Start Date must be before End Date.");
+				return "allocations/create";
 			}
-			Employee e = employeeService.getById(new Token(token), employeeId);
-			List<Allocation> allocations = allocationService.getAllocations(new Token(token), e.getId(), p.getId()	, null, null);
-			List<Contract> contracts = contractService.getByEmployee(new Token(token), e);
+			if (allocation.getStartDate().getTime() < p.getStartDate().getTime() // allocation starts before project
+					|| allocation.getEndDate().getTime() > p.getEndDate().getTime()) { // allocation ends after project
+				logger.debug("Allocation not in project time span");
+				this.setDevelopersIntoModel(model, token);
+				model.addAttribute("exception", "Invalid Input. Allocation must be in between the project time span.");
+				return "allocations/create";
+			}
+
+			Employee e = employeeService.getById(token, employeeId);
+			List<Allocation> allocations = allocationService.getAllocations(token, e.getId(), p.getId()	, null, null);
+			List<Contract> contracts = contractService.getByEmployee(token, e);
 			allocation.setProject(p);
-			// TODO get fitting contract
-			createAllocations(new Token(token), allocation, contracts, allocations);
-			//allocation.setContract(c);
-//			allocationService.create(new Token(token), allocation);
-		} catch (TimecastPreconditionFailedException | TimecastForbiddenException
-				| TimecastInternalServerErrorException e) {
-			// TODO handle error
-			e.printStackTrace();
+
+			try {
+				this.createAllocations(token, allocation, contracts, allocations);
+			} catch (IllegalStateException ex) {
+				this.setDevelopersIntoModel(model, token);
+				model.addAttribute("exception", ex.getMessage());
+				return "allocations/create";
+			}
+		} catch (TimecastPreconditionFailedException e) {
+			this.setDevelopersIntoModel(model, token);
+			model.addAttribute("exception", "Invalid Input. Please Check all fields.");
+			return "allocations/create";
 		}
 
+		redirectAttributes.addFlashAttribute("success", "Successfully created Allocation.");
 		return "redirect:/allocations";
 	}
 
-	@GetMapping(value = "/{id}", params = "form")
+	@GetMapping(value = "/{id}")
 	public String updateAllocationForm(@PathVariable long id, Model model) {
-		try {
-			String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			Allocation allocation = allocationService.getById(new Token(token), id);
-			model.addAttribute("allocation", allocation);
-			return "allocations/update";
-		} catch (TimecastNotFoundException | TimecastInternalServerErrorException | TimecastForbiddenException e) {
-			// TODO handle error
-			e.printStackTrace();
-		}
-		// TODO
-		return "404";
+		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		Allocation allocation = allocationService.getById(token, id);
 
+		List<Allocation> allocations = allocationService.getAllocations(token, -1, allocation.getProject().getId(), null, null);
+		long selectedProjectAssignedFtes = allocations.stream()
+				.map(Allocation::getPensumPercentage)
+				.reduce(0, (p1, p2) -> p1 + p2);
+
+		this.setDevelopersIntoModel(model, token);
+		model.addAttribute("allocation", allocation);
+		model.addAttribute("selectedProjectAssignedFtes", selectedProjectAssignedFtes);
+		return "allocations/update";
 	}
 
 	@PutMapping(value = "/{id}")
-	public String update(@PathVariable long id, @Valid Allocation allocation, BindingResult bindingResult) {
+	public String update(@PathVariable long id, @Valid Allocation allocation, BindingResult bindingResult, Model model,
+						 RedirectAttributes redirectAttributes) {
+		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 		if (bindingResult.hasErrors()) {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
+			this.setDevelopersIntoModel(model, token);
 			return "allocations/update";
 		}
+
 		try {
-			String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			allocationService.update(new Token(token), allocation);
-		} catch (TimecastNotFoundException | TimecastPreconditionFailedException | TimecastForbiddenException
-				| TimecastInternalServerErrorException e) {
-			// TODO handle error
-			e.printStackTrace();
+			Project p = projectService.getById(token, allocation.getProject().getId());
+			allocation.setStartDate(normalizeDate(allocation.getStartDate()));
+			allocation.setEndDate(normalizeDate(allocation.getEndDate()));
+			if (allocation.getStartDate().getTime() > allocation.getEndDate().getTime()) {
+				// allocation startDate is after endDate
+				logger.debug("Allocation Start Date after End Date");
+				this.setDevelopersIntoModel(model, token);
+				model.addAttribute("exception", "Invalid Input. Start Date must be before End Date.");
+				return "allocations/update";
+			}
+			if (allocation.getStartDate().getTime() < p.getStartDate().getTime() // allocation starts before project
+					|| allocation.getEndDate().getTime() > p.getEndDate().getTime()) { // allocation ends after project
+				logger.debug("Allocation not in project time span");
+				this.setDevelopersIntoModel(model, token);
+				model.addAttribute("exception", "Invalid Input. Allocation must be in between the project time span.");
+				return "allocations/update";
+			}
+
+			Employee e = employeeService.getById(token, allocation.getContract().getEmployee().getId());
+
+			List<Allocation> allocations = allocationService.getAllocations(token, e.getId(), p.getId()	, null, null);
+			List<Contract> contracts = contractService.getByEmployee(token, e);
+			allocation.setProject(p);
+
+			try {
+				this.updateAllocations(token, allocation, contracts, allocations, id);
+			} catch (IllegalStateException ex) {
+				this.setDevelopersIntoModel(model, token);
+				model.addAttribute("exception", ex.getMessage());
+				return "allocations/update";
+			}
+		} catch (TimecastPreconditionFailedException e) {
+			this.setDevelopersIntoModel(model, token);
+			model.addAttribute("exception", "Invalid Input. Please Check all fields.");
+			return "allocations/update";
 		}
-		return "redirect:/allocations";
+
+		redirectAttributes.addFlashAttribute("success", "Successfully updated Allocation.");
+		return "redirect:/allocations/" + id;
 	}
 
 	@DeleteMapping(value = "/{id}")
@@ -208,17 +259,45 @@ public class AllocationController {
 	}
 	
 	private void createAllocations(Token token, Allocation newAllocation, List<Contract> contracts, List<Allocation> existingAllocations) {
-		DateChegga dC = new DateChegga();
+		AllocationChecker dC = new AllocationChecker();
 		List<Contract> relevantContracts = dC.filterRelevantContracts(newAllocation, contracts);
 		if (relevantContracts.isEmpty()) {
-			logger.debug("no relevant contracts, allocation invalid");
-			throw new IllegalStateException();
+			logger.debug("No relevant contracts or allocation is invalid");
+			throw new IllegalStateException("No relevant contracts or allocation is invalid");
 		}
 		
 		List<Allocation> newAllocations = dC.computeAllocations(newAllocation, relevantContracts, existingAllocations);
 		
 		for (Allocation alloc : newAllocations) {
 			allocationService.create(token, alloc);
+		}
+	}
+
+	private void updateAllocations(Token token, Allocation newAllocation, List<Contract> contracts,
+								   List<Allocation> existingAllocations, long allocationId) {
+		AllocationChecker dC = new AllocationChecker();
+		List<Contract> relevantContracts = dC.filterRelevantContracts(newAllocation, contracts);
+		if (relevantContracts.isEmpty()) {
+			logger.debug("No relevant contracts or allocation is invalid");
+			throw new IllegalStateException("No relevant contracts or allocation is invalid");
+		}
+
+		List<Allocation> newAllocations = dC.computeAllocations(newAllocation, relevantContracts, existingAllocations);
+
+		if (newAllocations == null || newAllocations.size() == 0) {
+			throw new IllegalStateException("");
+		}
+		if (newAllocations.size() == 1) {
+			Allocation allocation = newAllocations.get(0);
+			allocation.setId(allocationId);
+			allocationService.update(token, allocation);
+		} else {
+			Allocation first = newAllocations.get(0);
+			first.setId(allocationId);
+			allocationService.update(token, first);
+			for (int i = 1; i < newAllocations.size(); i++) {
+				allocationService.create(token, newAllocations.get(i));
+			}
 		}
 	}
 	
@@ -230,5 +309,12 @@ public class AllocationController {
 		} catch (ParseException e) {
 			throw new TimecastInternalServerErrorException(e.getMessage());
 		}
+	}
+
+	private void setDevelopersIntoModel(Model model, Token token) {
+		List<Employee> developers = employeeService.getAll(token).stream()
+				.filter(emp -> emp.getRole() == Role.DEVELOPER)
+				.collect(Collectors.toList());
+		model.addAttribute("developers", developers);
 	}
 }

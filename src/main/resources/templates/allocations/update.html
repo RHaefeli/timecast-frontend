@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="layout :: maincontent(content=~{::section}, title='Create new Allocation', links=~{::link}, scripts=~{::header_script})">
+      th:replace="layout :: maincontent(content=~{::section}, title='Update Project', links=~{::link}, scripts=~{::header_script})">
 
 <head>
     <!-- jQuery -->
@@ -13,11 +13,12 @@
 <body>
 <section>
     <div th:if="${exception != null}" class="alert alert-danger" th:text="${exception}"></div>
-    <h2>Create new Allocation</h2>
+    <div th:if="${success != null}" class="alert alert-success" th:text="${success}"></div>
+    <h2>Update Allocation</h2>
     <br>
 
     <div class="scrollable-app-container">
-        <form class="row app-content" th:action="@{/allocations}" th:object="${allocation}" method="post">
+        <form class="row app-content" th:action="@{/allocations/} + ${allocation.id}" th:object="${allocation}" th:method="put">
             <!-- Left side: Allocation Form -->
             <div class="col-md-4">
                 <div class="form-row">
@@ -26,7 +27,8 @@
                         <select id="employee" name="employeeId" class="form-control" th:value="${employeeId}">
                             <option th:each="developer: ${developers}"
                                     th:value="${developer.id}"
-                                    th:text="${developer}">
+                                    th:text="${developer}"
+                                    th:selected="${developer.id} == ${allocation.contract.employee.id} ? true : false">
                             </option>
                         </select>
                     </div>
@@ -55,8 +57,8 @@
 
                 <!-- Buttons -->
                 <div class="form-row button-row">
-                    <a class="btn btn-default" th:href="@{/allocations}">Cancel</a>
                     <button type="submit" class="btn btn-primary">Save</button>
+                    <button id="delete-btn" type="button" class="btn btn-danger" onclick="deleteRequest()">Delete</button>
                 </div>
             </div>
 
@@ -95,7 +97,20 @@
             <input type="hidden" th:field="*{project.projectManager.firstName}">
             <input type="hidden" th:field="*{project.projectManager.lastName}">
             <input type="hidden" th:field="*{project.projectManager.role}">
+
+            <input type="hidden" th:field="*{contract.id}">
+            <input type="hidden" th:field="*{contract.pensumPercentage}">
+            <input type="hidden" th:field="*{contract.startDate}">
+            <input type="hidden" th:field="*{contract.endDate}">
+            <input type="hidden" th:value="*{contract.employee}">
+            <input type="hidden" th:field="*{contract.employee.id}">
+            <input type="hidden" th:field="*{contract.employee.emailAddress}">
+            <input type="hidden" th:field="*{contract.employee.firstName}">
+            <input type="hidden" th:field="*{contract.employee.lastName}">
+            <input type="hidden" th:field="*{contract.employee.role}">
         </form>
+
+        <form id="delete-form" action="#" th:action="@{/allocations/} + ${allocation.id}" th:method="delete"></form>
     </div>
 
     <script>
@@ -119,6 +134,11 @@
             };
             endDateInput.datepicker(endDateOptions);
         });
+
+        // delete request
+        function deleteRequest() {
+            document.getElementById('delete-form').submit();
+        }
     </script>
 </section>
 </body>

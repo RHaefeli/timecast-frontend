@@ -1,4 +1,4 @@
-package wodss.timecastfrontend;
+package wodss.timecastfrontend.util;
 
 import static org.junit.Assert.assertTrue;
 
@@ -16,11 +16,11 @@ import wodss.timecastfrontend.domain.Contract;
 import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
-import wodss.timecastfrontend.web.DateChegga;
+import wodss.timecastfrontend.util.AllocationChecker;
 
-public class DateCheggaTest {
+public class AllocationCheckerTest {
 	
-	private DateChegga testee = new DateChegga();
+	private AllocationChecker testee = new AllocationChecker();
 	private Date startDate1;
 	private List<Allocation> existingAllocations;
 	private List<Contract> contracts;

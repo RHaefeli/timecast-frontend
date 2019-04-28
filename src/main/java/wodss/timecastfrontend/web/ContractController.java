@@ -57,6 +57,8 @@ public class ContractController {
     @PutMapping("/{id}")
     public String updateById(@PathVariable Long id, @Valid @ModelAttribute("contract") Contract contract,
                              BindingResult bindingResult, Model model) {
+        // TODO: prevent update if there exists allocations with that contract.
+
         logger.debug("Update contract by id: " + id);
         if (bindingResult.hasErrors()) {
             logger.debug("Binding error: " + bindingResult.getAllErrors());

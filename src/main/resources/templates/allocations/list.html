@@ -63,9 +63,9 @@
 					<h5>Project Information</h5>
 					<div th:if="${selectedProject}" class="form-row">
 						<div class="form-group row col-md-12">
-							<label for="projectFte" class="col-md-3">Total FTEs</label>
+							<label for="projectFte" class="col-md-3">Total FTEs (%)</label>
 							<input name="projectFte" type="text" class="col-md-3 form-control" id="projectFte" th:value="${selectedProject.ftePercentage}" th:readonly="true"/>
-							<label for="projectAssignedFte" class="col-md-3">Assigned FTEs</label>
+							<label for="projectAssignedFte" class="col-md-3">Assigned FTEs (%)</label>
 							<input name="projectAssignedFte" type="text" class="col-md-3 form-control" id="projectAssignedFte" th:value="${selectedProjectAssignedFtes}" th:readonly="true"/>
 						</div>
 						<div class="form-group row col-md-12">
@@ -100,36 +100,14 @@
 						</thead>
 						<tbody>
 						<tr th:each="allocation : ${allocations}">
-							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.id}"></td>
+							<td style="vertical-align: middle;">
+								<a th:href="@{allocations/} + ${allocation.id}" th:text="${allocation.id}"/>
+							</td>
 							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.contract.employee}"></td>
 							<td colspan="1" style="vertical-align: middle;" th:text="${#dates.format(allocation.startDate, 'dd.MM.yyyy')}" ></td>
 							<td colspan="1" style="vertical-align: middle;" th:text="${#dates.format(allocation.endDate, 'dd.MM.yyyy')}" ></td>
 							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.pensumPercentage} + '%'" ></td>
 							<td colspan="1" style="vertical-align: middle;" th:text="${allocation.project.name}" ></td>
-							<td>
-								<div>
-									<form action="#" th:action="@{/allocations/{id}(id=${allocation.id})}">
-										<!--
-											The action URL is mutated after submitting the form according to
-											https://www.w3.org/TR/2011/WD-html5-20110525/association-of-controls-and-forms.html#submit-mutate-action
-											The browser will trash the existing "?..." part of hte URI and replace it with a new one based on your form.
-										-->
-										<input type="hidden" name="form" />
-										<button class="btn btn-primary">
-											Edit
-										</button>
-									</form>
-								</div>
-
-								<div>
-									<form action="#" th:action="@{/allocations} + '/' + ${allocation.id}" method="post">
-										<input type="hidden" name="_method" value="DELETE" />
-										<button type="submit" class="btn btn-danger">
-											Delete
-										</button>
-									</form>
-								</div>
-							</td>
 						</tr>
 						</tbody>
 					</table>
