@@ -37,20 +37,25 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 
 	public List<Project> getProjects(Token token, String fromDate, String toDate)
 			throws TimecastNotFoundException, TimecastInternalServerErrorException {
-		Map<String, String> uriVar = new HashMap<>();
+    	StringBuilder paramUrl = new StringBuilder(apiURL);
+    	if (fromDate != null || toDate != null) {
+    		paramUrl.append("?");
+		}
 		if (fromDate != null) {
-			uriVar.put("fromDate", fromDate);
+			paramUrl.append("fromDate=");
+			paramUrl.append(fromDate);
+			paramUrl.append("&");
 		}
 		if (toDate != null) {
-			uriVar.put("toDate", toDate);
+			paramUrl.append("toDate=");
+			paramUrl.append(toDate);
 		}
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(token.getToken());
 		HttpEntity<?> request = new HttpEntity<>(headers);
-		ResponseEntity<List<ProjectDto>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request,
-				new ParameterizedTypeReference<List<ProjectDto>>() {
-				}, uriVar);
+		ResponseEntity<List<ProjectDto>> response = restTemplate.exchange(paramUrl.toString(), HttpMethod.GET, request,
+				new ParameterizedTypeReference<List<ProjectDto>>() {});
 
 		HttpStatus statusCode = response.getStatusCode();
 		if (statusCode != HttpStatus.OK) {

@@ -1,4 +1,4 @@
-package wodss.timecastfrontend;
+package wodss.timecastfrontend.web;
 
 public class ProjectControllerTests {
 }

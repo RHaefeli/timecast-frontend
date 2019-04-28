@@ -11,9 +11,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 
 public class Allocation implements TimecastEntity {
-	
-	//TODO
-	Long id;
+	private long id;
 	
 	@NotNull
     @DateTimeFormat(pattern = "dd.MM.yyyy")
@@ -26,14 +24,13 @@ public class Allocation implements TimecastEntity {
 	@NotNull
 	@Min(0)
 	@Max(100)
-	int pensumPercentage;
+	private int pensumPercentage;
 	
-	Contract contract;
+	private Contract contract;
 	
-	Project project;
+	private Project project;
 	
 	public Allocation() {
-		
 	}
 	
 	public Allocation(Date startDate, Date endDate, int pensumPercentage) {
@@ -93,8 +90,4 @@ public class Allocation implements TimecastEntity {
 		this.id = id;
 		
 	}
-	
-	
-	
-	
 }

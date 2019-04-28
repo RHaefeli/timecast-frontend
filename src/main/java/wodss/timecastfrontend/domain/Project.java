@@ -76,6 +76,11 @@ public class Project implements TimecastEntity {
 	public void setProjectManager(Employee projectManager) {
 		this.projectManager = projectManager;
 	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
 	
 	@Override
 	public boolean equals(Object o) {

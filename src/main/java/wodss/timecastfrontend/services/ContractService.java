@@ -64,10 +64,10 @@ public class ContractService extends AbstractService<Contract, ContractDto> {
         Map<String, String> uriVar = new HashMap<>();
         DateFormat dtoFormat = new SimpleDateFormat("yyyy-MM-dd");
         String fromDate = dtoFormat.format(new Date());
-        uriVar.put("fromDate", fromDate);
+        String paramUrl = apiURL + "?fromDate=" + fromDate;
 
         HttpEntity<?> request = new HttpEntity<>(headers);
-        ResponseEntity<List<ContractDto>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request,
+        ResponseEntity<List<ContractDto>> response = restTemplate.exchange(paramUrl, HttpMethod.GET, request,
                 new ParameterizedTypeReference<List<ContractDto>>() {}, uriVar);
 
         HttpStatus statusCode = response.getStatusCode();

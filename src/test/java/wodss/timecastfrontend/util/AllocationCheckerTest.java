@@ -1,7 +1,9 @@
-package wodss.timecastfrontend;
+package wodss.timecastfrontend.util;
 
 import static org.junit.Assert.assertTrue;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -13,17 +15,16 @@ import wodss.timecastfrontend.domain.Allocation;
 import wodss.timecastfrontend.domain.Contract;
 import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Role;
-import wodss.timecastfrontend.web.DateChegga;
+import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
+import wodss.timecastfrontend.util.AllocationChecker;
 
-public class DateCheggaTest {
+public class AllocationCheckerTest {
 	
-	DateChegga testee = new DateChegga();
-	Date startDate1;
-	List<Allocation> existingAllocations;
-	List<Contract> contracts;
-	Employee emp;
-	
-	
+	private AllocationChecker testee = new AllocationChecker();
+	private Date startDate1;
+	private List<Allocation> existingAllocations;
+	private List<Contract> contracts;
+	private Employee emp;
 	
 	@Before
 	public void setUp() {
@@ -34,15 +35,15 @@ public class DateCheggaTest {
 		e.setRole(Role.DEVELOPER);
 		Contract c1 = new Contract();
 		c1.setEmployee(e);
-		startDate1 = normalizeDates(new Date());
+		startDate1 = normalizeDate(new Date());
 		c1.setStartDate(startDate1);
-		c1.setEndDate(normalizeDates((new Date(startDate1.getTime() + 10L * 24 * 60 * 60 * 1000))));
+		c1.setEndDate(normalizeDate((new Date(startDate1.getTime() + 10L * 24 * 60 * 60 * 1000))));
 		c1.setPensumPercentage(100);
 		
 		Contract c2 = new Contract();
 		c2.setEmployee(e);
-		c2.setStartDate(normalizeDates(new Date(startDate1.getTime() + 11L * 24 * 60 * 60 * 1000)));
-		c2.setEndDate(normalizeDates((new Date(startDate1.getTime() + 22L * 24 * 60 * 60 * 1000))));
+		c2.setStartDate(normalizeDate(new Date(startDate1.getTime() + 11L * 24 * 60 * 60 * 1000)));
+		c2.setEndDate(normalizeDate((new Date(startDate1.getTime() + 22L * 24 * 60 * 60 * 1000))));
 		c2.setPensumPercentage(50);
 		
 		contracts = new ArrayList<Contract>();
@@ -50,20 +51,20 @@ public class DateCheggaTest {
 		contracts.add(c2);
 		
 		Allocation a1 = new Allocation();
-		a1.setStartDate(normalizeDates(new Date(startDate1.getTime())));
-		a1.setEndDate(normalizeDates(new Date(startDate1.getTime() + 2L * 24*60*60*1000)));
+		a1.setStartDate(normalizeDate(new Date(startDate1.getTime())));
+		a1.setEndDate(normalizeDate(new Date(startDate1.getTime() + 2L * 24*60*60*1000)));
 		a1.setContract(c1);
 		a1.setPensumPercentage(100);
 		
 		Allocation a2 = new Allocation();
-		a2.setStartDate(normalizeDates(new Date(startDate1.getTime()+3L *24*60*60*1000)));
-		a2.setEndDate(normalizeDates(new Date(startDate1.getTime() + 5L * 24*60*60*1000)));
+		a2.setStartDate(normalizeDate(new Date(startDate1.getTime()+3L *24*60*60*1000)));
+		a2.setEndDate(normalizeDate(new Date(startDate1.getTime() + 5L * 24*60*60*1000)));
 		a2.setContract(c1);
 		a2.setPensumPercentage(50);
 		
 		Allocation a3 = new Allocation();
-		a3.setStartDate(normalizeDates(new Date(startDate1.getTime() + 19L*24*60*60*1000)));
-		a3.setEndDate(normalizeDates(new Date(startDate1.getTime() + 25L * 24*60*60*1000)));
+		a3.setStartDate(normalizeDate(new Date(startDate1.getTime() + 19L*24*60*60*1000)));
+		a3.setEndDate(normalizeDate(new Date(startDate1.getTime() + 25L * 24*60*60*1000)));
 		a3.setContract(c1);
 		a3.setPensumPercentage(100);
 		
@@ -211,13 +212,14 @@ public class DateCheggaTest {
 		List<Allocation> createdAlloc = testee.computeAllocations(alloc, contracts, existingAllocations);
 		assertTrue(createdAlloc.size()==1);
 	}
-	
-	private Date normalizeDates(Date date) {
-		Date newDate = date;
-		newDate.setHours(0);
-		newDate.setMinutes(0);
-		newDate.setSeconds(0);
-		return newDate;
-	}
 
+	private Date normalizeDate(Date date) {
+		try {
+			SimpleDateFormat formatter = new SimpleDateFormat(
+					"yyyy-MM-dd");
+			return formatter.parse(formatter.format(date));
+		} catch (ParseException e) {
+			throw new TimecastInternalServerErrorException(e.getMessage());
+		}
+	}
 }
