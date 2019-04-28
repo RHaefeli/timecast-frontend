@@ -27,22 +27,27 @@
             <br>
             <table id="employee-table" class="table table-condensed table-hover">
                 <thead>
-                <tr>
-                    <th style="vertical-align: middle;">Id</th>
-                    <th style="vertical-align: middle;">Last Name</th>
-                    <th style="vertical-align: middle;">First Name</th>
-                    <th style="vertical-align: middle;">Role</th>
-                </tr>
+                    <tr>
+                        <th style="vertical-align: middle;">Id</th>
+                        <th style="vertical-align: middle;">Last Name</th>
+                        <th style="vertical-align: middle;">First Name</th>
+                        <th style="vertical-align: middle;">Role</th>
+                        <th style="vertical-align: middle;">Current Pensum</th>
+                        <th style="vertical-align: middle;">Current #Projects</th>
+                    </tr>
                 </thead>
                 <tbody>
-                <tr th:each="employee : ${employees}">
-                    <td style="vertical-align: middle;">
-                        <a th:href="@{employees/} + ${employee.id}" th:text="${employee.id}"/>
-                    </td>
-                    <td style="vertical-align: middle;" th:text="${employee.lastName}" ></td>
-                    <td style="vertical-align: middle;" th:text="${employee.firstName}"></td>
-                    <td style="vertical-align: middle;" th:text="${employee.role}"></td>
-                </tr>
+                    <tr th:each="employee : ${employees}">
+                        <td style="vertical-align: middle;">
+                            <a th:href="@{employees/} + ${employee.id}" th:text="${employee.id}"/>
+                        </td>
+                        <td style="vertical-align: middle;" th:text="${employee.lastName}" ></td>
+                        <td style="vertical-align: middle;" th:text="${employee.firstName}"></td>
+                        <td style="vertical-align: middle;" th:text="${employee.role}"></td>
+                        <td style="vertical-align: middle;" th:text="${contractMap.get(employee.getId()).pensumPercentage}"></td>
+                        <td th:if="${projectCounterMap.get(employee.getId())}" style="vertical-align: middle;" th:text="${projectCounterMap.get(employee.getId())}"></td>
+                        <td th:unless="${projectCounterMap.get(employee.getId())}" style="vertical-align: middle;" th:text="0"></td>
+                    </tr>
                 </tbody>
             </table>
         </div>

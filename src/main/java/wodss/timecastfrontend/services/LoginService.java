@@ -27,7 +27,6 @@ public class LoginService {
     public Token createToken(String email, String password) {
         logger.debug("Create Token for " + email + " on api: " + apiURL);
         HttpEntity<String> request = new HttpEntity<>("{\"emailAddress\":\"" + email + "\",\"rawPassword\":\"" + password + "\"}");
-        System.out.println(request);
         ResponseEntity<Token> response = restTemplate.exchange(apiURL, HttpMethod.POST, request, Token.class);
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.CREATED) {

@@ -1,11 +1,10 @@
 package wodss.timecastfrontend.security;
 
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.util.ResourceUtils;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
@@ -45,13 +44,19 @@ public class RsaUtil {
     public static String getKey(String filename) {
         // Read key from file
         StringBuilder strKeyPEM = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))){
+        File file = null;
+        try {
+            file = ResourceUtils.getFile(filename);
+        } catch (FileNotFoundException ex) {
+            throw new TimecastInternalServerErrorException(ex.getMessage());
+        }
+        try (BufferedReader br = new BufferedReader(new FileReader(file))){
             String line;
             while ((line = br.readLine()) != null) {
                 strKeyPEM.append(line).append("\n");
             }
         } catch (IOException ex) {
-            throw new TimecastInternalServerErrorException("");
+            throw new TimecastInternalServerErrorException(ex.getMessage());
         }
 
         return strKeyPEM.toString();

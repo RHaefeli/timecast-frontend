@@ -27,8 +27,6 @@ public class MockAllocationService extends AllocationService {
 	public MockAllocationService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.allocation}") String apiURL,
 			MockContractService contractService, MockProjectService projectService) {
 		super(restTemplate, apiURL, contractService, projectService);
-        logger.debug("Using Mock Allocation Service!");
-        logger.debug("API URL " + apiURL + " will not be used in the mock service!");
 	}
 
 	public List<Allocation> getAll(Token token) {
@@ -37,6 +35,7 @@ public class MockAllocationService extends AllocationService {
 	
 	@Override
 	public List<Allocation> getAllocations(Token token, long employeeId, long projectId, Date fromDateString, Date toDateString) {
+		logger.debug("Using Mock Allocation Service!");
 		Stream<Allocation> stream = MockRepository.allocations.stream();
 		if (projectId >= 0 ) {
 			stream = stream.filter(a -> a.getProject().getId() == projectId);
@@ -58,6 +57,7 @@ public class MockAllocationService extends AllocationService {
 
 	@Override
 	public Allocation getById(Token token, long id) {
+		logger.debug("Using Mock Allocation Service!");
 		if (MockRepository.allocations.stream().anyMatch(a -> a.getId() == id)) {
 			return MockRepository.allocations.stream().filter(a -> a.getId() == id).findFirst().get();
 		} else {
@@ -67,6 +67,7 @@ public class MockAllocationService extends AllocationService {
 
 	@Override
 	public Allocation create(Token token, Allocation newAllocation) {
+		logger.debug("Using Mock Allocation Service!");
 		newAllocation.setId(MockRepository.nextAllocationId++);
 		MockRepository.allocations.add(newAllocation);
 		return newAllocation;
@@ -74,6 +75,7 @@ public class MockAllocationService extends AllocationService {
 
 	@Override
 	public Allocation update(Token token, Allocation updatedAllocation) {
+		logger.debug("Using Mock Allocation Service!");
 		if (MockRepository.allocations.stream().anyMatch(a -> a.getId() == updatedAllocation.getId())) {
 			Allocation oldAllocation = MockRepository.allocations.stream().filter(a -> a.getId() == updatedAllocation.getId()).findFirst().get();
 			oldAllocation.setContract(updatedAllocation.getContract());
@@ -89,6 +91,7 @@ public class MockAllocationService extends AllocationService {
 
 	@Override
 	public void deleteById(Token token, long id) {
+		logger.debug("Using Mock Allocation Service!");
 		if (MockRepository.allocations.stream().anyMatch(a -> a.getId() == id)) {
 			MockRepository.allocations.removeIf(a -> a.getId() == id);
 		} else {

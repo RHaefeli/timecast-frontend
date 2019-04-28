@@ -85,7 +85,7 @@ public class HomeController {
         Employee me = employeeService.getById(token, employee.getId());
         List<Allocation> allocations = allocationService.getAllocations(token, me.getId(), -1, null, null);
         List<Project> projects = allocations.stream()
-                .map(a -> projectService.getById(token, a.getProject().getId()))
+                .map(a -> a.getProject())
                 .collect(Collectors.toList());
         model.addAttribute("projects", projects);
         return "projects/list";

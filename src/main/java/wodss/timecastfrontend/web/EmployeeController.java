@@ -10,18 +10,21 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import wodss.timecastfrontend.domain.Contract;
-import wodss.timecastfrontend.domain.Employee;
-import wodss.timecastfrontend.domain.PasswordValidator;
-import wodss.timecastfrontend.domain.Token;
+import wodss.timecastfrontend.domain.*;
 import wodss.timecastfrontend.exceptions.*;
+import wodss.timecastfrontend.services.AllocationService;
 import wodss.timecastfrontend.services.ContractService;
 import wodss.timecastfrontend.services.EmployeeService;
 import wodss.timecastfrontend.services.mocks.MockContractService;
 import wodss.timecastfrontend.services.mocks.MockEmployeeService;
 
 import javax.validation.Valid;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 @RequestMapping(value = "/employees")
@@ -29,19 +32,33 @@ public class EmployeeController {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private final EmployeeService employeeService;
     private final ContractService contractService;
+    private final AllocationService allocationService;
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService, ContractService contractService) {
+    public EmployeeController(EmployeeService employeeService, ContractService contractService,
+                              AllocationService allocationService) {
         this.employeeService = employeeService;
         this.contractService = contractService;
+        this.allocationService = allocationService;
     }
 
     @GetMapping
     public String getAll(Model model) {
         logger.debug("Get all employees");
-        String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<Employee> employees = employeeService.getAll(new Token(token));
+        Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        List<Employee> employees = employeeService.getAll(token);
+
+        Map<Long, Contract> contractMap = contractService.getCurrentContracts(token)
+                .stream()
+                .collect(Collectors.toMap(c -> c.getEmployee().getId(), c -> c));
+
+        Map<Long, Long> projectCounterMap = allocationService.getAllocations(token, -1, -1, new Date(), null)
+                .stream()
+                .collect(Collectors.groupingBy(a -> a.getContract().getEmployee().getId(), Collectors.counting()));
+
         model.addAttribute("employees", employees);
+        model.addAttribute("contractMap", contractMap);
+        model.addAttribute("projectCounterMap", projectCounterMap);
 
         return "employees/list";
     }

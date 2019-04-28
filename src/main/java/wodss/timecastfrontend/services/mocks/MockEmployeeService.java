@@ -24,8 +24,6 @@ public class MockEmployeeService extends EmployeeService {
 
     public MockEmployeeService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.employee}") String apiURL) {
         super(restTemplate, apiURL);
-        logger.debug("Using Mock Employee Service!");
-        logger.debug("API URL " + apiURL + " will not be used in the mock service!");
         employeeRepo = generateEmployees();
     }
 

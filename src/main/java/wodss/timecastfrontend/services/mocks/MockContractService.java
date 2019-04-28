@@ -33,8 +33,6 @@ public class MockContractService extends ContractService {
                                MockEmployeeService employeeService) {
         super(restTemplate, apiURL, employeeService);
         this.employeeService = employeeService;
-        logger.debug("Using Mock Contract Service!");
-        logger.debug("API URL " + apiURL + " will not be used in the mock service!");
         contractRepo = generateContracts();
     }
 

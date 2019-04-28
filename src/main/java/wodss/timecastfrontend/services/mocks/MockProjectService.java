@@ -30,9 +30,6 @@ public class MockProjectService extends ProjectService {
 	@Autowired
 	public MockProjectService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.project}") String apiURL, MockEmployeeService employeeService) {
 		super(restTemplate, apiURL, employeeService);
-        logger.debug("Using Mock Project Service!");
-        logger.debug("API URL " + apiURL + " will not be used in the mock service!");
-
         logger.debug("Generating mock projects");
         MockRepository.generateRepository();
         projectRepo = MockRepository.projects;
@@ -41,12 +38,14 @@ public class MockProjectService extends ProjectService {
 	
 	@Override
 	public List<Project> getAll(Token token) throws TimecastNotFoundException, TimecastInternalServerErrorException {
+		logger.debug("Using Mock Project Service!");
 		return projectRepo;
 	}
 
 	@Override
 	public List<Project> getProjects(Token token, String fromDate, String toDate)
 			throws TimecastNotFoundException, TimecastInternalServerErrorException {
+		logger.debug("Using Mock Project Service!");
 		if (("".equals(fromDate) && "".equals(toDate)) || (fromDate == null) || (toDate == null)) {
 			return projectRepo;
 		} else {
@@ -56,6 +55,7 @@ public class MockProjectService extends ProjectService {
 
 	@Override
 	public Project getById(Token token, long id) throws TimecastNotFoundException, TimecastInternalServerErrorException, TimecastForbiddenException {
+		logger.debug("Using Mock Project Service!");
 		if (projectRepo.stream().anyMatch(p -> p.getId() == id)) {
 			return projectRepo.stream().filter(p -> p.getId() == id).findFirst().get();
 		} else {
@@ -65,6 +65,7 @@ public class MockProjectService extends ProjectService {
 
 	@Override
 	public Project create(Token token, Project newProject) throws TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
+		logger.debug("Using Mock Project Service!");
 		newProject.setId(MockRepository.nextProjectId++);
 		projectRepo.add(newProject);
 		return newProject;
@@ -72,6 +73,7 @@ public class MockProjectService extends ProjectService {
 
 	@Override
 	public Project update(Token token, Project updatedProject) throws TimecastNotFoundException, TimecastPreconditionFailedException, TimecastForbiddenException, TimecastInternalServerErrorException {
+		logger.debug("Using Mock Project Service!");
 		if (projectRepo.stream().anyMatch(p -> p.getId() == updatedProject.getId())) {
 			Project oldProject = projectRepo.stream().filter(p -> p.getId() == updatedProject.getId()).findFirst().get();
 			oldProject.setName(updatedProject.getName());
@@ -87,6 +89,7 @@ public class MockProjectService extends ProjectService {
 
 	@Override
 	public void deleteById(Token token, long id) throws TimecastInternalServerErrorException, TimecastForbiddenException, TimecastNotFoundException {
+		logger.debug("Using Mock Project Service!");
 		if (projectRepo.stream().anyMatch(p -> p.getId() == id)) {
 			projectRepo.removeIf(p -> p.getId() == id);
 		} else {
