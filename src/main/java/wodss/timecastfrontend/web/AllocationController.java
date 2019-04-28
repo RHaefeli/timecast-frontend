@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.sound.midi.SysexMessage;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -33,9 +32,7 @@ import wodss.timecastfrontend.domain.Employee;
 import wodss.timecastfrontend.domain.Project;
 import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.domain.Token;
-import wodss.timecastfrontend.exceptions.TimecastForbiddenException;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
-import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 import wodss.timecastfrontend.exceptions.TimecastPreconditionFailedException;
 import wodss.timecastfrontend.services.AllocationService;
 import wodss.timecastfrontend.services.ContractService;
@@ -52,8 +49,6 @@ public class AllocationController {
 	private final ProjectService projectService;
 	private final EmployeeService employeeService;
 	private final ContractService contractService;
-	private String filterStartDate;
-	private String filterEndDate;
 
 	@Autowired
 	public AllocationController(AllocationService allocationService, ProjectService projectService,
@@ -252,10 +247,11 @@ public class AllocationController {
 	}
 
 	@DeleteMapping(value = "/{id}")
-	public String delete(@PathVariable long id) {
-		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		allocationService.deleteById(new Token(token), id);
+	public String delete(@PathVariable long id, RedirectAttributes redirectAttributes) {
+		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		allocationService.deleteById(token, id);
 
+		redirectAttributes.addFlashAttribute("success", "Successfully deleted Allocation.");
 		return "redirect:/allocations";
 	}
 	

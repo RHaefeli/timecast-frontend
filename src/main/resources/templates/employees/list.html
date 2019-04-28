@@ -44,7 +44,8 @@
                         <td style="vertical-align: middle;" th:text="${employee.lastName}" ></td>
                         <td style="vertical-align: middle;" th:text="${employee.firstName}"></td>
                         <td style="vertical-align: middle;" th:text="${employee.role}"></td>
-                        <td style="vertical-align: middle;" th:text="${contractMap.get(employee.getId()).pensumPercentage}"></td>
+                        <td th:if="${contractMap.get(employee.getId())}" style="vertical-align: middle;" th:text="${contractMap.get(employee.getId()).pensumPercentage} + '%'"></td>
+                        <td th:unless="${contractMap.get(employee.getId())}" style="vertical-align: middle;" th:text="'0%'"></td>
                         <td th:if="${projectCounterMap.get(employee.getId())}" style="vertical-align: middle;" th:text="${projectCounterMap.get(employee.getId())}"></td>
                         <td th:unless="${projectCounterMap.get(employee.getId())}" style="vertical-align: middle;" th:text="0"></td>
                     </tr>

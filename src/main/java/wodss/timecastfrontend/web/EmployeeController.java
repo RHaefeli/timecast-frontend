@@ -8,23 +8,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import wodss.timecastfrontend.domain.*;
 import wodss.timecastfrontend.exceptions.*;
 import wodss.timecastfrontend.services.AllocationService;
 import wodss.timecastfrontend.services.ContractService;
 import wodss.timecastfrontend.services.EmployeeService;
-import wodss.timecastfrontend.services.mocks.MockContractService;
-import wodss.timecastfrontend.services.mocks.MockEmployeeService;
 
 import javax.validation.Valid;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Controller
 @RequestMapping(value = "/employees")
@@ -56,6 +51,7 @@ public class EmployeeController {
                 .stream()
                 .collect(Collectors.groupingBy(a -> a.getContract().getEmployee().getId(), Collectors.counting()));
 
+        System.out.println(projectCounterMap);
         model.addAttribute("employees", employees);
         model.addAttribute("contractMap", contractMap);
         model.addAttribute("projectCounterMap", projectCounterMap);
@@ -82,10 +78,10 @@ public class EmployeeController {
             return "employees/create";
         }
 
-        String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         try {
             employeeLogin.setActive(true);
-            Employee newEmployee = employeeService.create(new Token(token), employeeLogin);
+            Employee newEmployee = employeeService.create(token, employeeLogin);
             redirectAttributes.addFlashAttribute("success", "Successfully created Employee.");
             return "redirect:/employees/" + newEmployee.getId();
         } catch (TimecastPreconditionFailedException ex) {
@@ -97,9 +93,9 @@ public class EmployeeController {
     @GetMapping("/{id}")
     public String getById(@PathVariable long id, Model model) {
         logger.debug("Get employee by id: " + id);
-        String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Employee employee = employeeService.getById(new Token(token), id);
-        List<Contract> contracts = contractService.getByEmployee(new Token(token), employee);
+        Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        Employee employee = employeeService.getById(token, id);
+        List<Contract> contracts = contractService.getByEmployee(token, employee);
         model.addAttribute("employee", employee);
         model.addAttribute("contracts", contracts);
 
@@ -114,9 +110,10 @@ public class EmployeeController {
             logger.debug("Binding error: " + bindingResult.getAllErrors());
             return "employees/update";
         }
-        String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         try {
-            Employee updatedEmployee = employeeService.update(new Token(token), employee);
+            employee.setId(id);
+            Employee updatedEmployee = employeeService.update(token, employee);
             model.addAttribute("employee", updatedEmployee);
             model.addAttribute("success", "Successfully updated Employee.");
             return "employees/update";
@@ -129,8 +126,8 @@ public class EmployeeController {
     @DeleteMapping("/{id}")
     public String deleteById(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         logger.debug("Delete employee by id: " + id);
-        String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        employeeService.deleteById(new Token(token), id);
+        Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        employeeService.deleteById(token, id);
 
         redirectAttributes.addFlashAttribute("success", "Successfully deleted Employee.");
         return "redirect:/employees";
@@ -139,11 +136,11 @@ public class EmployeeController {
     @GetMapping(value = "/{id}/contracts", params = "form")
     public String createContractForm(@PathVariable Long id, Model model) {
         logger.debug("Get create contract form for employee: " + id);
-        String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Employee employee = employeeService.getById(new Token(token), id);
+        Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        Employee employee = employeeService.getById(token, id);
         Contract contract = new Contract();
         contract.setEmployee(employee);
-        List<Contract> contracts = contractService.getByEmployee(new Token(token), employee);
+        List<Contract> contracts = contractService.getByEmployee(token, employee);
 
         model.addAttribute("contract", contract);
         model.addAttribute("contracts", contracts);
@@ -159,10 +156,10 @@ public class EmployeeController {
             return "employees/contracts/create";
         }
         try {
-            String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            Employee employee = employeeService.getById(new Token(token), id);
+            Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+            Employee employee = employeeService.getById(token, id);
             contract.setEmployee(employee);
-            Contract newContract = contractService.create(new Token(token), contract);
+            Contract newContract = contractService.create(token, contract);
 
             redirectAttributes.addFlashAttribute("success", "Successfully created Contract.");
             return "redirect:/contracts/" + newContract.getId();

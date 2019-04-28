@@ -21,10 +21,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import wodss.timecastfrontend.domain.Employee;
-import wodss.timecastfrontend.domain.Project;
-import wodss.timecastfrontend.domain.Role;
-import wodss.timecastfrontend.domain.Token;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import wodss.timecastfrontend.domain.*;
 import wodss.timecastfrontend.exceptions.*;
 import wodss.timecastfrontend.services.AllocationService;
 import wodss.timecastfrontend.services.ContractService;
@@ -38,18 +36,16 @@ public class ProjectController {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ProjectService projectService;
-    private final AllocationService allocationService;
     private final EmployeeService employeeService;
-    private final ContractService contractService;
+    private final AllocationService allocationService;
     private final JwtUtil jwtUtil;
 
     @Autowired
     public ProjectController(ProjectService projectService, AllocationService allocationService,
-							 EmployeeService employeeService, ContractService contractService, JwtUtil jwtUtil) {
+							 EmployeeService employeeService, JwtUtil jwtUtil) {
         this.projectService = projectService;
-        this.allocationService = allocationService;
         this.employeeService = employeeService;
-        this.contractService = contractService;
+        this.allocationService = allocationService;
         this.jwtUtil = jwtUtil;
     }
 
@@ -58,11 +54,11 @@ public class ProjectController {
 						 @RequestParam(value = "toDate", required = false) String toDateString, Model model) {
         logger.debug("Get all projects");
     	List<Project> projects;
-		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 		if ("".equals(fromDateString) && "".equals(toDateString)) {
-			projects = projectService.getAll(new Token(token));
+			projects = projectService.getAll(token);
 		} else {
-			projects = projectService.getProjects(new Token(token), fromDateString, toDateString);
+			projects = projectService.getProjects(token, fromDateString, toDateString);
 		}
 		logger.debug("Projects: " + projects);
 		model.addAttribute("projects", projects);
@@ -88,19 +84,21 @@ public class ProjectController {
 		logger.debug("Init manager: " + (projectManagers.size() == 0 ? "None" : projectManagers.get(0).getId()));
 		return "projects/create";
 	}
+
     @PostMapping()
     public String createProject(@Valid @ModelAttribute("project") Project project,
-								@ModelAttribute("projectManagerId") Long projectManagerId, BindingResult bindingResult) {
+								@ModelAttribute("projectManagerId") Long projectManagerId, BindingResult bindingResult,
+								RedirectAttributes redirectAttributes) {
     	if (bindingResult.hasErrors()) {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "projects/create";
 		}
-		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 		logger.debug("Manager selected: " + projectManagerId);
-		Employee em = employeeService.getById(new Token(token), projectManagerId);
+		Employee em = employeeService.getById(token, projectManagerId);
 		project.setProjectManager(em);
-		projectService.create(new Token(token), project);
-    	
+		projectService.create(token, project);
+		redirectAttributes.addFlashAttribute("success", "Successfully created Project.");
     	return "redirect:/projects";
     }
 
@@ -128,24 +126,35 @@ public class ProjectController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public String update(@PathVariable long id, @ModelAttribute("projectManagerId") Long projectManagerId,
-						 @Valid Project project, BindingResult bindingResult) {
+	public String update(@PathVariable long id, @ModelAttribute("projectManagerId") Long projectManagerId, Model model,
+						 @Valid Project project, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		// Prevent update if there exist allocations with the same contract.
+		List<Allocation> allocations = allocationService.getAllocations(token, -1, id, null, null);
+		if (allocations.size() > 0) {
+			logger.debug("Cannot change Project when there are allocations referencing to this project.");
+			model.addAttribute("exception", "Cannot change Project when there are allocations referencing to this project.");
+			return "projects/update";
+		}
+
 		if (bindingResult.hasErrors()) {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			return "projects/update";
 		}
+
 		project.setId(id);
-		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		Employee projectManager = employeeService.getById(new Token(token), projectManagerId);
+		Employee projectManager = employeeService.getById(token, projectManagerId);
 		project.setProjectManager(projectManager);
-		projectService.update(new Token(token), project);
+		projectService.update(token, project);
+		redirectAttributes.addFlashAttribute("success", "Successfully deleted Project.");
 		return "redirect:/projects";
 	}
 	
 	@DeleteMapping(value = "/{id}")
-	public String delete(@PathVariable long id) {
-		String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		projectService.deleteById(new Token(token), id);
+	public String delete(@PathVariable long id, RedirectAttributes redirectAttributes) {
+		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		projectService.deleteById(token, id);
+		redirectAttributes.addFlashAttribute("success", "Successfully deleted Project.");
 		return "redirect:/projects";
 	}
 }
