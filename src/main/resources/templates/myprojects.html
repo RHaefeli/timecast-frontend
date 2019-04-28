@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  th:replace="layout :: maincontent(content=~{::section}, title='My Projects', links=~{::link}, scripts=~{::header_script})">
+
+<head>
+	<!-- jQuery -->
+	<script th:fragment="header_script" src="https://code.jquery.com/jquery-3.4.0.slim.min.js" integrity="sha256-ZaXnYkHGqIhqTbJ6MB4l9Frs/r7U4jlx7ir8PJYBqbI=" crossorigin="anonymous"></script>
+	<!-- Bootstrap datatable -->
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.css"/>
+	<script th:fragment="header_script" type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.js"></script>
+	<!-- FontAwesome -->
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" type="text/css" rel="stylesheet">
+</head>
+
+<body>
+<section>
+	<h3>My Projects</h3>
+	<br>
+
+	<div class="scrollable-app-container">
+		<div th:if="${projects.isEmpty()}" class="app-content">
+			<h2 style="text-align: center">No Projects found</h2>
+		</div>
+		<div th:unless="${projects.isEmpty()}" class="app-content">
+			<br>
+			<table id="project-table" class="table table-condensed table-hover">
+				<thead>
+				<tr>
+					<th style="vertical-align: middle;">Id</th>
+					<th style="vertical-align: middle;">Name</th>
+					<th style="vertical-align: middle;">Start Date</th>
+					<th style="vertical-align: middle;">End Date</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr th:each="project : ${projects}">
+					<td style="vertical-align: middle;">
+						<a th:href="@{projects/} + ${project.id}" th:text="${project.id}"/>
+					</td>
+					<td style="vertical-align: middle;" th:text="${project.name}"></td>
+					<td style="vertical-align: middle;" th:text="${#dates.format(project.startDate, 'dd.MM.yyyy')}"></td>
+					<td style="vertical-align: middle;" th:text="${#dates.format(project.endDate, 'dd.MM.yyyy')}"></td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<script>
+		// requires jQuery
+		// requires datatables
+		$(document).ready(function() {
+			$('#project-table').DataTable({
+				scrollY: '55vh'
+			});
+		});
+	</script>
+</section>
+</body>
+</html>

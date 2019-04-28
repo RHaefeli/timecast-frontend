@@ -88,6 +88,6 @@ public class HomeController {
                 .map(a -> a.getProject())
                 .collect(Collectors.toList());
         model.addAttribute("projects", projects);
-        return "projects/list";
+        return "myprojects";
     }
 }

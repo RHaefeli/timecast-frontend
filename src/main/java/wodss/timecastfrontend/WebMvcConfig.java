@@ -50,6 +50,8 @@ public class WebMvcConfig extends WebSecurityConfigurerAdapter implements WebMvc
                 .antMatchers("/projects/{id}").hasAnyAuthority(Role.ADMINISTRATOR.getValue(), Role.PROJECTMANAGER.getValue())
                 .antMatchers("/contracts").hasAuthority(Role.ADMINISTRATOR.getValue())
                 .antMatchers("/contracts/{id}").hasAuthority(Role.ADMINISTRATOR.getValue())
+                .antMatchers("/allocations").hasAnyAuthority(Role.ADMINISTRATOR.getValue(), Role.PROJECTMANAGER.getValue())
+                .antMatchers("/allocations/{id}").hasAnyAuthority(Role.ADMINISTRATOR.getValue(), Role.PROJECTMANAGER.getValue())
                 .anyRequest().authenticated()
                 .and()
             .formLogin()
