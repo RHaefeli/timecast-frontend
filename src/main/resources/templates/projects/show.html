@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="layout :: maincontent(content=~{::section}, title='Update Project', links=~{}, scripts=~{})">
 <head>
     <!-- Put additional style links here -->
@@ -48,7 +49,8 @@
             </div>
 
             <div class="form-row button-row">
-                <a class="btn btn-default" th:href="@{/projects}">Back</a>
+                <a sec:authorize="hasAnyAuthority('ADMINISTRATOR', 'PROJECTMANAGER')" class="btn btn-default" th:href="@{/projects}">Back</a>
+                <a sec:authorize="hasAuthority('DEVELOPER')"class="btn btn-default" th:href="@{/myprojects}">Back</a>
             </div>
         </form>
     </div>

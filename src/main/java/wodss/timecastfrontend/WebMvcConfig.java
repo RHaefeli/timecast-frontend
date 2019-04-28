@@ -35,8 +35,8 @@ public class WebMvcConfig extends WebSecurityConfigurerAdapter implements WebMvc
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(sessionHandlerInterceptor)
-                .addPathPatterns("/**")
-                .excludePathPatterns("/", "/login/**", "/css/app.css", "/css/login.css", "/logout/**");
+                .excludePathPatterns("/", "/login/**", "/css/app.css", "/css/login.css", "/logout/**")
+                .addPathPatterns("/**");
     }
 
     @Override
@@ -47,7 +47,6 @@ public class WebMvcConfig extends WebSecurityConfigurerAdapter implements WebMvc
                 .antMatchers("/employees/{id}").hasAuthority(Role.ADMINISTRATOR.getValue())
                 .antMatchers("/employees/{id}/contracts").hasAuthority(Role.ADMINISTRATOR.getValue())
                 .antMatchers("/projects").hasAnyAuthority(Role.ADMINISTRATOR.getValue(), Role.PROJECTMANAGER.getValue())
-                .antMatchers("/projects/{id}").hasAnyAuthority(Role.ADMINISTRATOR.getValue(), Role.PROJECTMANAGER.getValue())
                 .antMatchers("/contracts").hasAuthority(Role.ADMINISTRATOR.getValue())
                 .antMatchers("/contracts/{id}").hasAuthority(Role.ADMINISTRATOR.getValue())
                 .antMatchers("/allocations").hasAnyAuthority(Role.ADMINISTRATOR.getValue(), Role.PROJECTMANAGER.getValue())

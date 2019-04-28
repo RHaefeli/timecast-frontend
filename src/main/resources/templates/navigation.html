@@ -32,13 +32,13 @@
                         <a class="nav-link h6" th:href="@{/myprojects}">My Projects</a>
                     </li>
                 </ul>
-                <hr align="left" width="92%">
             </div>
             
-            <div>
+            <div sec:authorize="hasAnyAuthority('ADMINISTRATOR', 'PROJECTMANAGER')">
+                <hr align="left" width="92%">
                 <h6 class="sidebar-heading px-0 mt-4">Allocations</h6>
                 <ul class="navbar-nav flex-column px-2">
-                    <li sec:authorize="hasAnyAuthority('ADMINISTRATOR', 'PROJECTMANAGER')" class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link h6" th:href="@{/allocations}">Show Allocations</a>
                     </li>
                 </ul>

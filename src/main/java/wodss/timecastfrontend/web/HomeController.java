@@ -40,6 +40,14 @@ public class HomeController {
 
     @GetMapping
     public String get() {
+        String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!token.equals("anonymousUser")) {
+            System.out.println(token);
+            Employee me = jwtUtil.getEmployeeFromToken(new Token(token));
+            if (me.getRole() == Role.DEVELOPER) {
+                return "redirect:/myprojects";
+            }
+        }
         return "redirect:/projects";
     }
 
