@@ -54,6 +54,7 @@ public class WebMvcConfig extends WebSecurityConfigurerAdapter implements WebMvc
                 .and()
             .formLogin()
                 .loginPage("/login")
+                .defaultSuccessUrl("/")
                 .failureUrl("/login?error")
                 .permitAll()
                 .and()
