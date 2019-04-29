@@ -13,7 +13,17 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
+/**
+ * Contains useful methods to work with the Rsa encryption
+ *
+ */
 public class RsaUtil {
+	
+	/**
+	 * Extracts private key
+	 * @param key
+	 * @return RSAPrivateKey
+	 */
     public static RSAPrivateKey getPrivateKeyFromString(String key) {
         String privateKeyPEM = key;
         privateKeyPEM = privateKeyPEM.replace("-----BEGIN PRIVATE KEY-----\n", "");
@@ -28,6 +38,11 @@ public class RsaUtil {
         }
     }
 
+    /**
+     * Extracts the public key 
+     * @param key 
+     * @return RSAPublicKey
+     */
     public static RSAPublicKey getPublicKeyFromString(String key) {
         String publicKeyPEM = key;
         publicKeyPEM = publicKeyPEM.replace("-----BEGIN PUBLIC KEY-----\n", "");
@@ -41,6 +56,11 @@ public class RsaUtil {
         }
     }
 
+    /**
+     * Reads the key file
+     * @param filename of key
+     * @return key as String
+     */
     public static String getKey(String filename) {
         // Read key from file
         StringBuilder strKeyPEM = new StringBuilder();

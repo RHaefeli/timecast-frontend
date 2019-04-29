@@ -21,18 +21,32 @@ import wodss.timecastfrontend.services.LoginService;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles authentication for the whole application
+ *
+ */
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private final LoginService loginService;
     private final JwtUtil jwtUtil;
 
+    /**
+     * Constructor
+     * @param loginService
+     * @param jwtUtil
+     */
     @Autowired
     public CustomAuthenticationProvider(LoginService loginService, JwtUtil jwtUtil) {
         this.loginService = loginService;
         this.jwtUtil = jwtUtil;
     }
 
+    /**
+     * Authenticates a user and creates the token
+     * @return
+     * 		Authentication object
+     */
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String email = authentication.getName();

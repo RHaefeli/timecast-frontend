@@ -20,6 +20,10 @@ import wodss.timecastfrontend.services.mocks.MockLoginService;
 import javax.validation.Valid;
 import java.util.List;
 
+/**
+ * Controlls the contract web component
+ *
+ */
 @Controller
 @RequestMapping(value = "/contracts")
 public class ContractController {
@@ -27,12 +31,22 @@ public class ContractController {
     private final ContractService contractService;
     private final AllocationService allocationService;
 
+    /**
+     * Constructor
+     * @param contractService
+     * @param allocationService
+     */
     @Autowired
     public ContractController(ContractService contractService, AllocationService allocationService) {
         this.contractService = contractService;
         this.allocationService = allocationService;
     }
 
+    /**
+     * Fetches all contracts to list on web page
+     * @param model
+     * @return
+     */
     @GetMapping
     public String getAll(Model model) {
         logger.debug("Get all contracts");
@@ -43,6 +57,12 @@ public class ContractController {
         return "contracts/list";
     }
 
+    /**
+     * Fetches specific contract to show on web page
+     * @param id
+     * @param model
+     * @return next pagelink
+     */
     @GetMapping("/{id}")
     public String getById(@PathVariable long id, Model model) {
         logger.debug("Get contract by id: " + id);
@@ -56,6 +76,14 @@ public class ContractController {
         return "contracts/update";
     }
 
+    /**
+     * Updates contract
+     * @param id
+     * @param contract
+     * @param bindingResult
+     * @param model
+     * @return next pagelink
+     */
     @PutMapping("/{id}")
     public String updateById(@PathVariable Long id, @Valid @ModelAttribute("contract") Contract contract,
                              BindingResult bindingResult, Model model) {
@@ -88,6 +116,12 @@ public class ContractController {
         }
     }
 
+    /**
+     * Delete contract
+     * @param id
+     * @param redirectAttributes
+     * @return redirect contract list
+     */
     @DeleteMapping("/{id}")
     public String deleteById(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         logger.debug("Delete contract by id: " + id);

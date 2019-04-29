@@ -22,6 +22,10 @@ import wodss.timecastfrontend.dto.ProjectDto;
 import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import wodss.timecastfrontend.exceptions.TimecastNotFoundException;
 
+/**
+ * Service handles all calls regarding projects to the backend
+ *
+ */
 @Component
 public class ProjectService extends AbstractService<Project, ProjectDto>{
 
@@ -29,12 +33,27 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 	
 	private EmployeeService employeeService;
 
+	/**
+	 * Constructor
+	 * @param restTemplate
+	 * @param apiURL
+	 * @param employeeService
+	 */
     @Autowired
     public ProjectService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.project}") String apiURL, EmployeeService employeeService) {
         super(restTemplate, apiURL, ProjectDto.class, new ParameterizedTypeReference<List<ProjectDto>>() {});
         this.employeeService = employeeService;
     }
 
+    /**
+     * Get all projects in a timespan
+     * @param token
+     * @param fromDate null if not defined
+     * @param toDate null if not defined
+     * @return List of projects
+     * @throws TimecastNotFoundException
+     * @throws TimecastInternalServerErrorException
+     */
 	public List<Project> getProjects(Token token, String fromDate, String toDate)
 			throws TimecastNotFoundException, TimecastInternalServerErrorException {
     	StringBuilder paramUrl = new StringBuilder(apiURL);
@@ -70,6 +89,12 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 		return dtos.stream().map(dto -> mapDtoToEntity(token, dto)).collect(Collectors.toList());
 	}
 
+	/**
+	 * Maps Project to dto
+	 * @param token
+	 * @param entity
+	 * @return ProjectDto
+	 */
 	@Override
 	protected ProjectDto mapEntityToDto(Token token, Project entity) {
     	if (entity == null) return null;
@@ -84,6 +109,12 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 		return dto;
 	}
 
+	/**
+	 * Map dto to Project
+	 * @param token
+	 * @param dto
+	 * @return Project
+	 */
 	@Override
 	protected Project mapDtoToEntity(Token token, ProjectDto dto) {
 		if (dto == null) return null;

@@ -12,18 +12,33 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import wodss.timecastfrontend.domain.Token;
 
+/**
+ * Service handles all calls regarding the login to the backend
+ *
+ */
 @Component
 public class LoginService {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private RestTemplate restTemplate;
     private String apiURL;
 
+    /**
+     * Constructor
+     * @param restTemplate
+     * @param apiURL
+     */
     @Autowired
     public LoginService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.token}") String apiURL) {
         this.restTemplate = restTemplate;
         this.apiURL = apiURL;
     }
 
+    /**
+     * Creates a token
+     * @param email
+     * @param password
+     * @return Token
+     */
     public Token createToken(String email, String password) {
         logger.debug("Create Token for " + email + " on api: " + apiURL);
         HttpEntity<String> request = new HttpEntity<>("{\"emailAddress\":\"" + email + "\",\"rawPassword\":\"" + password + "\"}");
@@ -37,6 +52,11 @@ public class LoginService {
         return response.getBody();
     }
 
+    /**
+     * Updates a token
+     * @param oldToken
+     * @return Token
+     */
     public Token updateToken(Token oldToken) {
         logger.debug("Update Token on api: " + apiURL);
         HttpEntity<Token> request = new HttpEntity<>(oldToken);

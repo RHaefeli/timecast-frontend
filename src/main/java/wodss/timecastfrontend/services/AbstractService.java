@@ -13,6 +13,13 @@ import wodss.timecastfrontend.exceptions.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Abstract Service which all services should extend. Contains basic methods to
+ * fetch data from the backend.
+ *
+ * @param <E> Domain entity to fetch
+ * @param <DTO> DTO of entity
+ */
 public abstract class AbstractService<E extends TimecastEntity, DTO extends TimecastDto> {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final String apiURL;
@@ -20,6 +27,13 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
     private final Class<DTO> serviceEntityClass;
     private final ParameterizedTypeReference<List<DTO>> listParameterizedTypeReference;
 
+    /**
+     * Constructor
+     * @param restTemplate
+     * @param apiURL
+     * @param serviceEntityClass
+     * @param listParameterizedTypeReference
+     */
     protected AbstractService(RestTemplate restTemplate, String apiURL, Class<DTO> serviceEntityClass,
                               ParameterizedTypeReference<List<DTO>> listParameterizedTypeReference) {
         this.restTemplate = restTemplate;
@@ -28,6 +42,15 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         this.listParameterizedTypeReference = listParameterizedTypeReference;
     }
 
+    /**
+     * Fetches all entities
+     * @param token
+     * @return List of found entities
+     * @throws TimecastUnauthorizedException
+     * @throws TimecastForbiddenException
+     * @throws TimecastNotFoundException
+     * @throws TimecastInternalServerErrorException
+     */
     public List<E> getAll(Token token) throws TimecastUnauthorizedException, TimecastForbiddenException,
             TimecastNotFoundException, TimecastInternalServerErrorException {
         logger.debug("Request list for " + serviceEntityClass + " from api: " + apiURL);
@@ -50,6 +73,16 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         return dtos.stream().map(dto -> mapDtoToEntity(token, dto)).collect(Collectors.toList());
     }
 
+    /**
+     * Fetches one entity by its id
+     * @param token
+     * @param id
+     * @return
+     * @throws TimecastUnauthorizedException
+     * @throws TimecastForbiddenException
+     * @throws TimecastNotFoundException
+     * @throws TimecastInternalServerErrorException
+     */
     public E getById(Token token, long id) throws TimecastUnauthorizedException, TimecastForbiddenException,
             TimecastNotFoundException, TimecastInternalServerErrorException {
         logger.debug("Request " + serviceEntityClass + " entity with id " + id + " from api: " + apiURL);
@@ -69,6 +102,17 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         return mapDtoToEntity(token, dto);
     }
 
+    /**
+     * Create entity
+     * @param token
+     * @param entity
+     * @return
+     * @throws TimecastUnauthorizedException
+     * @throws TimecastForbiddenException
+     * @throws TimecastNotFoundException
+     * @throws TimecastPreconditionFailedException
+     * @throws TimecastInternalServerErrorException
+     */
     public E create(Token token, E entity) throws TimecastUnauthorizedException, TimecastForbiddenException,
             TimecastNotFoundException, TimecastPreconditionFailedException, TimecastInternalServerErrorException {
         logger.debug("Create " + serviceEntityClass + " entity " + entity + " to api: " + apiURL);
@@ -87,6 +131,17 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         return mapDtoToEntity(token, dto);
     }
 
+    /**
+     * Update entity
+     * @param token
+     * @param entity
+     * @return
+     * @throws TimecastUnauthorizedException
+     * @throws TimecastForbiddenException
+     * @throws TimecastNotFoundException
+     * @throws TimecastPreconditionFailedException
+     * @throws TimecastInternalServerErrorException
+     */
     public E update(Token token, E entity) throws TimecastUnauthorizedException, TimecastForbiddenException,
             TimecastNotFoundException, TimecastPreconditionFailedException, TimecastInternalServerErrorException {
         logger.debug("Update " + serviceEntityClass + " entity " + entity + " to api: " + apiURL);
@@ -106,6 +161,15 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         return mapDtoToEntity(token, dto);
     }
 
+    /**
+     * Delete entity
+     * @param token
+     * @param id
+     * @throws TimecastUnauthorizedException
+     * @throws TimecastForbiddenException
+     * @throws TimecastNotFoundException
+     * @throws TimecastInternalServerErrorException
+     */
     public void deleteById(Token token, long id) throws TimecastUnauthorizedException, TimecastForbiddenException,
             TimecastNotFoundException, TimecastInternalServerErrorException {
         logger.debug("Delete " + serviceEntityClass + " entity with id " + id + " on api: " + apiURL);
@@ -123,6 +187,18 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         logger.debug("Deleted " + serviceEntityClass + " entity with id: " + id);
     }
 
+    /**
+     * Override to define how to map the entity to a dto
+     * @param token
+     * @param entity
+     * @return
+     */
     protected abstract DTO mapEntityToDto(Token token, E entity);
+    /**
+     * Override to define how to map the dto to an entity
+     * @param token
+     * @param dto
+     * @return
+     */
     protected abstract E mapDtoToEntity(Token token, DTO dto);
 }

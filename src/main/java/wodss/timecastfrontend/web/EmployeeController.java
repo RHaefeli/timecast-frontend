@@ -21,6 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Controls employee web component
+ *
+ */
 @Controller
 @RequestMapping(value = "/employees")
 public class EmployeeController {
@@ -29,6 +33,12 @@ public class EmployeeController {
     private final ContractService contractService;
     private final AllocationService allocationService;
 
+    /**
+     * Contstructor
+     * @param employeeService
+     * @param contractService
+     * @param allocationService
+     */
     @Autowired
     public EmployeeController(EmployeeService employeeService, ContractService contractService,
                               AllocationService allocationService) {
@@ -37,6 +47,11 @@ public class EmployeeController {
         this.allocationService = allocationService;
     }
 
+    /**
+     * Fetches and shows all employees
+     * @param model
+     * @return pagelink
+     */
     @GetMapping
     public String getAll(Model model) {
         logger.debug("Get all employees");
@@ -59,6 +74,11 @@ public class EmployeeController {
         return "employees/list";
     }
 
+    /**
+     * Creates the form to create an employee
+     * @param model
+     * @return
+     */
     @GetMapping(params = "form")
     public String createForm(Model model) {
         logger.debug("Get create employee form");
@@ -66,6 +86,14 @@ public class EmployeeController {
         return "employees/create";
     }
 
+    /**
+     * Create an employee
+     * @param employeeLogin
+     * @param bindingResult
+     * @param model
+     * @param redirectAttributes
+     * @return pagelink
+     */
     @PostMapping
     public String create(@Valid @ModelAttribute("employee") EmployeeLogin employeeLogin, BindingResult bindingResult, Model model,
                          RedirectAttributes redirectAttributes) {
@@ -90,6 +118,12 @@ public class EmployeeController {
         }
     }
 
+    /**
+     * Fetch employee to show on page
+     * @param id
+     * @param model
+     * @return pagelink
+     */
     @GetMapping("/{id}")
     public String getById(@PathVariable long id, Model model) {
         logger.debug("Get employee by id: " + id);
@@ -102,6 +136,14 @@ public class EmployeeController {
         return "employees/update";
     }
 
+    /**
+     * Updates an employee
+     * @param id
+     * @param employee
+     * @param bindingResult
+     * @param model
+     * @return pagelink
+     */
     @PutMapping("/{id}")
     public String updateById(@PathVariable Long id, @Valid @ModelAttribute("employee") Employee employee,
                              BindingResult bindingResult, Model model) {
@@ -123,6 +165,12 @@ public class EmployeeController {
         }
     }
 
+    /**
+     * Deletes an employee
+     * @param id
+     * @param redirectAttributes
+     * @return pagelink
+     */
     @DeleteMapping("/{id}")
     public String deleteById(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         logger.debug("Delete employee by id: " + id);
@@ -133,6 +181,12 @@ public class EmployeeController {
         return "redirect:/employees";
     }
 
+    /**
+     * Create form to add a contract
+     * @param id
+     * @param model
+     * @return pagelink
+     */
     @GetMapping(value = "/{id}/contracts", params = "form")
     public String createContractForm(@PathVariable Long id, Model model) {
         logger.debug("Get create contract form for employee: " + id);
@@ -147,6 +201,15 @@ public class EmployeeController {
         return "employees/contracts/create";
     }
 
+    /**
+     * Create a contract
+     * @param id
+     * @param contract
+     * @param bindingResult
+     * @param model
+     * @param redirectAttributes
+     * @return pagelink
+     */
     @PostMapping("/{id}/contracts")
     public String createContract(@PathVariable Long id, @Valid @ModelAttribute("contract") Contract contract,
                                  BindingResult bindingResult, Model model, RedirectAttributes redirectAttributes) {

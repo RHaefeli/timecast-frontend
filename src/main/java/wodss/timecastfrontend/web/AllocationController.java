@@ -42,6 +42,10 @@ import wodss.timecastfrontend.services.EmployeeService;
 import wodss.timecastfrontend.services.ProjectService;
 import wodss.timecastfrontend.util.AllocationChecker;
 
+/**
+ * Controls allocation web component
+ *
+ */
 @Controller
 @RequestMapping(value = "/allocations")
 public class AllocationController {
@@ -52,6 +56,13 @@ public class AllocationController {
 	private final EmployeeService employeeService;
 	private final ContractService contractService;
 
+	/**
+	 * Constructor
+	 * @param allocationService
+	 * @param projectService
+	 * @param employeeService
+	 * @param contractService
+	 */
 	@Autowired
 	public AllocationController(AllocationService allocationService, ProjectService projectService,
 			EmployeeService employeeService, ContractService contractService) {
@@ -61,6 +72,15 @@ public class AllocationController {
 		this.contractService = contractService;
 	}
 
+	/**
+	 * Fetches all allocations to be displayed on web page
+	 * @param employeeId
+	 * @param projectId
+	 * @param fromDateString
+	 * @param toDateString
+	 * @param model
+	 * @return
+	 */
 	@GetMapping()
 	public String getAll(@RequestParam(value = "employeeId", required = false) Long employeeId,
 			@RequestParam(value = "projectId", required = false) Long projectId,
@@ -112,6 +132,12 @@ public class AllocationController {
 		return "allocations/list";
 	}
 
+	/**
+	 * Creates the form in which a new allocation can be created
+	 * @param projectId
+	 * @param model
+	 * @return
+	 */
 	@GetMapping(params = "form")
 	public String createAllocationForm(@RequestParam(value = "projectId", required = true) Long projectId,
 			Model model) {
@@ -132,6 +158,15 @@ public class AllocationController {
 		return "allocations/create";
 	}
 
+	/**
+	 * Creates one or more allocations
+	 * @param allocation
+	 * @param employeeId
+	 * @param bindingResult
+	 * @param model
+	 * @param redirectAttributes
+	 * @return
+	 */
 	@PostMapping()
 	public String createAllocation(@Valid @ModelAttribute("allocation") Allocation allocation,
 								   @ModelAttribute("employeeId") Long employeeId, BindingResult bindingResult,
@@ -184,6 +219,12 @@ public class AllocationController {
 		return "redirect:/allocations";
 	}
 
+	/**
+	 * Creates the form for the allocations
+	 * @param id
+	 * @param model
+	 * @return
+	 */
 	@GetMapping(value = "/{id}")
 	public String updateAllocationForm(@PathVariable long id, Model model) {
 		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
@@ -200,6 +241,16 @@ public class AllocationController {
 		return "allocations/update";
 	}
 
+	/**
+	 * Updates an allocation
+	 * @param id
+	 * @param employeeId
+	 * @param allocation
+	 * @param bindingResult
+	 * @param model
+	 * @param redirectAttributes
+	 * @return
+	 */
 	@PutMapping(value = "/{id}")
 	public String update(@PathVariable long id, @ModelAttribute("employeeId") Long employeeId,
 						 @Valid Allocation allocation, BindingResult bindingResult, Model model,
@@ -263,6 +314,12 @@ public class AllocationController {
 		return "redirect:/allocations/" + id;
 	}
 
+	/**
+	 * Deletes an allocation
+	 * @param id
+	 * @param redirectAttributes
+	 * @return
+	 */
 	@DeleteMapping(value = "/{id}")
 	public String delete(@PathVariable long id, RedirectAttributes redirectAttributes) {
 		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
@@ -322,6 +379,11 @@ public class AllocationController {
 		}
 	}
 	
+	/**
+	 * Normalizes date by setting hours, minutes and secons to 0
+	 * @param date
+	 * @return
+	 */
 	private Date normalizeDate(Date date) {
 		try {
 			SimpleDateFormat formatter = new SimpleDateFormat(

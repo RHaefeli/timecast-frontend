@@ -14,6 +14,10 @@ import wodss.timecastfrontend.exceptions.TimecastUnauthorizedException;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Handles all exceptions on implemented controllers
+ *
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
     private Logger logger = LoggerFactory.getLogger(this.getClass());

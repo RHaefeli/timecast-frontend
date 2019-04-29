@@ -18,7 +18,6 @@ import wodss.timecastfrontend.web.SessionHandlerInterceptor;
 
 import java.util.Locale;
 
-
 @Configuration
 @EnableWebSecurity
 public class WebMvcConfig extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {

@@ -12,6 +12,10 @@ import org.slf4j.LoggerFactory;
 import wodss.timecastfrontend.domain.Allocation;
 import wodss.timecastfrontend.domain.Contract;
 
+/**
+ * Used to validate and split allocations
+ *
+ */
 public class AllocationChecker {
 	
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -57,6 +61,12 @@ public class AllocationChecker {
 		return relevantContracts;
 	}
 	
+	/**
+	 * Returns all allocations of the same user that exist during the new allocation
+	 * @param newAllocation
+	 * @param allAllocations
+	 * @return List of allocations
+	 */
 	public List<Allocation> filterRelevantAllocations(Allocation newAllocation, List<Allocation> allAllocations) {
 		List<Allocation> relevantAllocations = new ArrayList<Allocation>();
 		for (Allocation allocation : allAllocations) {

@@ -24,12 +24,21 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Checks and refreshes tokens on all requests except for the ones excluded in WebMvcConfig
+ *
+ */
 @Component
 public class SessionHandlerInterceptor implements HandlerInterceptor {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private final JwtUtil jwtUtil;
     private final LoginService loginService;
 
+    /**
+     * Constructor
+     * @param jwtUtil
+     * @param loginService
+     */
     @Autowired
     public SessionHandlerInterceptor(JwtUtil jwtUtil, LoginService loginService) {
         this.jwtUtil = jwtUtil;

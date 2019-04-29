@@ -22,6 +22,10 @@ import wodss.timecastfrontend.domain.Allocation;
 import wodss.timecastfrontend.dto.AllocationDto;
 import wodss.timecastfrontend.domain.Token;
 
+/**
+ * Service handles all calls regarding allocations to the backend
+ * 
+ */
 @Component
 public class AllocationService extends AbstractService<Allocation, AllocationDto>{
 
@@ -30,6 +34,13 @@ public class AllocationService extends AbstractService<Allocation, AllocationDto
     private ContractService contractService;
     private ProjectService projectService;
 
+    /**
+     * Contructor
+     * @param restTemplate
+     * @param apiURL
+     * @param contractService
+     * @param projectService
+     */
     @Autowired
     public AllocationService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.allocation}") String apiURL, ContractService contractService, ProjectService projectService) {
         super(restTemplate, apiURL, AllocationDto.class, new ParameterizedTypeReference<List<AllocationDto>>() {});
@@ -37,6 +48,15 @@ public class AllocationService extends AbstractService<Allocation, AllocationDto
         this.projectService = projectService;
     }
     
+    /**
+     * Get all allocations
+     * @param token
+     * @param employeeId -1 for not defined
+     * @param projectId -1 for not defined
+     * @param fromDate null for not defined
+     * @param toDate null for not defined
+     * @return List of allocations
+     */
     public List<Allocation> getAllocations(Token token, long employeeId, long projectId, Date fromDate, Date toDate) {
 		logger.debug("Get Allocations with params: {} {} {} {}",  employeeId, projectId, fromDate, toDate );
 		StringBuilder paramUrl = new StringBuilder(apiURL);
@@ -82,6 +102,12 @@ public class AllocationService extends AbstractService<Allocation, AllocationDto
 		return allocations;
     }
 
+    /**
+     * Map Allocation to Dto
+     * @param token
+     * @param entity
+     * @return allocation dto
+     */
 	@Override
 	protected AllocationDto mapEntityToDto(Token token, Allocation entity) {
 		if (entity == null) return null;
@@ -96,6 +122,12 @@ public class AllocationService extends AbstractService<Allocation, AllocationDto
 		return allocationDto;
 	}
 
+	/**
+	 * Map Dto to allocation
+	 * @param token
+	 * @param dto
+	 * @return Allocation
+	 */
 	@Override
 	protected Allocation mapDtoToEntity(Token token, AllocationDto dto) {
 		if (dto == null) return null;

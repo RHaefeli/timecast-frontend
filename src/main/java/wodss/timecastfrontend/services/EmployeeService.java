@@ -18,21 +18,44 @@ import wodss.timecastfrontend.exceptions.*;
 
 import java.util.List;
 
+/**
+ * Service handles all calls regarding employees to the backend
+ *
+ */
 @Component
 public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    /**
+     * Constructor
+     * @param restTemplate
+     * @param apiURL
+     */
     @Autowired
     public EmployeeService(RestTemplate restTemplate, @Value("${wodss.timecastfrontend.api.url.employee}") String apiURL) {
         super(restTemplate, apiURL, EmployeeDto.class, new ParameterizedTypeReference<List<EmployeeDto>>() {});
     }
 
+    /**
+     * Unsupported Operation, use create(Token token, EmployeeLogin entity)
+     */
     @Override
     public Employee create(Token token, Employee entity) throws TimecastUnauthorizedException, TimecastForbiddenException,
             TimecastNotFoundException, TimecastPreconditionFailedException, TimecastInternalServerErrorException {
         throw new UnsupportedOperationException("Use create method with EmployeeLogin");
     }
 
+    /**
+     * Creates a new Employee
+     * @param token
+     * @param entity Employee with additional login data
+     * @return
+     * @throws TimecastUnauthorizedException
+     * @throws TimecastForbiddenException
+     * @throws TimecastNotFoundException
+     * @throws TimecastPreconditionFailedException
+     * @throws TimecastInternalServerErrorException
+     */
     public Employee create(Token token, EmployeeLogin entity) throws TimecastUnauthorizedException, TimecastForbiddenException,
             TimecastNotFoundException, TimecastPreconditionFailedException, TimecastInternalServerErrorException {
         logger.debug("Create Employee entity " + entity + " to api: " + apiURL);
@@ -58,6 +81,12 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
         return mapDtoToEntity(token, newEntity);
     }
 
+    /**
+     * Maps entity to dto
+     * @param token
+     * @param employee
+     * @return EmployeeDto
+     */
     protected EmployeeDto mapEntityToDto(Token token, Employee employee) {
         if (employee == null) return null;
         EmployeeDto employeeDto = new EmployeeDto();
@@ -70,6 +99,12 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
         return employeeDto;
     }
 
+    /**
+     * Maps dto to Employee
+     * @param token
+     * @param employeeDto
+     * @return Employee
+     */
     protected Employee mapDtoToEntity(Token token, EmployeeDto employeeDto) {
         if (employeeDto == null) return null;
         Employee employee = new Employee();

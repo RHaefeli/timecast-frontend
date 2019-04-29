@@ -9,6 +9,11 @@ import java.io.IOException;
 import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR;
 import static org.springframework.http.HttpStatus.Series.SERVER_ERROR;
 
+/**
+ * Catches exceptions from RestTemplate and throws TimeCast Exceptions
+ * where applicable 
+ *
+ */
 public class RestTemplateResponseErrorHandler implements ResponseErrorHandler {
 
     @Override

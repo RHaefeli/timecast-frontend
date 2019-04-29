@@ -18,6 +18,11 @@ import wodss.timecastfrontend.security.JwtUtil;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Controls home web component
+ * @author YvesSimmen
+ *
+ */
 @Controller
 @RequestMapping(value = "/")
 public class HomeController {
@@ -28,6 +33,14 @@ public class HomeController {
     private final ProjectService projectService;
     private final AllocationService allocationService;
 
+    /**
+     * Constructor
+     * @param jwtUtil
+     * @param employeeService
+     * @param contractService
+     * @param projectService
+     * @param allocationService
+     */
     @Autowired
     public HomeController(JwtUtil jwtUtil, EmployeeService employeeService, ContractService contractService,
                           ProjectService projectService, AllocationService allocationService) {
@@ -38,6 +51,10 @@ public class HomeController {
         this.allocationService = allocationService;
     }
 
+    /**
+     * Get home page
+     * @return pagelink
+     */
     @GetMapping
     public String get() {
         String token = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -51,6 +68,10 @@ public class HomeController {
         return "redirect:/projects";
     }
 
+    /**
+     * Shows login form
+     * @return pagelink
+     */
     @GetMapping("login")
     public String getLoginForm() {
         logger.debug("Request Login form");
@@ -67,12 +88,21 @@ public class HomeController {
         return "login";
     }
 
+    /**
+     * Shows about page
+     * @return page link
+     */
     @GetMapping("about")
     public String getAboutPage() {
         logger.debug("Request About page");
         return "about";
     }
 
+    /**
+     * Show profile page of logged in user
+     * @param model
+     * @return pagelink
+     */
     @GetMapping("myprofile")
     public String getProfile(Model model) {
         Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
@@ -86,6 +116,11 @@ public class HomeController {
         return "myprofile";
     }
 
+    /**
+     * Show projects of logged in user
+     * @param model
+     * @return pagelink
+     */
     @GetMapping("myprojects")
     public String getMyProjects(Model model) {
         Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());

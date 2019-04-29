@@ -30,6 +30,10 @@ import wodss.timecastfrontend.services.EmployeeService;
 import wodss.timecastfrontend.services.ProjectService;
 import wodss.timecastfrontend.security.JwtUtil;
 
+/**
+ * Controls the project web component
+ *
+ */
 @Controller
 @RequestMapping(value="/projects")
 public class ProjectController {
@@ -40,6 +44,13 @@ public class ProjectController {
     private final AllocationService allocationService;
     private final JwtUtil jwtUtil;
 
+    /**
+     * Constructor
+     * @param projectService
+     * @param allocationService
+     * @param employeeService
+     * @param jwtUtil
+     */
     @Autowired
     public ProjectController(ProjectService projectService, AllocationService allocationService,
 							 EmployeeService employeeService, JwtUtil jwtUtil) {
@@ -49,6 +60,13 @@ public class ProjectController {
         this.jwtUtil = jwtUtil;
     }
 
+    /**
+     * Shows all projects
+     * @param fromDateString
+     * @param toDateString
+     * @param model
+     * @return page link
+     */
     @GetMapping()
     public String getAll(@RequestParam(value = "fromDate", required = false) String fromDateString,
 						 @RequestParam(value = "toDate", required = false) String toDateString, Model model) {
@@ -66,6 +84,11 @@ public class ProjectController {
         return "projects/list";
     }
     
+    /**
+     * Creates form to create projects
+     * @param model
+     * @return page link
+     */
     @GetMapping(params = "form")
 	public String createProjectForm(Model model) {
 		model.addAttribute("project", new Project());
@@ -85,6 +108,14 @@ public class ProjectController {
 		return "projects/create";
 	}
 
+    /**
+     * Creates project
+     * @param project
+     * @param projectManagerId
+     * @param bindingResult
+     * @param redirectAttributes
+     * @return page link
+     */
     @PostMapping()
     public String createProject(@Valid @ModelAttribute("project") Project project,
 								@ModelAttribute("projectManagerId") Long projectManagerId, BindingResult bindingResult,
@@ -102,6 +133,12 @@ public class ProjectController {
     	return "redirect:/projects";
     }
 
+    /**
+     * Shows a project
+     * @param id
+     * @param model
+     * @return page link
+     */
 	@GetMapping(value = "/{id}")
 	public String getProjectById(@PathVariable long id, Model model) {
 		logger.debug("Get project by id: " + id);
@@ -125,6 +162,16 @@ public class ProjectController {
 		return "projects/update";
 	}
 
+	/**
+	 * Updates a project
+	 * @param id
+	 * @param projectManagerId
+	 * @param model
+	 * @param project
+	 * @param bindingResult
+	 * @param redirectAttributes
+	 * @return page link
+	 */
 	@PutMapping(value = "/{id}")
 	public String update(@PathVariable long id, @ModelAttribute("projectManagerId") Long projectManagerId, Model model,
 						 @Valid Project project, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
@@ -150,6 +197,12 @@ public class ProjectController {
 		return "projects/update";
 	}
 	
+	/**
+	 * Deletes a project
+	 * @param id
+	 * @param redirectAttributes
+	 * @return page link
+	 */
 	@DeleteMapping(value = "/{id}")
 	public String delete(@PathVariable long id, RedirectAttributes redirectAttributes) {
 		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());

@@ -9,10 +9,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Overrides spring error handler to show own error pages on exceptions outside of
+ * implemented controllers
+ *
+ */
 @Controller
 @RequestMapping(value = "/error")
 public class CustomErrorController implements ErrorController {
 
+	/**
+	 * Handles error and show error page
+	 * @param request
+	 * @return 
+	 */
     @GetMapping
     public String handleError(HttpServletRequest request) {
         Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);

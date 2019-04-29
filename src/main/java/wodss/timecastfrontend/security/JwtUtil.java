@@ -12,7 +12,10 @@ import wodss.timecastfrontend.exceptions.TimecastInternalServerErrorException;
 import java.security.PublicKey;
 import java.util.Date;
 
-
+/**
+ * Contains useful methods to work with the JWT Token
+ *
+ */
 @Component
 public class JwtUtil {
     private ObjectMapper objectMapper = new ObjectMapper();
