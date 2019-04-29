@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	th:replace="layout :: maincontent(content=~{::section}, title='List of Allocations', links=~{::link}, scripts=~{::header_script})">
+	  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+	  th:replace="layout :: maincontent(content=~{::section}, title='List of Allocations', links=~{::link}, scripts=~{::header_script})">
 
 <head>
 	<!-- jQuery -->
@@ -112,7 +113,7 @@
 							<td>
 								<div class="input-group">
 									<div th:text="${allocation.contract.employee}"></div>
-									<span style="margin-right: -26px; margin-top: -5px; padding-left: 15px; font-size: 20px;">
+									<span sec:authorize="hasAuthority('ADMINISTRATOR')" style="margin-right: -26px; margin-top: -5px; padding-left: 15px; font-size: 20px;">
 										<a th:href="@{/employees/} + ${allocation.contract.employee.id}"><i class="fa fa-eye"></i></a>
 									</span>
 								</div>
