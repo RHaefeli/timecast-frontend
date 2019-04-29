@@ -26,7 +26,8 @@
                         <select id="employee" name="employeeId" class="form-control" th:value="${employeeId}">
                             <option th:each="developer: ${developers}"
                                     th:value="${developer.id}"
-                                    th:text="${developer}">
+                                    th:text="${developer}"
+                                    th:selected="${developer.id} == ${selectedEmployee} ? true : false">
                             </option>
                         </select>
                     </div>

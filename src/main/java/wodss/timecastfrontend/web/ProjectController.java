@@ -193,7 +193,12 @@ public class ProjectController {
 		Employee projectManager = employeeService.getById(token, projectManagerId);
 		project.setProjectManager(projectManager);
 		projectService.update(token, project);
-		redirectAttributes.addFlashAttribute("success", "Successfully updated Project.");
+		List<Employee> projectManagers = employeeService.getAll(token)
+				.stream()
+				.filter(e -> e.getRole() == Role.PROJECTMANAGER)
+				.collect(Collectors.toList());
+		model.addAttribute("managers", projectManagers);
+		model.addAttribute("success", "Successfully updated Project.");
 		return "projects/update";
 	}
 	

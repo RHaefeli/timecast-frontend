@@ -175,6 +175,7 @@ public class AllocationController {
 		if (bindingResult.hasErrors()) {
 			logger.debug("Binding error: " + bindingResult.getAllErrors());
 			this.setDevelopersIntoModel(model, token);
+			model.addAttribute("selectedEmployee", employeeId);
 			return "allocations/create";
 		}
 
@@ -186,6 +187,7 @@ public class AllocationController {
 				// allocation startDate is after endDate
 				logger.debug("Allocation Start Date after End Date");
 				this.setDevelopersIntoModel(model, token);
+				model.addAttribute("selectedEmployee", employeeId);
 				model.addAttribute("exception", "Invalid Input. Start Date must be before End Date.");
 				return "allocations/create";
 			}
@@ -193,6 +195,7 @@ public class AllocationController {
 					|| allocation.getEndDate().getTime() > p.getEndDate().getTime()) { // allocation ends after project
 				logger.debug("Allocation not in project time span");
 				this.setDevelopersIntoModel(model, token);
+				model.addAttribute("selectedEmployee", employeeId);
 				model.addAttribute("exception", "Invalid Input. Allocation must be in between the project time span.");
 				return "allocations/create";
 			}
@@ -206,11 +209,13 @@ public class AllocationController {
 				this.createAllocations(token, allocation, contracts, allocations);
 			} catch (IllegalStateException ex) {
 				this.setDevelopersIntoModel(model, token);
+				model.addAttribute("selectedEmployee", employeeId);
 				model.addAttribute("exception", ex.getMessage());
 				return "allocations/create";
 			}
 		} catch (TimecastPreconditionFailedException e) {
 			this.setDevelopersIntoModel(model, token);
+			model.addAttribute("selectedEmployee", employeeId);
 			model.addAttribute("exception", "Invalid Input. Please Check all fields.");
 			return "allocations/create";
 		}
