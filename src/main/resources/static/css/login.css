@@ -7,12 +7,11 @@
 .app-content-container {
     width: 100vw;
     min-width: 0;
-    padding-left: 0;
     padding-top: 80px;
 }
 
 .login-form {
-    margin-left: 30vw;
+    margin: auto;
     width: 40vw;
     min-width: 500px;
     background-color: white;
