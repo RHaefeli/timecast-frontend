@@ -34,6 +34,7 @@ public class AllocationCheckerTest {
 		e.setLastName("Chegga");
 		e.setRole(Role.DEVELOPER);
 		Contract c1 = new Contract();
+		c1.setId(1);
 		c1.setEmployee(e);
 		startDate1 = normalizeDate(new Date());
 		c1.setStartDate(startDate1);
@@ -41,6 +42,7 @@ public class AllocationCheckerTest {
 		c1.setPensumPercentage(100);
 		
 		Contract c2 = new Contract();
+		c2.setId(2);
 		c2.setEmployee(e);
 		c2.setStartDate(normalizeDate(new Date(startDate1.getTime() + 11L * 24 * 60 * 60 * 1000)));
 		c2.setEndDate(normalizeDate((new Date(startDate1.getTime() + 22L * 24 * 60 * 60 * 1000))));
@@ -51,18 +53,21 @@ public class AllocationCheckerTest {
 		contracts.add(c2);
 		
 		Allocation a1 = new Allocation();
+		a1.setId(1);
 		a1.setStartDate(normalizeDate(new Date(startDate1.getTime())));
 		a1.setEndDate(normalizeDate(new Date(startDate1.getTime() + 2L * 24*60*60*1000)));
 		a1.setContract(c1);
 		a1.setPensumPercentage(100);
 		
 		Allocation a2 = new Allocation();
+		a2.setId(2);
 		a2.setStartDate(normalizeDate(new Date(startDate1.getTime()+3L *24*60*60*1000)));
 		a2.setEndDate(normalizeDate(new Date(startDate1.getTime() + 5L * 24*60*60*1000)));
 		a2.setContract(c1);
 		a2.setPensumPercentage(50);
 		
 		Allocation a3 = new Allocation();
+		a3.setId(3);
 		a3.setStartDate(normalizeDate(new Date(startDate1.getTime() + 19L*24*60*60*1000)));
 		a3.setEndDate(normalizeDate(new Date(startDate1.getTime() + 25L * 24*60*60*1000)));
 		a3.setContract(c1);
@@ -207,8 +212,7 @@ public class AllocationCheckerTest {
 		alloc.setEndDate(new Date(contracts.get(0).getStartDate().getTime() + 5L*24*60*60*1000));
 		alloc.setPensumPercentage(55);
 		alloc.setContract(contracts.get(0));
-		
-		
+
 		List<Allocation> createdAlloc = testee.computeAllocations(alloc, contracts, existingAllocations);
 		assertTrue(createdAlloc.size()==1);
 	}

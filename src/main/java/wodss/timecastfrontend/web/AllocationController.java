@@ -3,6 +3,7 @@ package wodss.timecastfrontend.web;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,7 +69,8 @@ public class AllocationController {
 		logger.debug("Get allocations with params {} {} {} {}", employeeId, projectId, fromDateString, toDateString);
 		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 		List<Project> projects = projectService.getAll(token);
-		List<Allocation> allocations;
+		List<Allocation> allocations = new ArrayList<>();
+		long selectedProjectAssignedFtes = 0;
 		long projId = projectId == null ? projects.get(0).getId() : projectId;
 		long emplId = employeeId == null ? -1 : employeeId;
 		Date fromDate = null;
@@ -87,12 +89,16 @@ public class AllocationController {
 			throw new IllegalStateException();
 		}
 
-		allocations = allocationService.getAllocations(token, emplId, projId, fromDate, toDate);
-		Project selectedProject = projectService.getById(token, projId);
+		if (fromDate != null && toDate != null && fromDate.getTime() > toDate.getTime()) {
+			model.addAttribute("exception", "From Date can not be after End Date.");
+		} else {
+			allocations = allocationService.getAllocations(token, emplId, projId, fromDate, toDate);
+			selectedProjectAssignedFtes = allocations.stream()
+					.map(Allocation::getPensumPercentage)
+					.reduce(0, (p1, p2) -> p1 + p2);
+		}
 
-		long selectedProjectAssignedFtes = allocations.stream()
-				.map(Allocation::getPensumPercentage)
-				.reduce(0, (p1, p2) -> p1 + p2);
+		Project selectedProject = projectService.getById(token, projId);
 
 		model.addAttribute("projects", projects);
 		model.addAttribute("projectIdFilter", projId);

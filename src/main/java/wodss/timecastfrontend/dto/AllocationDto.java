@@ -10,26 +10,26 @@ import java.util.Objects;
 
 
 public class AllocationDto implements TimecastDto {
-	Long id;
+	private long id;
 	
 	@NotNull
 	@Size(min=10, max=10)
-	String startDate;
+	private String startDate;
 	
 	@NotNull
 	@Size(min=10, max=10)
-	String endDate;
+	private String endDate;
 	
 	@NotNull
 	@Min(0)
 	@Max(100)
-	int pensumPercentage;
+	private int pensumPercentage;
 	
 	@NotNull
-	long contractId;
+	private long contractId;
 	
 	@NotNull
-	long projectId;
+	private long projectId;
 
 	public String getStartDate() {
 		return startDate;
