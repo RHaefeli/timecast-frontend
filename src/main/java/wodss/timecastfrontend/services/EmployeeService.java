@@ -59,6 +59,7 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
     public Employee create(Token token, EmployeeLogin entity) throws TimecastUnauthorizedException, TimecastForbiddenException,
             TimecastNotFoundException, TimecastPreconditionFailedException, TimecastInternalServerErrorException {
         logger.debug("Create Employee entity " + entity + " to api: " + apiURL);
+        entity.setActive(true);
         EmployeeDto employeeDto = mapEntityToDto(token, entity);
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiURL)
