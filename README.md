@@ -123,7 +123,60 @@ Template structure
 
 <br>
 
-## References
+## Changes in the default Spring Configuration behaviour
+#### Spring Security
+Classes
+* ```wodss.timecastfrontend.```**```WebMvcConfig```**
+* ```wodss.timecastfrontend.security.```**```CustomAuthenticationProvider```**
+
+In the WebMvcConfig is configured which URLs are permitted to which Role, the login and the logout behaviour. Also the
+CustomAuthenticationProvider will be set there as Authentication Provider.
+
+In the CustomAuthenticationProvider is configured how SpringSecurity should authenticate a user when he tries to login.
+For the authentication a Token request will then be sent to the API.
+
+See also [SpringSecurity Authentication Provider](https://www.baeldung.com/spring-security-authentication-provider)
+
+<br>
+
+#### RestTemplate
+Classes
+* ```wodss.timecastfrontend.```**```TimecastFrontendApplication```**
+* ```wodss.timecastfrontend.exceptions.```**```RestTemplateResponseErrorHandler```**
+
+In the TimecastFrontendApplication is configured how the RestTemplate should behave. Therefore is defined that SSL should
+be used and Error Responses should be mapped to Application Internal Exceptions, defined in the RestTemplateResponseErrorHandler.
+
+See also [Spring HttpClient with SSL](https://www.baeldung.com/httpclient-ssl)
+
+In the RestTemplateResponseErrorHandler the default behaviour of the ErrorHandler from the RestTemplate will be overriden,
+such that Application Internal Exceptions will be thrown instead of HttpClientErrorExceptions.
+
+See also [Spring RestTemplate Error Handling](https://www.baeldung.com/spring-rest-template-error-handling)
+
+<br>
+
+#### Exception Handling
+Classes
+* ```wodss.timecastfrontend.```**```TimecastFrontendApplication```**
+* ```wodss.timecastfrontend.web```**```CustomErrorController```**
+* ```wodss.timecastfrontend.web```**```GlobalExceptionHandler```**
+
+In the TimecastFrontendApplication is an ErrorHandlerResolver configured which handles errors that occur in Interceptors
+or Filters outside of a Controller.
+
+In the CustomErrorController is the default behaviour of Spring Error Handling outside of controller overriden. Errors
+like when no controller is found will result in an application defined error pages, in this example in 404.
+
+See also [SpringBoot Customize Whitelabel Error Page](https://www.baeldung.com/spring-boot-custom-error-page)
+
+In the GlobalExceptionHandler is defined which exception thrown by a controller will lead to which error page.
+
+See also [Error Handling for REST with Spring](https://www.baeldung.com/exception-handling-for-rest-with-spring)
+
+<br>
+
+## Documentation References
 * [Spring MVC Doc](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-spring-mvc)
 * [Thymeleaf 2.1 Doc](https://www.thymeleaf.org/doc/tutorials/2.1/thymeleafspring.html)
 * [Bootstrap 4.3 Doc](https://getbootstrap.com/docs/4.3)
