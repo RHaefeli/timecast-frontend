@@ -159,8 +159,8 @@ See also [Spring RestTemplate Error Handling](https://www.baeldung.com/spring-re
 #### Exception Handling
 Classes
 * ```wodss.timecastfrontend.```**```TimecastFrontendApplication```**
-* ```wodss.timecastfrontend.web```**```CustomErrorController```**
-* ```wodss.timecastfrontend.web```**```GlobalExceptionHandler```**
+* ```wodss.timecastfrontend.web.```**```CustomErrorController```**
+* ```wodss.timecastfrontend.web.```**```GlobalExceptionHandler```**
 
 In the TimecastFrontendApplication is an ErrorHandlerResolver configured which handles errors that occur in Interceptors
 or Filters outside of a Controller.
