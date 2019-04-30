@@ -95,7 +95,7 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
         employeeDto.setEmailAddress(employee.getEmailAddress());
         employeeDto.setLastName(employee.getLastName());
         employeeDto.setFirstName(employee.getFirstName());
-        //employeeDto.setActive(employee.isActive());
+        employeeDto.setActive(employee.isActive());
         employeeDto.setRole(employee.getRole().getValue());
         return employeeDto;
     }
@@ -113,7 +113,7 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
         employee.setEmailAddress(employeeDto.getEmailAddress());
         employee.setLastName(employeeDto.getLastName());
         employee.setFirstName(employeeDto.getFirstName());
-        //employee.setActive(employeeDto.isActive());
+        employee.setActive(employeeDto.isActive());
         employee.setRole(Role.valueOf(employeeDto.getRole()));
         return employee;
     }
