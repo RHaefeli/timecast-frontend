@@ -66,7 +66,6 @@ public class EmployeeController {
                 .stream()
                 .collect(Collectors.groupingBy(a -> a.getContract().getEmployee().getId(), Collectors.counting()));
 
-        System.out.println(projectCounterMap);
         model.addAttribute("employees", employees);
         model.addAttribute("contractMap", contractMap);
         model.addAttribute("projectCounterMap", projectCounterMap);
