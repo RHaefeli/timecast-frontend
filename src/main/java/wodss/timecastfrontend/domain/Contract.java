@@ -2,6 +2,7 @@ package wodss.timecastfrontend.domain;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.Objects;
 
@@ -12,6 +13,8 @@ public class Contract implements TimecastEntity {
     private Date startDate;
     @DateTimeFormat(pattern = "dd.MM.yyyy")
     private Date endDate;
+
+    @Size(min=0, max=100)
     private int pensumPercentage;
 
     public long getId() {
