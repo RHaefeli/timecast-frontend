@@ -19,7 +19,7 @@ employee can then be assigned to a project according to the employees pensum.
 <br>
 
 #### Environment
-Run the application with
+Run the application in the applications root folder with
 <br>
 ``` gradlew bootRun ```
 
@@ -47,8 +47,7 @@ Press **Ctrl + Shift + A** and search **Registry** Select **Registry...** and en
 <br>
 
 #### TLS/SSL Certificate
-Command to generate: ``` keytool -genkeypair -alias timecast -keyalg RSA -keysize 2048 -storetype PKCS12 -key
-store timecast.p12 -validity 3650 ```<br>
+Command to generate: ``` keytool -genkeypair -alias timecast -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore timecast.p12 -validity 3650 ```<br>
 (If you've been asked for Firstname and Lastname just enter your domain name, e.g. localhost)
 
 Put the generated TLS/SSL certificate into to the truststore. Just put the generated certificate
