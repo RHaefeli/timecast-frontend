@@ -55,7 +55,8 @@
                     <label for="projectManagerId">Project Manager</label>
                     <select id="projectManagerId" name="projectManagerId" class="form-control" th:value="${projectManagerId}">
                         <option th:each="manager: ${managers}"
-                                th:value="${manager.id}" th:text="${manager}"></option>
+                                th:value="${manager.id}" th:text="${manager}"
+                                th:selected="${manager.id} == ${selectedManager} ? true : false"></option>
                     </select>
                 </div>
             </div>

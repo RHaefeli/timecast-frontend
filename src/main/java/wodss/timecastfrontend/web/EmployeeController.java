@@ -174,7 +174,12 @@ public class EmployeeController {
     public String deleteById(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         logger.debug("Delete employee by id: " + id);
         Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        employeeService.deleteById(token, id);
+        try{
+            employeeService.deleteById(token, id);
+        } catch (TimecastPreconditionFailedException ex) {
+            redirectAttributes.addFlashAttribute("exception", "Cannot delete employee when there are still allocations and contracts referencing to this employee.");
+            return "redirect:/employees/" + id;
+        }
 
         redirectAttributes.addFlashAttribute("success", "Successfully deleted Employee.");
         return "redirect:/employees";
@@ -226,7 +231,7 @@ public class EmployeeController {
             redirectAttributes.addFlashAttribute("success", "Successfully created Contract.");
             return "redirect:/contracts/" + newContract.getId();
         } catch (TimecastPreconditionFailedException ex) {
-            model.addAttribute("exception", ex.getMessage());
+            model.addAttribute("exception", "Invalid Input. Please Check all fields.");
             return "employees/contracts/create";
         }
     }

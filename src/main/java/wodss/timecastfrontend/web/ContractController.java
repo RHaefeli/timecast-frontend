@@ -111,7 +111,7 @@ public class ContractController {
             model.addAttribute("success", "Successfully updated Contract.");
             return "contracts/update";
         } catch (TimecastPreconditionFailedException ex) {
-            model.addAttribute("exception", ex.getMessage());
+            model.addAttribute("exception", "Invalid Input. Please Check all fields.");
             return "contracts/update";
         }
     }

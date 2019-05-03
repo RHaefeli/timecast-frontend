@@ -117,7 +117,7 @@ public class ProjectController {
      * @return page link
      */
     @PostMapping()
-    public String createProject(@Valid @ModelAttribute("project") Project project,
+    public String createProject(@Valid @ModelAttribute("project") Project project, Model model,
 								@ModelAttribute("projectManagerId") Long projectManagerId, BindingResult bindingResult,
 								RedirectAttributes redirectAttributes) {
     	if (bindingResult.hasErrors()) {
@@ -128,7 +128,21 @@ public class ProjectController {
 		logger.debug("Manager selected: " + projectManagerId);
 		Employee em = employeeService.getById(token, projectManagerId);
 		project.setProjectManager(em);
-		projectService.create(token, project);
+
+		List<Employee> projectManagers = employeeService.getAll(token)
+				.stream()
+				.filter(e -> e.getRole() == Role.PROJECTMANAGER)
+				.collect(Collectors.toList());
+
+		try{
+			projectService.create(token, project);
+		} catch (TimecastPreconditionFailedException ex) {
+			model.addAttribute("managers", projectManagers);
+			model.addAttribute("selectedManager", projectManagerId);
+			model.addAttribute("exception", "Invalid Input. Please Check all fields.");
+			return "projects/create";
+		}
+
 		redirectAttributes.addFlashAttribute("success", "Successfully created Project.");
     	return "redirect:/projects";
     }
@@ -192,11 +206,19 @@ public class ProjectController {
 		project.setId(id);
 		Employee projectManager = employeeService.getById(token, projectManagerId);
 		project.setProjectManager(projectManager);
-		projectService.update(token, project);
+
 		List<Employee> projectManagers = employeeService.getAll(token)
 				.stream()
 				.filter(e -> e.getRole() == Role.PROJECTMANAGER)
 				.collect(Collectors.toList());
+		try {
+			projectService.update(token, project);
+		} catch (TimecastPreconditionFailedException ex) {
+			model.addAttribute("managers", projectManagers);
+			model.addAttribute("exception", "Invalid Input. Please Check all fields.");
+			return "projects/create";
+		}
+
 		model.addAttribute("managers", projectManagers);
 		model.addAttribute("success", "Successfully updated Project.");
 		return "projects/update";
@@ -211,7 +233,14 @@ public class ProjectController {
 	@DeleteMapping(value = "/{id}")
 	public String delete(@PathVariable long id, RedirectAttributes redirectAttributes) {
 		Token token = new Token((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-		projectService.deleteById(token, id);
+
+		try{
+			projectService.deleteById(token, id);
+		} catch (TimecastPreconditionFailedException ex) {
+			redirectAttributes.addFlashAttribute("exception", "Cannot delete project when there are still allocations referencing to this project.");
+			return "redirect:/projects/" + id;
+		}
+
 		redirectAttributes.addFlashAttribute("success", "Successfully deleted Project.");
 		return "redirect:/projects";
 	}
