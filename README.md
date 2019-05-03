@@ -106,7 +106,7 @@ Example keystore structure
     .
     └──keystore
        ├── jwt_privkey.pem                     # This key is the JWT private key it's only required when the MockLoginService is used.
-       │                                       # (The MockLoginService mocks the API calls, so the Token is generated in the Frontend).
+       │                                         (The MockLoginService mocks the API calls, so the Token is generated in the Frontend).
        ├── jwt_pubkey.pem                      # This key is the JWT public key which is used to validate the JWT Signature in the frontend.
        ├── timecast_backend.p12                # This key is required for verifying the TLS/SSL certificate of the Backend Server.
        └── timecast_frontend.p12               # This key is required to provide a TLS/SSL connection for the Client.
