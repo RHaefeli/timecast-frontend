@@ -46,12 +46,12 @@ Press **Ctrl + Shift + A** and search **Registry** Select **Registry...** and en
 
 <br>
 
-#### SSL Certificate
+#### TLS/SSL Certificate
 Command to generate: ``` keytool -genkeypair -alias timecast -keyalg RSA -keysize 2048 -storetype PKCS12 -key
 store timecast.p12 -validity 3650 ```<br>
 (If you've been asked for Firstname and Lastname just enter your domain name, e.g. localhost)
 
-Put the generated SSL certificate into to the truststore. Just put the generated certificate
+Put the generated TLS/SSL certificate into to the truststore. Just put the generated certificate
 Files in ```/src/main/resources/keystore/``` and adjust the ```application.properties``` if necessary.
 
 To run the application without certificates just comment the ssl properties in ```application.properties```.
@@ -90,14 +90,27 @@ Java class structure
        └── WebMvcConfig.java                   # Additional application configuration (Security, Interceptors).
 
 <br>
+Resources structure
+
+    .
+    └──src/main/resources
+       ├── keystore                            # The location for all security related keys.
+       ├── static                              # The location for all static resources such as JS, CSS and Image files.
+       ├── templates                           # The location for all HTML pages. (See also the Template Structure below)
+       ├── application.properties              # All necessary application configurations are defined here and will be read from this file.
+       ├── messages.properties                 # Errpr messages as well as other message types can be defined here (when referenced in code).
+       └── template.application.properties     # Provides a template version of the application.properties file which can be copied and changed.
+
+<br>
 Example keystore structure
 
     .
     └──keystore
-       ├── jwt_privkey.pem                     # The entities used in the application
-       ├── jwt_pubkey.pem                      # The DTO entities which are used for the communication to the backend
-       ├── timecast_backend.p12                # The Exception definitions which are specific for the application
-       └── timecast_frontend.p12               # All Security related classes, such as Authentication, JWT and RSA utils.
+       ├── jwt_privkey.pem                     # This key is the JWT private key it's only required when the MockLoginService is used.
+       │                                       # (The MockLoginService mocks the API calls, so the Token is generated in the Frontend).
+       ├── jwt_pubkey.pem                      # This key is the JWT public key which is used to validate the JWT Signature in the frontend.
+       ├── timecast_backend.p12                # This key is required for verifying the TLS/SSL certificate of the Backend Server.
+       └── timecast_frontend.p12               # This key is required to provide a TLS/SSL connection for the Client.
 
 <br>
 Template structure
