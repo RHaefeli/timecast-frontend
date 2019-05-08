@@ -56,6 +56,7 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         logger.debug("Request list for " + serviceEntityClass + " from api: " + apiURL);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
+        headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<?> request = new HttpEntity<>(headers);
         ResponseEntity<List<DTO>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request, listParameterizedTypeReference);
 
@@ -88,6 +89,7 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         logger.debug("Request " + serviceEntityClass + " entity with id " + id + " from api: " + apiURL);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
+        headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<?> request = new HttpEntity<>(headers);
         ResponseEntity<DTO> response = restTemplate.exchange(apiURL + "/" + id, HttpMethod.GET, request, serviceEntityClass);
 
@@ -117,6 +119,7 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
             TimecastNotFoundException, TimecastPreconditionFailedException, TimecastInternalServerErrorException {
         logger.debug("Create " + serviceEntityClass + " entity " + entity + " to api: " + apiURL);
         HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(token.getToken());
         HttpEntity<DTO> request = new HttpEntity<>(mapEntityToDto(token, entity), headers);
         ResponseEntity<DTO> response = restTemplate.exchange(apiURL, HttpMethod.POST, request, serviceEntityClass);
@@ -146,6 +149,7 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
             TimecastNotFoundException, TimecastPreconditionFailedException, TimecastInternalServerErrorException {
         logger.debug("Update " + serviceEntityClass + " entity " + entity + " to api: " + apiURL);
         HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(token.getToken());
         HttpEntity<DTO> requestEntity = new HttpEntity<>(mapEntityToDto(token, entity), headers);
         ResponseEntity<DTO> response = restTemplate.exchange(apiURL + "/" + entity.getId(), HttpMethod.PUT, requestEntity, serviceEntityClass);
@@ -175,6 +179,7 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         logger.debug("Delete " + serviceEntityClass + " entity with id " + id + " on api: " + apiURL);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
+        headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<?> request = new HttpEntity<>(headers);
         ResponseEntity<Void> response = restTemplate.exchange(apiURL + "/" + id, HttpMethod.DELETE, request, Void.class);
 

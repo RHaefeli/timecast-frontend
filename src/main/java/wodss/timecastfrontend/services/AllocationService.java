@@ -86,6 +86,7 @@ public class AllocationService extends AbstractService<Allocation, AllocationDto
 		}
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(token.getToken());
+		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<?> request = new HttpEntity<>(headers);
 
 		ResponseEntity<List<AllocationDto>> response = restTemplate.exchange(paramUrl.toString(), HttpMethod.GET, request,

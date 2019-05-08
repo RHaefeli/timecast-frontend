@@ -68,6 +68,7 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
+        headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<EmployeeDto> request = new HttpEntity<>(employeeDto, headers);
         ResponseEntity<EmployeeDto> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, request, EmployeeDto.class);
 

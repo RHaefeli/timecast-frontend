@@ -72,6 +72,7 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(token.getToken());
+		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<?> request = new HttpEntity<>(headers);
 		ResponseEntity<List<ProjectDto>> response = restTemplate.exchange(paramUrl.toString(), HttpMethod.GET, request,
 				new ParameterizedTypeReference<List<ProjectDto>>() {});

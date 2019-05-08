@@ -52,6 +52,7 @@ public class ContractService extends AbstractService<Contract, ContractDto> {
         logger.debug("Request list for ContractDtos by Employee " + employee.getId() + " from api: " + apiURL);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
+        headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<?> request = new HttpEntity<>(headers);
         ResponseEntity<List<ContractDto>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request,
                 new ParameterizedTypeReference<List<ContractDto>>() {});
@@ -82,6 +83,7 @@ public class ContractService extends AbstractService<Contract, ContractDto> {
         logger.debug("Request current ContractDtos from api: " + apiURL);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
+        headers.setContentType(MediaType.APPLICATION_JSON);
         Map<String, String> uriVar = new HashMap<>();
         DateFormat dtoFormat = new SimpleDateFormat("yyyy-MM-dd");
         String fromDate = dtoFormat.format(new Date());
