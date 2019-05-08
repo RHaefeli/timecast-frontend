@@ -3,10 +3,7 @@ package wodss.timecastfrontend.services;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -87,6 +84,7 @@ public class AllocationService extends AbstractService<Allocation, AllocationDto
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(token.getToken());
 		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		HttpEntity<?> request = new HttpEntity<>(headers);
 
 		ResponseEntity<List<AllocationDto>> response = restTemplate.exchange(paramUrl.toString(), HttpMethod.GET, request,

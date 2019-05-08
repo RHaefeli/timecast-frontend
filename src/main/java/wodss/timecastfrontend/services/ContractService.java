@@ -14,10 +14,7 @@ import wodss.timecastfrontend.dto.ContractDto;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -53,6 +50,7 @@ public class ContractService extends AbstractService<Contract, ContractDto> {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> request = new HttpEntity<>(headers);
         ResponseEntity<List<ContractDto>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request,
                 new ParameterizedTypeReference<List<ContractDto>>() {});
@@ -84,6 +82,7 @@ public class ContractService extends AbstractService<Contract, ContractDto> {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         Map<String, String> uriVar = new HashMap<>();
         DateFormat dtoFormat = new SimpleDateFormat("yyyy-MM-dd");
         String fromDate = dtoFormat.format(new Date());

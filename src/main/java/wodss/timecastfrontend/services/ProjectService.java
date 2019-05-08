@@ -3,6 +3,7 @@ package wodss.timecastfrontend.services;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +74,7 @@ public class ProjectService extends AbstractService<Project, ProjectDto>{
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBearerAuth(token.getToken());
 		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		HttpEntity<?> request = new HttpEntity<>(headers);
 		ResponseEntity<List<ProjectDto>> response = restTemplate.exchange(paramUrl.toString(), HttpMethod.GET, request,
 				new ParameterizedTypeReference<List<ProjectDto>>() {});

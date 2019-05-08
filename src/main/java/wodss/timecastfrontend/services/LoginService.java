@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import wodss.timecastfrontend.domain.Token;
 
+import java.util.Collections;
+
 /**
  * Service handles all calls regarding the login to the backend
  *
@@ -40,6 +42,7 @@ public class LoginService {
         logger.debug("Create Token for " + email + " on api: " + apiURL);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<String> request = new HttpEntity<>("{\"emailAddress\":\"" + email + "\",\"rawPassword\":\"" + password + "\"}", headers);
         ResponseEntity<Token> response = restTemplate.exchange(apiURL, HttpMethod.POST, request, Token.class);
         HttpStatus statusCode = response.getStatusCode();

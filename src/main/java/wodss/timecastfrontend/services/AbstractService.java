@@ -10,6 +10,7 @@ import wodss.timecastfrontend.domain.TimecastEntity;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,6 +58,7 @@ public abstract class AbstractService<E extends TimecastEntity, DTO extends Time
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> request = new HttpEntity<>(headers);
         ResponseEntity<List<DTO>> response = restTemplate.exchange(apiURL, HttpMethod.GET, request, listParameterizedTypeReference);
 

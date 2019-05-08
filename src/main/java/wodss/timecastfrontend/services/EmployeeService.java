@@ -16,6 +16,7 @@ import wodss.timecastfrontend.domain.Role;
 import wodss.timecastfrontend.domain.Token;
 import wodss.timecastfrontend.exceptions.*;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -69,6 +70,7 @@ public class EmployeeService extends AbstractService<Employee, EmployeeDto> {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getToken());
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<EmployeeDto> request = new HttpEntity<>(employeeDto, headers);
         ResponseEntity<EmployeeDto> response = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, request, EmployeeDto.class);
 
