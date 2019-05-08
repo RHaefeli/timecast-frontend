@@ -9,7 +9,7 @@ employee can then be assigned to a project according to the employees pensum.
 <br>
 
 #### Technologies used in this project
-* Java
+* Java 1.8
 * Gradle
 * SpringMVC
 * SpringBoot
