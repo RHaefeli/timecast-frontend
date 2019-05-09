@@ -61,7 +61,10 @@ public class LoginService {
      */
     public Token updateToken(Token oldToken) {
         logger.debug("Update Token on api: " + apiURL);
-        HttpEntity<Token> request = new HttpEntity<>(oldToken);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity<Token> request = new HttpEntity<>(oldToken, headers);
         ResponseEntity<Token> response = restTemplate.exchange(apiURL, HttpMethod.PUT, request, Token.class);
         HttpStatus statusCode = response.getStatusCode();
         if (statusCode != HttpStatus.OK) {
